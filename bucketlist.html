@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bucket List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "MS Sans Serif", Tahoma, sans-serif;
+  background: #c0c0c0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Main Window - Full Screen, No Title Bar */
+.window {
+  width: 100%;
+  height: 100%;
+  background: #c0c0c0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Menu Bar */
+.menu {
+  background: #c0c0c0;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-bottom: 1px solid #808080;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.menu-item {
+  color: #0000AA;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.menu-item:hover, .menu-item.active {
+  background-color: #000080;
+  color: #FFFFFF;
+}
+
+.menu-divider {
+  color: #808080;
+}
+
+/* Content Area - Scrollable */
+.content {
+  background: #ffffff;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Info Box */
+.info-box {
+  background: #ffffcc;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #c0c0c0;
+  font-size: 10px;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  line-height: 1.5;
+}
+
+/* Bucket Item */
+.bucket-item {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid #c0c0c0;
+  background: #f8f8f8;
+  position: relative;
+}
+
+.bucket-item.completed {
+  background: #e0ffe0;
+}
+
+/* Header with checkbox and title */
+.item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-right: 35px;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.item-title {
+  font-weight: bold;
+  font-size: 13px;
+  word-break: break-word;
+  flex-grow: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.item-title:hover {
+  background: #e0e0e0;
+}
+
+.item-title.completed-text {
+  text-decoration: line-through;
+  color: #666;
+}
+
+/* Edit title input */
+.title-input {
+  flex-grow: 1;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid #808080;
+  background: white;
+}
+
+/* Delete button */
+.delete-btn {
+  background: #c0c0c0;
+  border: 2px solid #FFF;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #FFF;
+  cursor: pointer;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 11px;
+  padding: 2px 6px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.delete-btn:hover, .delete-btn:active {
+  box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #FFF;
+}
+
+/* Item details */
+.item-details {
+  margin-left: 28px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #555;
+}
+
+.completed-date {
+  margin: 4px 0;
+  color: #2d6a2d;
+}
+
+.item-notes {
+  margin: 4px 0;
+  font-style: italic;
+}
+
+.item-image {
+  max-width: 100%;
+  max-height: 150px;
+  margin-top: 5px;
+  cursor: pointer;
+  border: 1px solid #c0c0c0;
+}
+
+.item-image:hover {
+  opacity: 0.9;
+  border: 1px solid #000;
+}
+
+/* Edit buttons */
+.edit-btn {
+  background: #c0c0c0;
+  border: 1px solid #808080;
+  cursor: pointer;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 10px;
+  margin-right: 5px;
+  margin-top: 5px;
+  padding: 3px 8px;
+}
+
+.edit-btn:active {
+  background: #a0a0a0;
+}
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border: 3px solid #c0c0c0;
+}
+
+.lightbox .close-lightbox {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  color: white;
+  font-size: 40px;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  cursor: pointer;
+  background: #c0c0c0;
+  padding: 5px 15px;
+  border: 2px solid #FFF;
+}
+
+/* Progress Bar */
+.progress-section {
+  padding: 8px 12px;
+  background: #c0c0c0;
+  border-top: 1px solid #808080;
+  font-size: 11px;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  flex-shrink: 0;
+}
+
+.progress-bar-bg {
+  background: #ffffff;
+  border: 1px solid #000;
+  height: 16px;
+  margin-top: 4px;
+}
+
+.progress-bar-fill {
+  background: #000080;
+  height: 100%;
+  width: 0%;
+  transition: width 0.2s ease;
+}
+
+/* Popup */
+.bucket-popup {
+  border: 2px solid #000;
+  background: #C0C0C0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  width: 400px;
+  max-width: 90%;
+  z-index: 2000;
+  box-shadow: 4px 4px 0 #7a7a7a;
+  flex-direction: column;
+}
+
+.bucket-popup .title-bar {
+  background: #000080;
+  color: #FFF;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  padding: 6px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+}
+
+.bucket-popup .buttons span {
+  cursor: pointer;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background: #c0c0c0;
+  border: 1px solid #000;
+  text-align: center;
+  line-height: 14px;
+  font-size: 11px;
+  color: black;
+}
+
+.bucket-popup .content {
+  background: #dcdcdc;
+  padding: 12px;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+}
+
+.bucket-popup input, .bucket-popup textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  padding: 5px;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  border: 1px solid #808080;
+}
+
+.retro-button {
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  font-size: 13px;
+  padding: 5px 10px;
+  background: #C0C0C0;
+  border: 2px solid #FFF;
+  box-shadow: inset -2px -2px 0 #808080, inset 2px 2px 0 #FFF;
+  cursor: pointer;
+  color: #000;
+  margin-top: 5px;
+}
+
+.retro-button:active {
+  box-shadow: inset 2px 2px 0 #808080, inset -2px -2px 0 #FFF;
+}
+
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #000;
+  border-bottom-color: #000;
+  min-width: 130px;
+  z-index: 10001;
+  display: none;
+}
+
+.context-menu-item {
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.context-menu-item:hover {
+  background: #000080;
+  color: white;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .menu {
+    gap: 4px;
+    overflow-x: auto;
+    white-space: nowrap;
+    flex-wrap: nowrap;
+  }
+  .menu-item {
+    font-size: 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="window">
+  <!-- No title bar here - removed -->
+
+  <div class="menu">
+    <span class="menu-item" id="addItemBtn">➕ Add Item</span>
+    <span class="menu-item" id="bulkAddBtn">📋 Bulk Add</span>
+    <span class="menu-divider">|</span>
+    <span class="menu-item" id="filterAllBtn">📋 All</span>
+    <span class="menu-item" id="filterCompletedBtn">✅ Completed</span>
+    <span class="menu-divider">|</span>
+    <span class="menu-item" id="helpBtn">❓ Help</span>
+  </div>
+
+  <div class="content" id="bucketContainer">
+    <div class="info-box">
+      💡 <strong>Tips:</strong><br>
+      • Click any title to edit it<br>
+      • Right-click (or long-press on mobile) for more options<br>
+      • Check the box to mark as complete<br>
+      • Images go in an "images/" folder next to this file
+    </div>
+  </div>
+
+  <div class="progress-section">
+    Progress: <span id="progressPercent">0</span>%
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Item Popup -->
+<div class="bucket-popup" id="itemPopup">
+  <div class="title-bar" id="popupTitleBar">
+    <span id="popupTitle">Add Item</span>
+    <div class="buttons">
+      <span id="closePopup">X</span>
+    </div>
+  </div>
+  <div class="content">
+    <input type="text" id="itemTitleInput" placeholder="What do you want to do?" autocomplete="off">
+    <textarea id="itemNotesInput" placeholder="Notes (optional)" rows="3"></textarea>
+    <input type="text" id="itemImageInput" placeholder="Image: images/photo.jpg">
+    <button id="saveItemBtn" class="retro-button">Save</button>
+  </div>
+</div>
+
+<!-- Bulk Add Popup -->
+<div class="bucket-popup" id="bulkPopup">
+  <div class="title-bar" id="bulkTitleBar">
+    Bulk Add Items
+    <div class="buttons">
+      <span id="closeBulkPopup">X</span>
+    </div>
+  </div>
+  <div class="content">
+    <p style="font-size:11px; margin-bottom:5px;">One item per line. Use | for notes:</p>
+    <textarea id="bulkTextInput" placeholder="Visit Japan&#10;Learn French | Practice daily&#10;Run a marathon" rows="8"></textarea>
+    <button id="confirmBulkBtn" class="retro-button">Add All</button>
+  </div>
+</div>
+
+<!-- Help Popup -->
+<div class="bucket-popup" id="helpPopup">
+  <div class="title-bar" id="helpTitleBar">
+    Help
+    <div class="buttons">
+      <span id="closeHelpPopup">X</span>
+    </div>
+  </div>
+  <div class="content">
+    <p><strong>📝 Adding Items</strong><br>Click "Add Item" or use "Bulk Add" to add multiple at once.</p>
+    <p><strong>✅ Completing</strong><br>Check the box to mark as complete. Date is added automatically.</p>
+    <p><strong>✏️ Editing</strong><br>Click any title to edit inline. Use the buttons below each item for notes and images.</p>
+    <p><strong>🖼️ Images</strong><br>Put photos in an "images/" folder. Type "images/photo.jpg" when adding.</p>
+    <p><strong>🗑️ Delete</strong><br>Hover and click the X, or right-click/long-press and select Delete.</p>
+    <button id="closeHelpBtn" class="retro-button">Got it!</button>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="close-lightbox">✗</div>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+// ----- DATA -----
+let bucketItems = [];
+let currentFilter = 'all';
+
+// ----- LOAD/SAVE -----
+function loadData() {
+  const saved = localStorage.getItem('bucketlist_items');
+  if (saved) {
+    bucketItems = JSON.parse(saved);
+  } else {
+    bucketItems = [
+      { id: Date.now(), title: "Visit Japan", completed: false, notes: "", image: "", completedDate: null },
+      { id: Date.now() + 1, title: "Learn to code", completed: true, notes: "Built this website!", image: "", completedDate: "2025-03-15" }
+    ];
+  }
+  render();
+}
+
+function saveData() {
+  localStorage.setItem('bucketlist_items', JSON.stringify(bucketItems));
+  render();
+}
+
+// ----- RENDER -----
+function render() {
+  const container = document.getElementById('bucketContainer');
+  if (!container) return;
+  
+  const infoBox = container.querySelector('.info-box');
+  container.innerHTML = '';
+  if (infoBox) container.appendChild(infoBox);
+  
+  let filtered = [...bucketItems];
+  if (currentFilter === 'all') {
+    filtered = bucketItems.filter(i => !i.completed);
+  } else if (currentFilter === 'completed') {
+    filtered = bucketItems.filter(i => i.completed);
+  }
+  
+  if (filtered.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.style.padding = '30px';
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.style.color = '#999';
+    emptyMsg.innerHTML = currentFilter === 'all' ? '✨ Nothing pending — add something to your bucket list!' : '🎉 No completed items yet!';
+    container.appendChild(emptyMsg);
+  }
+  
+  filtered.forEach(item => {
+    const div = document.createElement('div');
+    div.className = `bucket-item ${item.completed ? 'completed' : ''}`;
+    div.setAttribute('data-id', item.id);
+    
+    div.innerHTML = `
+      <div class="item-header">
+        <input type="checkbox" class="checkmark" ${item.completed ? 'checked' : ''}>
+        <span class="item-title ${item.completed ? 'completed-text' : ''}">${escapeHtml(item.title)}</span>
+        <button class="delete-btn">✗</button>
+      </div>
+      <div class="item-details">
+        ${item.completedDate ? `<div class="completed-date">✅ Completed: ${escapeHtml(item.completedDate)}</div>` : ''}
+        ${item.notes ? `<div class="item-notes">📝 ${escapeHtml(item.notes)}</div>` : ''}
+        ${item.image ? `<img src="${getImagePath(item.image)}" class="item-image">` : ''}
+        <div>
+          <button class="edit-btn edit-notes">✏️ Edit Notes</button>
+          <button class="edit-btn edit-image">🖼️ Add Image</button>
+          ${!item.completed ? `<button class="edit-btn set-date">📅 Set Date</button>` : ''}
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  
+  const total = bucketItems.length;
+  const completedCount = bucketItems.filter(i => i.completed).length;
+  const percent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
+  document.getElementById('progressPercent').innerText = percent;
+  document.getElementById('progressFill').style.width = percent + '%';
+  
+  attachItemEvents();
+}
+
+function attachItemEvents() {
+  document.querySelectorAll('.bucket-item').forEach(itemDiv => {
+    const id = parseInt(itemDiv.dataset.id);
+    const item = bucketItems.find(i => i.id === id);
+    
+    const checkbox = itemDiv.querySelector('.checkmark');
+    checkbox.addEventListener('change', () => toggleComplete(id));
+    
+    const deleteBtn = itemDiv.querySelector('.delete-btn');
+    deleteBtn.addEventListener('click', () => deleteItem(id));
+    
+    const titleSpan = itemDiv.querySelector('.item-title');
+    titleSpan.addEventListener('click', () => editTitleInline(id, titleSpan));
+    
+    itemDiv.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      showContextMenu(e.clientX, e.clientY, id);
+      return false;
+    });
+    
+    let pressTimer;
+    itemDiv.addEventListener('touchstart', () => {
+      pressTimer = setTimeout(() => {
+        const rect = itemDiv.getBoundingClientRect();
+        showContextMenu(rect.left, rect.top, id);
+      }, 800);
+    });
+    itemDiv.addEventListener('touchend', () => clearTimeout(pressTimer));
+    itemDiv.addEventListener('touchmove', () => clearTimeout(pressTimer));
+    
+    const editNotesBtn = itemDiv.querySelector('.edit-notes');
+    const editImageBtn = itemDiv.querySelector('.edit-image');
+    const setDateBtn = itemDiv.querySelector('.set-date');
+    
+    if (editNotesBtn) editNotesBtn.addEventListener('click', () => editNotes(id));
+    if (editImageBtn) editImageBtn.addEventListener('click', () => editImage(id));
+    if (setDateBtn) setDateBtn.addEventListener('click', () => setDate(id));
+    
+    const img = itemDiv.querySelector('.item-image');
+    if (img) img.addEventListener('click', () => openLightbox(img.src));
+  });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, (m) => {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function getImagePath(path) {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
+  if (!path.startsWith('images/')) return 'images/' + path;
+  return path;
+}
+
+function toggleComplete(id) {
+  const item = bucketItems.find(i => i.id === id);
+  if (item) {
+    item.completed = !item.completed;
+    if (item.completed) {
+      item.completedDate = new Date().toISOString().split('T')[0];
+    } else {
+      item.completedDate = null;
+    }
+    saveData();
+  }
+}
+
+function deleteItem(id) {
+  if (confirm('Delete this item?')) {
+    bucketItems = bucketItems.filter(i => i.id !== id);
+    saveData();
+  }
+}
+
+function editTitleInline(id, titleSpan) {
+  const item = bucketItems.find(i => i.id === id);
+  if (!item) return;
+  
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = item.title;
+  input.className = 'title-input';
+  
+  titleSpan.style.display = 'none';
+  titleSpan.parentNode.insertBefore(input, titleSpan);
+  input.focus();
+  
+  function save() {
+    const newTitle = input.value.trim();
+    if (newTitle) {
+      item.title = newTitle;
+      saveData();
+    }
+    input.remove();
+    titleSpan.style.display = '';
+  }
+  
+  input.addEventListener('blur', save);
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') save();
+  });
+}
+
+function editNotes(id) {
+  const item = bucketItems.find(i => i.id === id);
+  if (!item) return;
+  const newNotes = prompt('Edit notes:', item.notes || '');
+  if (newNotes !== null) {
+    item.notes = newNotes;
+    saveData();
+  }
+}
+
+function editImage(id) {
+  const item = bucketItems.find(i => i.id === id);
+  if (!item) return;
+  const newImage = prompt('Image filename (e.g., tokyo.jpg or images/tokyo.jpg):', item.image || '');
+  if (newImage !== null) {
+    item.image = newImage;
+    saveData();
+  }
+}
+
+function setDate(id) {
+  const item = bucketItems.find(i => i.id === id);
+  if (!item) return;
+  const newDate = prompt('Set completion date (YYYY-MM-DD):', item.completedDate || new Date().toISOString().split('T')[0]);
+  if (newDate && newDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    item.completedDate = newDate;
+    if (!item.completed) {
+      if (confirm('Mark this item as completed?')) {
+        item.completed = true;
+      }
+    }
+    saveData();
+  } else if (newDate) {
+    alert('Please use format: YYYY-MM-DD');
+  }
+}
+
+let currentContextId = null;
+
+function showContextMenu(x, y, id) {
+  currentContextId = id;
+  let menu = document.getElementById('contextMenu');
+  if (!menu) {
+    menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.id = 'contextMenu';
+    document.body.appendChild(menu);
+  }
+  
+  menu.innerHTML = `
+    <div class="context-menu-item" id="ctx-edit-title">✏️ Edit Title</div>
+    <div class="context-menu-item" id="ctx-edit-notes">📝 Edit Notes</div>
+    <div class="context-menu-item" id="ctx-edit-image">🖼️ Add Image</div>
+    <div class="context-menu-item" id="ctx-set-date">📅 Set Date</div>
+    <div class="context-menu-item" id="ctx-delete">🗑️ Delete</div>
+  `;
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+  menu.style.display = 'block';
+  
+  document.getElementById('ctx-edit-title').onclick = () => {
+    const item = bucketItems.find(i => i.id === id);
+    if (item) {
+      const titleSpan = document.querySelector(`.bucket-item[data-id="${id}"] .item-title`);
+      if (titleSpan) editTitleInline(id, titleSpan);
+    }
+    menu.style.display = 'none';
+  };
+  document.getElementById('ctx-edit-notes').onclick = () => { editNotes(id); menu.style.display = 'none'; };
+  document.getElementById('ctx-edit-image').onclick = () => { editImage(id); menu.style.display = 'none'; };
+  document.getElementById('ctx-set-date').onclick = () => { setDate(id); menu.style.display = 'none'; };
+  document.getElementById('ctx-delete').onclick = () => { deleteItem(id); menu.style.display = 'none'; };
+  
+  setTimeout(() => {
+    document.addEventListener('click', function closeMenu() {
+      menu.style.display = 'none';
+      document.removeEventListener('click', closeMenu);
+    });
+  }, 10);
+}
+
+function openAddPopup() {
+  document.getElementById('itemTitleInput').value = '';
+  document.getElementById('itemNotesInput').value = '';
+  document.getElementById('itemImageInput').value = '';
+  document.getElementById('popupTitle').innerText = 'Add Item';
+  window.editingItemId = null;
+  document.getElementById('itemPopup').style.display = 'flex';
+}
+
+function saveItem() {
+  const title = document.getElementById('itemTitleInput').value.trim();
+  if (!title) {
+    alert('Please enter a title');
+    return;
+  }
+  const notes = document.getElementById('itemNotesInput').value.trim();
+  const image = document.getElementById('itemImageInput').value.trim();
+  
+  if (window.editingItemId) {
+    const item = bucketItems.find(i => i.id === window.editingItemId);
+    if (item) {
+      item.title = title;
+      item.notes = notes;
+      item.image = image;
+      saveData();
+    }
+    window.editingItemId = null;
+  } else {
+    bucketItems.push({
+      id: Date.now(),
+      title: title,
+      completed: false,
+      notes: notes,
+      image: image,
+      completedDate: null
+    });
+    saveData();
+  }
+  document.getElementById('itemPopup').style.display = 'none';
+}
+
+function openBulkPopup() {
+  document.getElementById('bulkTextInput').value = '';
+  document.getElementById('bulkPopup').style.display = 'flex';
+}
+
+function addBulkItems() {
+  const text = document.getElementById('bulkTextInput').value;
+  const lines = text.split(/\r?\n/);
+  let added = 0;
+  
+  lines.forEach(line => {
+    line = line.trim();
+    if (line === '') return;
+    
+    let title = line;
+    let notes = '';
+    if (line.includes('|')) {
+      const parts = line.split('|');
+      title = parts[0].trim();
+      notes = parts.slice(1).join('|').trim();
+    }
+    
+    bucketItems.push({
+      id: Date.now() + added,
+      title: title,
+      completed: false,
+      notes: notes,
+      image: '',
+      completedDate: null
+    });
+    added++;
+  });
+  
+  if (added > 0) {
+    saveData();
+    alert(`Added ${added} item(s)!`);
+  } else {
+    alert('No valid items found');
+  }
+  document.getElementById('bulkPopup').style.display = 'none';
+}
+
+function openHelpPopup() {
+  document.getElementById('helpPopup').style.display = 'flex';
+}
+
+function openLightbox(src) {
+  const lightbox = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  img.src = src;
+  lightbox.style.display = 'flex';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  render();
+  const allBtn = document.getElementById('filterAllBtn');
+  const completedBtn = document.getElementById('filterCompletedBtn');
+  if (filter === 'all') {
+    allBtn.classList.add('active');
+    completedBtn.classList.remove('active');
+  } else {
+    completedBtn.classList.add('active');
+    allBtn.classList.remove('active');
+  }
+}
+
+function makeDraggable(popupId, handleId) {
+  const popup = document.getElementById(popupId);
+  const handle = document.getElementById(handleId);
+  if (!popup || !handle) return;
+  
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  handle.onmousedown = dragMouseDown;
+  
+  function dragMouseDown(e) {
+    if (e.target.classList.contains('buttons') || e.target.classList.contains('close')) return;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDrag;
+    document.onmousemove = elementDrag;
+  }
+  
+  function elementDrag(e) {
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    popup.style.top = (popup.offsetTop - pos2) + 'px';
+    popup.style.left = (popup.offsetLeft - pos1) + 'px';
+    popup.style.transform = 'none';
+  }
+  
+  function closeDrag() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  
+  document.getElementById('addItemBtn').onclick = openAddPopup;
+  document.getElementById('bulkAddBtn').onclick = openBulkPopup;
+  document.getElementById('filterAllBtn').onclick = () => setFilter('all');
+  document.getElementById('filterCompletedBtn').onclick = () => setFilter('completed');
+  document.getElementById('helpBtn').onclick = openHelpPopup;
+  
+  document.getElementById('closePopup').onclick = () => document.getElementById('itemPopup').style.display = 'none';
+  document.getElementById('closeBulkPopup').onclick = () => document.getElementById('bulkPopup').style.display = 'none';
+  document.getElementById('closeHelpPopup').onclick = () => document.getElementById('helpPopup').style.display = 'none';
+  document.getElementById('closeHelpBtn').onclick = () => document.getElementById('helpPopup').style.display = 'none';
+  
+  document.getElementById('saveItemBtn').onclick = saveItem;
+  document.getElementById('confirmBulkBtn').onclick = addBulkItems;
+  
+  document.getElementById('lightbox').onclick = closeLightbox;
+  document.querySelector('.close-lightbox').onclick = closeLightbox;
+  
+  makeDraggable('itemPopup', 'popupTitleBar');
+  makeDraggable('bulkPopup', 'bulkTitleBar');
+  makeDraggable('helpPopup', 'helpTitleBar');
+  
+  setFilter('all');
+});
+</script>
+
+</body>
+</html>
