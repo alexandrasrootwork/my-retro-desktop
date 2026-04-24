@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +19,11 @@
             vertical-align: top; background: transparent; border-radius: 2px;
         }
         .desktop-icon:hover, .folder-icon:hover { background: rgba(0,0,128,0.7); outline: 1px dotted white; }
+        /* SELECTED ICON STYLE - Windows 95 style blue highlight */
+        .desktop-icon.selected, .folder-icon.selected {
+            background: #000080;
+            outline: 1px solid #ffffff;
+        }
         .desktop-icon .icon-img, .folder-icon .icon-img { font-size: 48px; display: block; margin-bottom: 8px; pointer-events: none; }
         .desktop-icon img, .folder-icon img { width: 48px; height: 48px; display: block; margin: 0 auto 8px; pointer-events: none; }
         .icon-label { word-break: break-word; pointer-events: none; text-shadow: 1px 1px 0 #000; }
@@ -1053,6 +1059,7 @@
             const div = document.createElement('div');
             div.className = 'desktop-icon';
             div.setAttribute('data-id', icon.id);
+            div.setAttribute('data-type', 'icon');
             const isEmoji = icon.image && (icon.image.length <= 4 || /[\u{1F300}-\u{1F9FF}]/u.test(icon.image));
             div.innerHTML = `<div class="icon-action-btn edit-icon-btn" data-id="${icon.id}">✏️</div>
                              <div class="icon-action-btn delete-icon-btn" data-id="${icon.id}">✗</div>
@@ -1078,6 +1085,7 @@
             const div = document.createElement('div');
             div.className = 'folder-icon';
             div.setAttribute('data-id', folder.id);
+            div.setAttribute('data-type', 'folder');
             div.innerHTML = `<div class="icon-action-btn edit-icon-btn" data-id="${folder.id}">✏️</div>
                              <div class="icon-action-btn delete-icon-btn" data-id="${folder.id}">✗</div>
                              ${folder.pin ? `<div class="icon-action-btn lock-icon-btn" data-id="${folder.id}">🔒</div>` : ''}
@@ -1091,13 +1099,7 @@
             }
             container.appendChild(div);
         });
-        document.querySelectorAll('.folder-icon').forEach(el => {
-            const id = parseInt(el.dataset.id);
-            el.ondblclick = () => openFolderWithPassword(id);
-            el.querySelector('.edit-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editFolder(id); });
-            el.querySelector('.delete-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(id); });
-            el.querySelector('.lock-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editFolder(id); });
-        });
+        // Note: Double-click handlers are now in attachIconEvents
     }
     
     function openFolderWithPassword(folderId) {
@@ -1287,48 +1289,113 @@
         document.getElementById('moveToFolderModal').style.display = 'flex';
     }
     
+    // NEW: attachIconEvents with single-click select, double-click open
     function attachIconEvents() {
-        const iconsList = document.querySelectorAll('.desktop-icon');
+        const iconsList = document.querySelectorAll('.desktop-icon, .folder-icon');
+        let clickTimer = null;
+        
         iconsList.forEach(el => {
             const id = parseInt(el.dataset.id);
-            const icon = icons.find(i => i.id === id);
+            const isFolder = el.classList.contains('folder-icon');
+            const icon = isFolder ? folders.find(f => f.id === id) : icons.find(i => i.id === id);
             if (!icon) return;
             
-            el.onclick = null;
+            // Clone and replace to clear existing listeners
+            const newEl = el.cloneNode(true);
+            el.parentNode.replaceChild(newEl, el);
+            const finalEl = newEl;
             
-            el.onclick = (e) => { 
-                if (e.target.classList.contains('icon-action-btn')) return; 
-                if (icon.link) {
-                    openInDesktopWindow(icon.link, icon.label);
+            // SINGLE CLICK = SELECT
+            finalEl.onclick = (e) => {
+                if (e.target.classList.contains('icon-action-btn')) return;
+                e.stopPropagation();
+                
+                // Clear all selections
+                document.querySelectorAll('.desktop-icon, .folder-icon').forEach(ic => {
+                    ic.classList.remove('selected');
+                });
+                
+                // Select this icon
+                finalEl.classList.add('selected');
+            };
+            
+            // DOUBLE CLICK = OPEN
+            finalEl.ondblclick = (e) => {
+                if (e.target.classList.contains('icon-action-btn')) return;
+                e.stopPropagation();
+                
+                if (isFolder) {
+                    if (icon.pin) {
+                        showPasswordModal(icon, (success) => { if (success) openFolder(icon.id); });
+                    } else {
+                        openFolder(icon.id);
+                    }
+                } else {
+                    if (icon.link) {
+                        if (icon.pin) {
+                            showPasswordModal(icon, (success) => { if (success) openOrFocusWindow(icon.link, icon.label); });
+                        } else {
+                            openOrFocusWindow(icon.link, icon.label);
+                        }
+                    }
                 }
             };
             
-            el.oncontextmenu = (e) => { 
+            // Right-click context menu
+            finalEl.oncontextmenu = (e) => { 
                 e.preventDefault(); 
-                showContextMenu(e.clientX, e.clientY, id, 'icon'); 
+                showContextMenu(e.clientX, e.clientY, id, isFolder ? 'folder' : 'icon'); 
                 return false; 
             };
             
+            // Touch support
             let pressTimer;
-            el.ontouchstart = () => { 
+            finalEl.ontouchstart = () => { 
                 pressTimer = setTimeout(() => { 
-                    el.classList.add('long-press'); 
-                    const rect = el.getBoundingClientRect(); 
-                    showContextMenu(rect.left, rect.top, id, 'icon'); 
+                    finalEl.classList.add('long-press'); 
+                    const rect = finalEl.getBoundingClientRect(); 
+                    showContextMenu(rect.left, rect.top, id, isFolder ? 'folder' : 'icon'); 
                 }, 800); 
             };
-            el.ontouchend = () => { clearTimeout(pressTimer); setTimeout(() => el.classList.remove('long-press'), 100); };
-            el.ontouchmove = () => { clearTimeout(pressTimer); };
+            finalEl.ontouchend = () => { clearTimeout(pressTimer); setTimeout(() => finalEl.classList.remove('long-press'), 100); };
+            finalEl.ontouchmove = () => { clearTimeout(pressTimer); };
             
-            const editBtn = el.querySelector('.edit-icon-btn');
-            const deleteBtn = el.querySelector('.delete-icon-btn');
-            const moveBtn = el.querySelector('.move-icon-btn');
-            const lockBtn = el.querySelector('.lock-icon-btn');
+            // Action buttons
+            const editBtn = finalEl.querySelector('.edit-icon-btn');
+            const deleteBtn = finalEl.querySelector('.delete-icon-btn');
+            const moveBtn = finalEl.querySelector('.move-icon-btn');
+            const lockBtn = finalEl.querySelector('.lock-icon-btn');
             
-            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
-            if (deleteBtn) deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteIcon(id); });
-            if (moveBtn) moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
-            if (lockBtn) lockBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
+            if (editBtn) {
+                editBtn.addEventListener('click', (e) => { 
+                    e.stopPropagation(); 
+                    if (isFolder) {
+                        editFolderWithPassword(icon);
+                    } else {
+                        editIconWithPassword(icon);
+                    }
+                });
+            }
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', (e) => { 
+                    e.stopPropagation(); 
+                    if (isFolder) deleteFolder(id); 
+                    else deleteIcon(id); 
+                });
+            }
+            if (moveBtn && !isFolder) {
+                moveBtn.addEventListener('click', (e) => { 
+                    e.stopPropagation(); 
+                    openMoveModal(id); 
+                });
+            }
+            if (lockBtn) {
+                lockBtn.addEventListener('click', (e) => { 
+                    e.stopPropagation(); 
+                    if (isFolder) editFolderWithPassword(icon);
+                    else editIconWithPassword(icon);
+                });
+            }
         });
     }
     
@@ -1740,6 +1807,20 @@
         }, 800);
     }
     
+    // Clear selection when clicking desktop background
+    function setupDesktopClick() {
+        const iconsContainer = document.getElementById('iconsContainer');
+        if (iconsContainer) {
+            iconsContainer.addEventListener('click', (e) => {
+                if (e.target === iconsContainer || e.target.classList.contains('icons-container')) {
+                    document.querySelectorAll('.desktop-icon, .folder-icon').forEach(ic => {
+                        ic.classList.remove('selected');
+                    });
+                }
+            });
+        }
+    }
+    
     // Boot screen handler
     const bootScreen = document.getElementById('bootScreen');
     const desktop = document.getElementById('desktop');
@@ -1756,6 +1837,7 @@
             loadAll();
             setInterval(updateClock, 1000);
             resetIdleTimer();
+            setupDesktopClick();
         }, 500);
     });
     
