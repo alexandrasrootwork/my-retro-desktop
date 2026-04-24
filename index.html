@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -259,7 +258,7 @@
         .start-menu {
             display: none; position: fixed; bottom: 40px; left: 8px;
             background: #c0c0c0; border: 2px solid #ffffff; border-right-color: #000;
-            border-bottom-color: #000; min-width: 220px; z-index: 1001; padding: 4px 0;
+            border-bottom-color: #000; min-width: 260px; z-index: 1001; padding: 4px 0;
         }
         .start-menu.show { display: block; }
         .start-menu-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
@@ -340,25 +339,23 @@
             border-bottom-color: #000; z-index: 1100; display: none;
         }
         
-        /* Backup reminder */
-        .backup-reminder {
+        /* Sync Status */
+        .sync-status {
             position: fixed;
-            bottom: 100px;
+            bottom: 50px;
             right: 10px;
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 8px 12px;
+            padding: 4px 10px;
             font-size: 10px;
-            z-index: 1001;
-            display: none;
+            z-index: 1000;
             font-family: 'MS Sans Serif', Tahoma, sans-serif;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            opacity: 0.8;
         }
-        .backup-reminder button {
-            margin-left: 8px;
-        }
+        .sync-status:hover { opacity: 1; }
         
         @media (max-width: 768px) {
             .icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px 10px; }
@@ -370,7 +367,7 @@
             .notes-manager { width: 95%; height: 80%; left: 2.5% !important; top: 10% !important; }
             .boot-text { font-size: 10px; }
             .boot-logo { font-size: 32px; }
-            .backup-reminder { bottom: 110px; font-size: 9px; }
+            .sync-status { bottom: 60px; font-size: 8px; }
         }
     </style>
 </head>
@@ -415,6 +412,8 @@
     <div class="start-menu-item" id="legacyExportBtn">💾 Legacy Export</div>
     <div class="start-menu-item" id="legacyImportBtn">📂 Legacy Import</div>
     <div class="start-menu-divider"></div>
+    <div class="start-menu-item" id="syncSettingsBtn">☁️ Sync Settings</div>
+    <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="settingsBtn">⚙️ Settings</div>
 </div>
 
@@ -431,9 +430,24 @@
     </div>
 </div>
 
-<!-- Backup Reminder -->
-<div id="backupReminder" class="backup-reminder">
-    💾 Time to backup your desktop! <button id="backupNowBtn">Backup Now</button> <button id="remindLaterBtn">Later</button>
+<!-- Sync Settings Modal -->
+<div class="modal" id="syncModal">
+    <div class="modal-content">
+        <div class="modal-title-bar" id="syncTitleBar">
+            <span>☁️ Sync Settings</span>
+            <span style="cursor:pointer" id="closeSyncModal">✗</span>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:10px;">Enter your GitHub token to enable cloud sync across devices.</p>
+            <label>GitHub Token:</label>
+            <input type="password" id="syncToken" placeholder="Enter your GitHub Personal Access Token">
+            <label>Gist ID:</label>
+            <input type="text" id="syncGistId" placeholder="Gist ID" value="b1e0317194191680303f5106f4db0d27">
+            <button id="saveSyncSettingsBtn" class="retro-button">💾 Save & Enable Sync</button>
+            <button id="disableSyncBtn" class="retro-button" style="margin-left:8px;">🔴 Disable Sync</button>
+            <div id="syncStatusMsg" style="margin-top:10px; font-size:11px; color:#666;"></div>
+        </div>
+    </div>
 </div>
 
 <!-- Modals -->
@@ -459,8 +473,10 @@
 
 <div class="screensaver" id="screensaver"><div class="screensaver-text">✨ ~ Dreaming ~ ✨</div></div>
 <div class="context-menu" id="contextMenu"></div>
+<div class="sync-status" id="syncStatusIndicator">☁️ Sync off</div>
 
 <script>
+    // ========== DATA ==========
     let icons = [];
     let folders = [];
     let stickers = [];
@@ -481,12 +497,126 @@
     let audioUnlocked = false;
     let startupSoundPlayed = false;
     
+    // ========== SYNC CONFIGURATION ==========
+    const DEFAULT_GIST_ID = "b1e0317194191680303f5106f4db0d27";
+    let githubToken = localStorage.getItem('github_token_desktop');
+    let gistId = localStorage.getItem('gist_id_desktop') || DEFAULT_GIST_ID;
+    let syncInProgress = false;
+    
+    // ========== SYNC FUNCTIONS ==========
+    function updateSyncStatus(message, isError) {
+        const indicator = document.getElementById('syncStatusIndicator');
+        if (indicator) {
+            indicator.textContent = message;
+            indicator.style.background = isError ? '#aa0000' : '#c0c0c0';
+            indicator.style.color = isError ? 'white' : 'black';
+        }
+    }
+    
+    function mergeData(cloudData) {
+        // Merge icons (local wins if conflict, but cloud adds new ones)
+        if (cloudData.icons) {
+            const localIconIds = new Set(icons.map(i => i.id));
+            cloudData.icons.forEach(cloudIcon => {
+                if (!localIconIds.has(cloudIcon.id)) {
+                    icons.push(cloudIcon);
+                }
+            });
+        }
+        // Merge folders
+        if (cloudData.folders) {
+            const localFolderIds = new Set(folders.map(f => f.id));
+            cloudData.folders.forEach(cloudFolder => {
+                if (!localFolderIds.has(cloudFolder.id)) {
+                    folders.push(cloudFolder);
+                }
+            });
+        }
+        // Merge stickers
+        if (cloudData.stickers) {
+            const localStickerIds = new Set(stickers.map(s => s.id));
+            cloudData.stickers.forEach(cloudSticker => {
+                if (!localStickerIds.has(cloudSticker.id)) {
+                    stickers.push(cloudSticker);
+                }
+            });
+        }
+        if (cloudData.recycleBin) recycleBin = cloudData.recycleBin;
+        if (cloudData.currentWallpaper) currentWallpaper = cloudData.currentWallpaper;
+        if (cloudData.currentTheme) currentTheme = cloudData.currentTheme;
+    }
+    
+    async function loadFromGist() {
+        if (!githubToken) return false;
+        updateSyncStatus("Syncing...", false);
+        try {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                headers: { 'Authorization': `token ${githubToken}` }
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const gist = await response.json();
+            const content = gist.files['retro-desktop-data.json']?.content;
+            if (content) {
+                const cloudData = JSON.parse(content);
+                mergeData(cloudData);
+                updateSyncStatus("✓ Synced", false);
+                setTimeout(() => updateSyncStatus("☁️ Synced", false), 2000);
+                return true;
+            }
+        } catch (err) {
+            console.warn('Gist load error:', err);
+            updateSyncStatus("⚠️ Sync failed", true);
+            setTimeout(() => updateSyncStatus("☁️ Error", true), 2000);
+        }
+        return false;
+    }
+    
+    async function saveToGist() {
+        if (!githubToken || syncInProgress) return false;
+        syncInProgress = true;
+        try {
+            const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
+            const content = JSON.stringify(allData, null, 2);
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    files: { 'retro-desktop-data.json': { content: content } }
+                })
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            updateSyncStatus("✓ Saved", false);
+            setTimeout(() => updateSyncStatus("☁️ Synced", false), 2000);
+            return true;
+        } catch (err) {
+            console.warn('Gist save error:', err);
+            updateSyncStatus("⚠️ Save failed", true);
+            setTimeout(() => updateSyncStatus("☁️ Error", true), 2000);
+            return false;
+        } finally {
+            syncInProgress = false;
+        }
+    }
+    
+    async function performSync() {
+        if (githubToken) {
+            await loadFromGist();
+            saveAll();
+        }
+    }
+    
     // ========== DATA MANAGEMENT ==========
     function saveAll() {
         const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
         localStorage.setItem('retroDesktop', JSON.stringify(allData));
-        // Update last backup tracking
-        localStorage.setItem('lastBackupDate', new Date().toISOString().split('T')[0]);
+        renderAll();
+        // Background sync to cloud
+        if (githubToken) {
+            saveToGist();
+        }
     }
     
     function loadAll() {
@@ -514,42 +644,10 @@
         else document.body.style.background = '#008080';
         renderAll();
         
-        // Check for backup reminder (once per day)
-        checkBackupReminder();
-    }
-    
-    // ========== BACKUP REMINDER ==========
-    function checkBackupReminder() {
-        const lastBackup = localStorage.getItem('lastBackupDate');
-        const today = new Date().toISOString().split('T')[0];
-        const reminderDismissed = localStorage.getItem('reminderDismissedDate');
-        
-        // If no backup today and reminder not dismissed today
-        if (lastBackup !== today && reminderDismissed !== today) {
-            setTimeout(() => {
-                document.getElementById('backupReminder').style.display = 'block';
-            }, 5000); // Show after 5 seconds
+        // Background sync after load
+        if (githubToken) {
+            setTimeout(() => loadFromGist().then(() => saveAll()), 500);
         }
-    }
-    
-    function performBackup() {
-        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
-        const dataStr = JSON.stringify(allData, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `retro-desktop-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-        localStorage.setItem('lastBackupDate', new Date().toISOString().split('T')[0]);
-        document.getElementById('backupReminder').style.display = 'none';
-        alert('✅ Backup saved to your downloads folder!');
-    }
-    
-    function dismissReminder() {
-        localStorage.setItem('reminderDismissedDate', new Date().toISOString().split('T')[0]);
-        document.getElementById('backupReminder').style.display = 'none';
     }
     
     // ========== LEGACY IMPORT/EXPORT ==========
@@ -593,6 +691,42 @@
             reader.readAsText(file);
         };
         input.click();
+    }
+    
+    // ========== SYNC SETTINGS ==========
+    function openSyncModal() {
+        document.getElementById('syncToken').value = '';
+        document.getElementById('syncGistId').value = gistId;
+        document.getElementById('syncModal').style.display = 'flex';
+    }
+    
+    function saveSyncSettings() {
+        const newToken = document.getElementById('syncToken').value.trim();
+        const newGistId = document.getElementById('syncGistId').value.trim();
+        if (newToken) {
+            githubToken = newToken;
+            localStorage.setItem('github_token_desktop', newToken);
+        }
+        if (newGistId) {
+            gistId = newGistId;
+            localStorage.setItem('gist_id_desktop', newGistId);
+        }
+        document.getElementById('syncModal').style.display = 'none';
+        updateSyncStatus("Settings saved, syncing...", false);
+        setTimeout(() => {
+            loadFromGist().then(() => saveAll());
+            alert('Sync enabled! Your desktop will now sync across devices.');
+        }, 500);
+    }
+    
+    function disableSync() {
+        localStorage.removeItem('github_token_desktop');
+        localStorage.removeItem('gist_id_desktop');
+        githubToken = null;
+        gistId = DEFAULT_GIST_ID;
+        document.getElementById('syncModal').style.display = 'none';
+        updateSyncStatus("☁️ Sync off", false);
+        alert('Sync disabled. Your data is now local only.');
     }
     
     // ========== REMAINING ORIGINAL FUNCTIONS ==========
@@ -1620,10 +1754,11 @@
     document.getElementById('sortByDateBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByDate(); };
     document.getElementById('legacyExportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyExport(); };
     document.getElementById('legacyImportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyImport(); };
+    document.getElementById('syncSettingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); openSyncModal(); };
+    document.getElementById('saveSyncSettingsBtn').onclick = saveSyncSettings;
+    document.getElementById('disableSyncBtn').onclick = disableSync;
+    document.getElementById('closeSyncModal').onclick = () => document.getElementById('syncModal').style.display = 'none';
     document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); document.getElementById('settingsModal').style.display = 'flex'; };
-    
-    document.getElementById('backupNowBtn').onclick = () => { performBackup(); };
-    document.getElementById('remindLaterBtn').onclick = () => { dismissReminder(); };
     
     document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
     document.getElementById('closeWallpaperModal').onclick = () => document.getElementById('wallpaperModal').style.display = 'none';
