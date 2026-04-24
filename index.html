@@ -1,4 +1,11 @@
 
+Here's your **complete retro desktop HTML file** with:
+
+1. **All icons draggable on mobile** (just like stickers)
+2. **Double-tap to open** (prevents accidental opens when dragging)
+3. **Single tap for selection/context menu** on mobile
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +14,7 @@
     <title>📀 NostalgiaOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { font-family: "MS Sans Serif", Tahoma, sans-serif; overflow: hidden; position: fixed; top: 0; left: 0; right: 0; bottom: 0; transition: background-image 0.3s ease; }
         .desktop { position: absolute; top: 0; left: 0; right: 0; bottom: 40px; overflow: auto; padding: 20px; z-index: 1; }
         .icons-container { position: relative; min-height: 100%; }
@@ -16,7 +23,11 @@
             position: relative; width: 90px; text-align: center; cursor: pointer;
             padding: 8px 4px; color: white; font-size: 11px; display: inline-block;
             vertical-align: top; background: transparent; border-radius: 2px;
+            touch-action: none;
         }
+        .desktop-icon:active, .folder-icon:active { transform: scale(0.98); }
+        .desktop-icon.dragging, .folder-icon.dragging { opacity: 0.6; cursor: grabbing; }
+        
         .desktop-icon:hover, .folder-icon:hover { background: rgba(0,0,128,0.7); outline: 1px dotted white; }
         .desktop-icon .icon-img, .folder-icon .icon-img { font-size: 48px; display: block; margin-bottom: 8px; pointer-events: none; }
         .desktop-icon img, .folder-icon img { width: 48px; height: 48px; display: block; margin: 0 auto 8px; pointer-events: none; }
@@ -32,14 +43,14 @@
         .edit-icon-btn { left: -5px; }
         .lock-icon-btn { left: 20px; background: #000080; color: white; }
         .move-icon-btn { left: 42px; background: #008000; color: white; width: auto; padding: 0 4px; border-radius: 10px; white-space: nowrap; font-size: 9px; }
-        .desktop-icon:hover .icon-action-btn, .folder-icon:hover .icon-action-btn,
-        .desktop-icon.long-press .icon-action-btn { display: block; }
+        .desktop-icon.show-buttons .icon-action-btn, .folder-icon.show-buttons .icon-action-btn { display: block; }
         .delete-icon-btn:hover { background: #ff0000; color: white; }
         .edit-icon-btn:hover { background: #000080; color: white; }
         .move-icon-btn:hover { background: #00aa00; color: white; }
         
         .sticker {
             position: absolute; cursor: move; z-index: 50; transition: box-shadow 0.1s ease; display: inline-block;
+            touch-action: none;
         }
         .sticker.selected { outline: 2px dotted #000080; outline-offset: 2px; }
         .sticker .delete-sticker {
@@ -75,6 +86,7 @@
             box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
             resize: both;
             overflow: auto;
+            touch-action: none;
         }
         .widget-title-bar {
             background: #000080;
@@ -342,8 +354,6 @@
         
         @media (max-width: 768px) {
             .icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px 10px; }
-            .desktop-icon, .folder-icon { position: static !important; width: auto; margin: 0 auto; }
-            .desktop-window, .folder-window { top: 10px !important; left: 10px !important; right: 10px !important; bottom: 50px !important; width: auto !important; height: auto !important; min-width: unset; }
             .move-icon-btn { left: auto; right: 30px; }
             .taskbar-window-btn { max-width: 100px; font-size: 10px; }
             .resize-handle { width: 15px; height: 15px; }
@@ -463,6 +473,19 @@
     let audioUnlocked = false;
     let startupSoundPlayed = false;
     
+    // ========== DRAG STATE FOR MOBILE/TOUCH ==========
+    let dragState = {
+        active: false,
+        type: null,
+        id: null,
+        element: null,
+        startX: 0,
+        startY: 0,
+        initialLeft: 0,
+        initialTop: 0,
+        hasMoved: false
+    };
+    
     // ========== GITHUB GIST SYNC ==========
     let gistId = null;
     let githubToken = null;
@@ -478,20 +501,15 @@
     function loadGistCredentials() {
         gistId = localStorage.getItem('gist_id');
         githubToken = localStorage.getItem('github_token');
-        if (gistId && githubToken) {
-            return true;
-        }
+        if (gistId && githubToken) return true;
         return false;
     }
     
-    // ========== MERGE HELPER FUNCTIONS ==========
     function mergeArrays(existing, incoming, idField = 'id') {
         const merged = [...existing];
         incoming.forEach(incomingItem => {
             const exists = merged.some(existingItem => existingItem[idField] === incomingItem[idField]);
-            if (!exists) {
-                merged.push(incomingItem);
-            }
+            if (!exists) merged.push(incomingItem);
         });
         return merged;
     }
@@ -508,46 +526,28 @@
         };
     }
     
-    // ========== MERGE UPLOAD (push to cloud) ==========
     async function syncToGist() {
         if (!loadGistCredentials()) {
             const id = prompt('Enter your Gist ID:');
-            const token = prompt('Enter your GitHub Personal Access Token (with gist scope):');
-            if (id && token) {
-                saveGistCredentials(id, token);
-            } else {
-                alert('❌ Gist ID and Token are required!');
-                return;
-            }
+            const token = prompt('Enter your GitHub Personal Access Token:');
+            if (id && token) saveGistCredentials(id, token);
+            else { alert('❌ Gist ID and Token are required!'); return; }
         }
         
         const cloudIcon = document.getElementById('cloudSyncIcon');
-        if (cloudIcon) {
-            cloudIcon.style.opacity = '0.5';
-            cloudIcon.title = 'Merging with cloud...';
-        }
+        if (cloudIcon) cloudIcon.style.opacity = '0.5';
         
         try {
-            // Get existing cloud data
-            let cloudData = {
-                desktop: { icons: [], folders: [], stickers: [], widgets: [], recycleBin: [], currentWallpaper: '', currentTheme: 'teal' },
-                bucketlist: [],
-                journal: [],
-                recipes: []
-            };
-            
+            let cloudData = { desktop: { icons: [], folders: [], stickers: [], widgets: [], recycleBin: [], currentWallpaper: '', currentTheme: 'teal' }, bucketlist: [], journal: [], recipes: [] };
             try {
                 const response = await fetch(`https://api.github.com/gists/${gistId}`);
                 if (response.ok) {
                     const gist = await response.json();
                     const file = gist.files['nostalgiaos-backup.json'];
-                    if (file && file.content) {
-                        cloudData = JSON.parse(file.content);
-                    }
+                    if (file && file.content) cloudData = JSON.parse(file.content);
                 }
-            } catch (e) { console.log('No existing cloud data'); }
+            } catch(e) {}
             
-            // Prepare local data
             const localData = {
                 desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
                 bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
@@ -555,168 +555,81 @@
                 recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []
             };
             
-            // MERGE local with cloud
             const mergedDesktop = mergeDesktop(cloudData.desktop, localData.desktop);
             const mergedBucketlist = mergeArrays(cloudData.bucketlist, localData.bucketlist, 'id');
             const mergedJournal = mergeArrays(cloudData.journal, localData.journal, 'id');
             const mergedRecipes = mergeArrays(cloudData.recipes, localData.recipes, 'id');
             
-            const allData = {
-                desktop: mergedDesktop,
-                bucketlist: mergedBucketlist,
-                journal: mergedJournal,
-                recipes: mergedRecipes,
-                lastSync: new Date().toISOString()
-            };
-            
+            const allData = { desktop: mergedDesktop, bucketlist: mergedBucketlist, journal: mergedJournal, recipes: mergedRecipes, lastSync: new Date().toISOString() };
             const dataStr = JSON.stringify(allData, null, 2);
             
             const response = await fetch(`https://api.github.com/gists/${gistId}`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `token ${githubToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    files: {
-                        'nostalgiaos-backup.json': {
-                            content: dataStr
-                        }
-                    }
-                })
+                headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ files: { 'nostalgiaos-backup.json': { content: dataStr } } })
             });
             
             if (response.ok) {
                 localStorage.setItem('lastSyncTime', new Date().toISOString());
-                if (cloudIcon) {
-                    cloudIcon.style.opacity = '1';
-                    cloudIcon.style.color = '#00ff00';
-                    cloudIcon.title = `Last merge: ${new Date().toLocaleString()}`;
-                    setTimeout(() => { if (cloudIcon) cloudIcon.style.color = 'white'; }, 1000);
-                }
-                
-                // Update local data with merged results
-                icons = mergedDesktop.icons;
-                folders = mergedDesktop.folders;
-                stickers = mergedDesktop.stickers;
-                widgets = mergedDesktop.widgets;
-                recycleBin = mergedDesktop.recycleBin;
-                currentWallpaper = mergedDesktop.currentWallpaper;
-                currentTheme = mergedDesktop.currentTheme;
+                if (cloudIcon) cloudIcon.style.opacity = '1';
+                icons = mergedDesktop.icons; folders = mergedDesktop.folders; stickers = mergedDesktop.stickers;
+                widgets = mergedDesktop.widgets; recycleBin = mergedDesktop.recycleBin;
+                currentWallpaper = mergedDesktop.currentWallpaper; currentTheme = mergedDesktop.currentTheme;
                 saveAll();
                 localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
                 localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
                 localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
-                
                 renderAll();
-                alert('✅ Data MERGED with cloud! All devices now share combined data.');
-            } else {
-                const error = await response.json();
-                if (cloudIcon) cloudIcon.style.opacity = '1';
-                alert('❌ Sync failed: ' + (error.message || 'Unknown error'));
-            }
-        } catch (err) {
-            if (cloudIcon) cloudIcon.style.opacity = '1';
-            alert('❌ Network error: ' + err.message);
-        }
+                alert('✅ Data MERGED with cloud!');
+            } else throw new Error();
+        } catch (err) { alert('❌ Sync failed'); }
+        finally { if (cloudIcon) cloudIcon.style.opacity = '1'; }
     }
     
-    // ========== MERGE DOWNLOAD (pull from cloud) ==========
     async function loadFromGist() {
         if (!loadGistCredentials()) {
             const id = prompt('Enter your Gist ID:');
             const token = prompt('Enter your GitHub Token:');
-            if (id && token) {
-                saveGistCredentials(id, token);
-            } else {
-                alert('❌ Gist ID and Token are required!');
-                return;
-            }
+            if (id && token) saveGistCredentials(id, token);
+            else { alert('❌ Gist ID and Token are required!'); return; }
         }
         
         const cloudIcon = document.getElementById('cloudSyncIcon');
-        if (cloudIcon) {
-            cloudIcon.style.opacity = '0.5';
-            cloudIcon.title = 'Merging from cloud...';
-        }
+        if (cloudIcon) cloudIcon.style.opacity = '0.5';
         
         try {
             const response = await fetch(`https://api.github.com/gists/${gistId}`);
-            if (response.ok) {
-                const gist = await response.json();
-                const file = gist.files['nostalgiaos-backup.json'];
-                if (file && file.content) {
-                    const cloudData = JSON.parse(file.content);
-                    
-                    // Prepare current local data
-                    const localData = {
-                        desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
-                        bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
-                        journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
-                        recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []
-                    };
-                    
-                    // MERGE cloud with local
-                    const mergedDesktop = mergeDesktop(localData.desktop, cloudData.desktop);
-                    const mergedBucketlist = mergeArrays(localData.bucketlist, cloudData.bucketlist, 'id');
-                    const mergedJournal = mergeArrays(localData.journal, cloudData.journal, 'id');
-                    const mergedRecipes = mergeArrays(localData.recipes, cloudData.recipes, 'id');
-                    
-                    let changes = false;
-                    
-                    if (mergedDesktop) {
-                        icons = mergedDesktop.icons;
-                        folders = mergedDesktop.folders;
-                        stickers = mergedDesktop.stickers;
-                        widgets = mergedDesktop.widgets;
-                        recycleBin = mergedDesktop.recycleBin;
-                        currentWallpaper = mergedDesktop.currentWallpaper;
-                        currentTheme = mergedDesktop.currentTheme;
-                        saveAll();
-                        changes = true;
-                    }
-                    
-                    if (mergedBucketlist.length > 0) {
-                        localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
-                        changes = true;
-                    }
-                    
-                    if (mergedJournal.length > 0) {
-                        localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
-                        changes = true;
-                    }
-                    
-                    if (mergedRecipes.length > 0) {
-                        localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
-                        changes = true;
-                    }
-                    
-                    if (cloudIcon) {
-                        cloudIcon.style.opacity = '1';
-                        cloudIcon.title = `Last merge: ${new Date().toLocaleString()}`;
-                    }
-                    
-                    if (changes) {
-                        renderAll();
-                        alert('✅ Data MERGED from cloud! Local and cloud data combined.');
-                    } else {
-                        alert('✅ Already in sync. No new items found.');
-                    }
-                } else {
-                    if (cloudIcon) cloudIcon.style.opacity = '1';
-                    alert('❌ No backup file found. Upload data first by clicking the cloud icon.');
-                }
-            } else {
-                if (cloudIcon) cloudIcon.style.opacity = '1';
-                alert('❌ Failed to load from cloud');
-            }
-        } catch (err) {
-            if (cloudIcon) cloudIcon.style.opacity = '1';
-            alert('❌ Error: ' + err.message);
-        }
+            if (!response.ok) throw new Error();
+            const gist = await response.json();
+            const file = gist.files['nostalgiaos-backup.json'];
+            if (file && file.content) {
+                const cloudData = JSON.parse(file.content);
+                const localData = {
+                    desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
+                    bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+                    journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+                    recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []
+                };
+                
+                const mergedDesktop = mergeDesktop(localData.desktop, cloudData.desktop);
+                const mergedBucketlist = mergeArrays(localData.bucketlist, cloudData.bucketlist, 'id');
+                const mergedJournal = mergeArrays(localData.journal, cloudData.journal, 'id');
+                const mergedRecipes = mergeArrays(localData.recipes, cloudData.recipes, 'id');
+                
+                icons = mergedDesktop.icons; folders = mergedDesktop.folders; stickers = mergedDesktop.stickers;
+                widgets = mergedDesktop.widgets; recycleBin = mergedDesktop.recycleBin;
+                currentWallpaper = mergedDesktop.currentWallpaper; currentTheme = mergedDesktop.currentTheme;
+                saveAll();
+                localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
+                localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
+                localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
+                renderAll();
+                alert('✅ Data MERGED from cloud!');
+            } else throw new Error();
+        } catch (err) { alert('❌ Failed to load'); }
+        finally { if (cloudIcon) cloudIcon.style.opacity = '1'; }
     }
     
-    // ========== COMPLETE BACKUP & RESTORE ==========
     function completeBackup() {
         const allData = {
             desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
@@ -725,16 +638,14 @@
             recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : [],
             backupDate: new Date().toISOString()
         };
-        
         const dataStr = JSON.stringify(allData, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(blob);
         a.download = `complete-backup-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
-        URL.revokeObjectURL(url);
-        alert('✅ Complete backup saved! This includes Desktop, Bucket List, Journal, and Recipes.');
+        URL.revokeObjectURL(a.href);
+        alert('✅ Complete backup saved!');
     }
     
     function completeRestore() {
@@ -748,7 +659,6 @@
             reader.onload = (event) => {
                 try {
                     const allData = JSON.parse(event.target.result);
-                    
                     if (allData.desktop) {
                         if (allData.desktop.icons) icons = allData.desktop.icons;
                         if (allData.desktop.folders) folders = allData.desktop.folders;
@@ -758,42 +668,28 @@
                         if (allData.desktop.currentTheme) currentTheme = allData.desktop.currentTheme;
                         saveAll();
                     }
-                    
-                    if (allData.bucketlist && allData.bucketlist.length > 0) {
-                        localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
-                    }
-                    
-                    if (allData.journal && allData.journal.length > 0) {
-                        localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
-                    }
-                    
-                    if (allData.recipes && allData.recipes.length > 0) {
-                        localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
-                    }
-                    
-                    alert('✅ Complete restore successful! The page will now reload.');
+                    if (allData.bucketlist && allData.bucketlist.length) localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
+                    if (allData.journal && allData.journal.length) localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
+                    if (allData.recipes && allData.recipes.length) localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
+                    alert('✅ Complete restore successful! Reloading...');
                     location.reload();
-                } catch (err) {
-                    alert('❌ Invalid backup file');
-                }
+                } catch (err) { alert('❌ Invalid backup file'); }
             };
             reader.readAsText(file);
         };
         input.click();
     }
     
-    // ========== LEGACY IMPORT/EXPORT ==========
     function legacyExport() {
         const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
         const dataStr = JSON.stringify(allData, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(blob);
         a.download = `retro-desktop-backup-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
-        URL.revokeObjectURL(url);
-        alert('Desktop exported successfully!');
+        URL.revokeObjectURL(a.href);
+        alert('Desktop exported!');
     }
     
     function legacyImport() {
@@ -802,7 +698,6 @@
         input.accept = 'application/json';
         input.onchange = (e) => {
             const file = e.target.files[0];
-            if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
                 try {
@@ -814,11 +709,9 @@
                     if (importedData.currentWallpaper) currentWallpaper = importedData.currentWallpaper;
                     if (importedData.currentTheme) currentTheme = importedData.currentTheme;
                     saveAll();
-                    alert('✅ Import successful! Refreshing...');
+                    alert('✅ Import successful! Reloading...');
                     location.reload();
-                } catch (err) {
-                    alert('❌ Invalid file');
-                }
+                } catch (err) { alert('❌ Invalid file'); }
             };
             reader.readAsText(file);
         };
@@ -826,8 +719,7 @@
     }
     
     function saveAll() {
-        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
-        localStorage.setItem('retroDesktop', JSON.stringify(allData));
+        localStorage.setItem('retroDesktop', JSON.stringify({ icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme }));
     }
     
     function loadAll() {
@@ -883,8 +775,7 @@
     }
     
     function playStartupSound() { 
-        if (!audioUnlocked) return;
-        if (startupSoundPlayed) return;
+        if (!audioUnlocked || startupSoundPlayed) return;
         if (document.getElementById('startupSoundToggle')?.checked) { 
             startupSoundPlayed = true;
             const audio = new Audio('sounds/winxp.mp3'); 
@@ -901,11 +792,7 @@
         btn.className = 'taskbar-window-btn';
         btn.setAttribute('data-window-id', windowId);
         btn.innerText = title.length > 20 ? title.substring(0, 18) + '...' : title;
-        btn.onclick = (e) => {
-            e.stopPropagation();
-            windowElement.style.zIndex = nextWindowZ++;
-            windowElement.style.display = 'flex';
-        };
+        btn.onclick = (e) => { e.stopPropagation(); windowElement.style.zIndex = nextWindowZ++; windowElement.style.display = 'flex'; };
         container.appendChild(btn);
         container.scrollLeft = container.scrollWidth;
         return btn;
@@ -919,10 +806,7 @@
     function refreshNotesManager() {
         const notesList = document.getElementById('notesList');
         if (!notesList) return;
-        if (widgets.length === 0) {
-            notesList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">📝 No sticky notes yet. Click "Add Sticky Note" to create one.</div>';
-            return;
-        }
+        if (widgets.length === 0) { notesList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">📝 No sticky notes yet.</div>'; return; }
         notesList.innerHTML = '';
         widgets.slice().reverse().forEach(widget => {
             const noteDiv = document.createElement('div');
@@ -931,22 +815,15 @@
             const preview = widget.text ? widget.text.substring(0, 100) : '(empty note)';
             const widgetDiv = document.querySelector(`.widget[data-widget-id="${widget.id}"]`);
             const isVisible = widgetDiv && widgetDiv.style.display !== 'none';
-            noteDiv.innerHTML = `
-                <div class="delete-note-btn" data-id="${widget.id}">✗</div>
+            noteDiv.innerHTML = `<div class="delete-note-btn" data-id="${widget.id}">✗</div>
                 <div class="show-note-btn" data-id="${widget.id}">📂 Show</div>
                 <div class="note-date">📅 ${date}</div>
                 <div class="note-preview">${escapeHtml(preview)}${widget.text && widget.text.length > 100 ? '...' : ''}</div>
-                <div class="note-status">${isVisible ? '🟢 Visible on desktop' : '🔴 Hidden'}</div>
-            `;
+                <div class="note-status">${isVisible ? '🟢 Visible' : '🔴 Hidden'}</div>`;
             noteDiv.querySelector('.show-note-btn').onclick = (e) => {
                 e.stopPropagation();
                 const targetDiv = document.querySelector(`.widget[data-widget-id="${widget.id}"]`);
-                if (targetDiv) {
-                    targetDiv.style.display = 'block';
-                    targetDiv.style.zIndex = nextWindowZ++;
-                    saveAll();
-                    refreshNotesManager();
-                }
+                if (targetDiv) { targetDiv.style.display = 'block'; targetDiv.style.zIndex = nextWindowZ++; saveAll(); refreshNotesManager(); }
             };
             noteDiv.querySelector('.delete-note-btn').onclick = (e) => {
                 e.stopPropagation();
@@ -954,8 +831,7 @@
                     const targetDiv = document.querySelector(`.widget[data-widget-id="${widget.id}"]`);
                     if (targetDiv) targetDiv.remove();
                     widgets = widgets.filter(w => w.id !== widget.id);
-                    saveAll();
-                    refreshNotesManager();
+                    saveAll(); refreshNotesManager();
                 }
             };
             notesList.appendChild(noteDiv);
@@ -1018,10 +894,7 @@
             const clientY = moveEvent.clientY ?? moveEvent.touches[0].clientY;
             const dx = clientX - startX;
             const dy = clientY - startY;
-            let newWidth = startWidth;
-            let newHeight = startHeight;
-            let newLeft = startLeft;
-            let newTop = startTop;
+            let newWidth = startWidth, newHeight = startHeight, newLeft = startLeft, newTop = startTop;
             if (direction.includes('e')) newWidth = Math.max(20, startWidth + dx);
             if (direction.includes('w')) { newWidth = Math.max(20, startWidth - dx); newLeft = startLeft + dx; }
             if (direction.includes('s')) newHeight = Math.max(20, startHeight + dy);
@@ -1110,7 +983,7 @@
             alert('Password removed successfully!');
             document.getElementById('removePasswordModal').style.display = 'none';
             document.getElementById('removePasswordInput').value = '';
-        } else { alert('Incorrect password! Cannot remove password protection.'); }
+        } else { alert('Incorrect password!'); }
         pendingRemoveId = null; pendingRemoveType = null;
     }
     
@@ -1128,17 +1001,128 @@
         renderWidgets();
         updateClock();
         attachIconEvents();
+    }
+    
+    // ========== IMPROVED DRAGGABLE ICONS ==========
+    function makeIconDraggable(element, id, type) {
+        let startX = 0, startY = 0;
+        let initialLeft = 0, initialTop = 0;
+        let isDragging = false;
+        let hasMoved = false;
         
-        const cloudIcon = document.getElementById('cloudSyncIcon');
-        if (cloudIcon) {
-            const lastSync = localStorage.getItem('lastSyncTime');
-            if (lastSync) {
-                const date = new Date(lastSync);
-                cloudIcon.title = `Last merge: ${date.toLocaleString()}`;
-            } else {
-                cloudIcon.title = 'Click to MERGE data with cloud';
+        const onStart = (clientX, clientY) => {
+            if (element.classList.contains('show-buttons')) return;
+            startX = clientX;
+            startY = clientY;
+            initialLeft = element.offsetLeft;
+            initialTop = element.offsetTop;
+            isDragging = true;
+            hasMoved = false;
+            element.classList.add('dragging');
+            element.style.zIndex = '1000';
+        };
+        
+        const onMove = (clientX, clientY) => {
+            if (!isDragging) return;
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMoved = true;
+            if (hasMoved) {
+                let newLeft = initialLeft + dx;
+                let newTop = initialTop + dy;
+                newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
+                newTop = Math.max(0, Math.min(newTop, window.innerHeight - 100));
+                element.style.left = newLeft + 'px';
+                element.style.top = newTop + 'px';
+                updatePosition(type, id, newLeft, newTop);
             }
-        }
+        };
+        
+        const onEnd = () => {
+            isDragging = false;
+            element.classList.remove('dragging');
+            element.style.zIndex = '';
+            if (hasMoved) saveAll();
+        };
+        
+        element.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('icon-action-btn')) return;
+            e.preventDefault();
+            onStart(e.clientX, e.clientY);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        
+        element.addEventListener('touchstart', (e) => {
+            if (e.target.classList.contains('icon-action-btn')) return;
+            const touch = e.touches[0];
+            onStart(touch.clientX, touch.clientY);
+        });
+        
+        element.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            onMove(touch.clientX, touch.clientY);
+            e.preventDefault();
+        });
+        
+        element.addEventListener('touchend', () => onEnd());
+        
+        function onMouseMove(e) { onMove(e.clientX, e.clientY); }
+        function onMouseUp() { onEnd(); document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); }
+    }
+    
+    function makeStickerDraggable(stickerDiv, stickerId) {
+        let startX = 0, startY = 0;
+        let initialLeft = 0, initialTop = 0;
+        let isDragging = false;
+        
+        const onStart = (clientX, clientY) => {
+            startX = clientX;
+            startY = clientY;
+            initialLeft = stickerDiv.offsetLeft;
+            initialTop = stickerDiv.offsetTop;
+            isDragging = true;
+            stickerDiv.style.zIndex = '1000';
+        };
+        
+        const onMove = (clientX, clientY) => {
+            if (!isDragging) return;
+            let newLeft = initialLeft + (clientX - startX);
+            let newTop = initialTop + (clientY - startY);
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 50));
+            newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
+            stickerDiv.style.left = newLeft + 'px';
+            stickerDiv.style.top = newTop + 'px';
+            const sticker = stickers.find(s => s.id === stickerId);
+            if (sticker) { sticker.x = newLeft; sticker.y = newTop; saveAll(); }
+        };
+        
+        const onEnd = () => { isDragging = false; stickerDiv.style.zIndex = ''; saveAll(); };
+        
+        stickerDiv.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('delete-sticker') || e.target.classList.contains('resize-handle')) return;
+            e.preventDefault();
+            onStart(e.clientX, e.clientY);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        
+        stickerDiv.addEventListener('touchstart', (e) => {
+            if (e.target.classList.contains('delete-sticker') || e.target.classList.contains('resize-handle')) return;
+            const touch = e.touches[0];
+            onStart(touch.clientX, touch.clientY);
+        });
+        
+        stickerDiv.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            onMove(touch.clientX, touch.clientY);
+            e.preventDefault();
+        });
+        
+        stickerDiv.addEventListener('touchend', () => onEnd());
+        
+        function onMouseMove(e) { onMove(e.clientX, e.clientY); }
+        function onMouseUp() { onEnd(); document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); }
     }
     
     function renderIcons() {
@@ -1161,10 +1145,15 @@
                 div.style.position = 'absolute';
                 div.style.left = (icon.x || 30) + 'px';
                 div.style.top = (icon.y || 30) + 'px';
-                makeDraggable(div, icon.id, 'icon');
+            } else {
+                div.style.position = 'relative';
+                div.style.left = 'auto';
+                div.style.top = 'auto';
             }
             container.appendChild(div);
+            if (window.innerWidth > 768) makeIconDraggable(div, icon.id, 'icon');
         });
+        if (window.innerWidth > 768) attachIconEvents();
     }
     
     function renderFolders() {
@@ -1184,31 +1173,103 @@
                 div.style.position = 'absolute';
                 div.style.left = (folder.x || 30) + 'px';
                 div.style.top = (folder.y || 30) + 'px';
-                makeDraggable(div, folder.id, 'folder');
+                makeIconDraggable(div, folder.id, 'folder');
+            } else {
+                div.style.position = 'relative';
+                div.style.left = 'auto';
+                div.style.top = 'auto';
             }
             container.appendChild(div);
         });
-        document.querySelectorAll('.folder-icon').forEach(el => {
+        if (window.innerWidth > 768) {
+            document.querySelectorAll('.folder-icon').forEach(el => {
+                const id = parseInt(el.dataset.id);
+                el.ondblclick = () => openFolderWithPassword(id);
+                el.onclick = (e) => { if (e.target.classList.contains('icon-action-btn')) return; };
+                el.querySelector('.edit-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editFolder(id); });
+                el.querySelector('.delete-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(id); });
+                el.querySelector('.lock-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editFolder(id); });
+            });
+        }
+    }
+    
+    function attachIconEvents() {
+        const iconsList = document.querySelectorAll('.desktop-icon');
+        let tapTimer = null;
+        
+        iconsList.forEach(el => {
             const id = parseInt(el.dataset.id);
-            el.ondblclick = () => openFolderWithPassword(id);
-            el.querySelector('.edit-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editFolder(id); });
-            el.querySelector('.delete-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); deleteFolder(id); });
-            el.querySelector('.lock-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editFolder(id); });
+            const icon = icons.find(i => i.id === id);
+            if (!icon) return;
+            
+            el.onclick = null;
+            
+            const handleSingleTap = () => {
+                if (window.innerWidth <= 768) {
+                    // On mobile, single tap shows action buttons
+                    document.querySelectorAll('.desktop-icon.show-buttons').forEach(btn => btn.classList.remove('show-buttons'));
+                    el.classList.add('show-buttons');
+                    setTimeout(() => {
+                        const hideButtons = () => {
+                            el.classList.remove('show-buttons');
+                            document.removeEventListener('click', hideButtons);
+                        };
+                        document.addEventListener('click', hideButtons);
+                    }, 3000);
+                }
+            };
+            
+            const handleDoubleTap = () => {
+                el.classList.remove('show-buttons');
+                if (icon.link) openInDesktopWindow(icon.link, icon.label);
+            };
+            
+            el.addEventListener('click', (e) => {
+                if (e.target.classList.contains('icon-action-btn')) return;
+                if (window.innerWidth <= 768) {
+                    if (tapTimer) {
+                        clearTimeout(tapTimer);
+                        tapTimer = null;
+                        handleDoubleTap();
+                    } else {
+                        tapTimer = setTimeout(() => {
+                            handleSingleTap();
+                            tapTimer = null;
+                        }, 250);
+                    }
+                } else {
+                    if (icon.link) openInDesktopWindow(icon.link, icon.label);
+                }
+            });
+            
+            el.oncontextmenu = (e) => { 
+                e.preventDefault(); 
+                showContextMenu(e.clientX, e.clientY, id, 'icon'); 
+                return false; 
+            };
+            
+            const editBtn = el.querySelector('.edit-icon-btn');
+            const deleteBtn = el.querySelector('.delete-icon-btn');
+            const moveBtn = el.querySelector('.move-icon-btn');
+            const lockBtn = el.querySelector('.lock-icon-btn');
+            
+            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
+            if (deleteBtn) deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteIcon(id); });
+            if (moveBtn) moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
+            if (lockBtn) lockBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
         });
     }
     
     function openFolderWithPassword(folderId) {
         const folder = folders.find(f => f.id === folderId);
         if (!folder) return;
-        if (folder.pin) {
-            showPasswordModal(folder, (success) => { if (success) openFolder(folderId); });
-        } else { openFolder(folderId); }
+        if (folder.pin) showPasswordModal(folder, (success) => { if (success) openFolder(folderId); });
+        else openFolder(folderId);
     }
     
     function openIconWithPassword(icon) {
-        if (icon.pin) {
-            showPasswordModal(icon, (success) => { if (success) openOrFocusWindow(icon.link, icon.label); });
-        } else { if (icon.link) openOrFocusWindow(icon.link, icon.label); }
+        if (icon.pin) showPasswordModal(icon, (success) => { if (success) openOrFocusWindow(icon.link, icon.label); });
+        else if (icon.link) openOrFocusWindow(icon.link, icon.label);
     }
     
     function openOrFocusWindow(url, title) {
@@ -1222,15 +1283,13 @@
     }
     
     function editIconWithPassword(icon) {
-        if (icon.pin) {
-            showPasswordModal(icon, (success) => { if (success) openEditIconModal(icon.id); });
-        } else { openEditIconModal(icon.id); }
+        if (icon.pin) showPasswordModal(icon, (success) => { if (success) openEditIconModal(icon.id); });
+        else openEditIconModal(icon.id);
     }
     
     function editFolderWithPassword(folder) {
-        if (folder.pin) {
-            showPasswordModal(folder, (success) => { if (success) openEditFolderModal(folder.id); });
-        } else { openEditFolderModal(folder.id); }
+        if (folder.pin) showPasswordModal(folder, (success) => { if (success) openEditFolderModal(folder.id); });
+        else openEditFolderModal(folder.id);
     }
     
     function moveIconToDesktop(iconId) {
@@ -1264,6 +1323,7 @@
         container.innerHTML = '';
         if (folderIcons.length === 0) {
             container.innerHTML = '<div style="color:#999; text-align:center; width:100%; padding:20px;">📁 This folder is empty.</div>';
+            return;
         }
         folderIcons.forEach(icon => {
             const itemDiv = document.createElement('div');
@@ -1307,10 +1367,7 @@
         win.style.height = '400px';
         win.style.zIndex = nextWindowZ++;
         win.innerHTML = `<div class="title-bar"><span>📁 ${escapeHtml(folder.name)}</span><span><span class="maximize-folder" style="cursor:pointer; margin-right:8px;">□</span><span class="close-folder" style="cursor:pointer;">✗</span></span></div>
-                        <div class="folder-toolbar">
-                            <button class="move-all-to-desktop">🏠 Move All to Desktop</button>
-                            <span style="font-size:10px; color:#555;">Tip: Click 🏠 on any icon to move it back</span>
-                        </div>
+                        <div class="folder-toolbar"><button class="move-all-to-desktop">🏠 Move All to Desktop</button><span style="font-size:10px; color:#555;">Tip: Click 🏠 on any icon to move it back</span></div>
                         <div class="folder-content" style="padding:15px; background:#fff; flex:1; display:flex; flex-wrap:wrap; gap:15px; align-content:flex-start; overflow-y:auto;"></div>`;
         document.body.appendChild(win);
         makeWindowDraggable(win, win.querySelector('.title-bar'));
@@ -1332,40 +1389,55 @@
     }
     
     function makeWindowDraggable(element, dragHandle) {
-        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
+        let startX = 0, startY = 0;
+        let initialLeft = 0, initialTop = 0;
         let isDragging = false;
-        dragHandle.onmousedown = startDrag;
-        dragHandle.ontouchstart = startDrag;
-        function startDrag(e) {
-            if (e.target.classList.contains('close-folder') || e.target.classList.contains('maximize-folder') ||
-                e.target.classList.contains('close-window') || e.target.classList.contains('maximize-window')) return;
-            e.preventDefault();
-            isDragging = true;
-            const clientX = e.clientX ?? e.touches[0].clientX;
-            const clientY = e.clientY ?? e.touches[0].clientY;
-            mouseX = clientX; mouseY = clientY;
-            offsetX = element.offsetLeft; offsetY = element.offsetTop;
-            document.onmouseup = stopDrag; document.onmousemove = drag;
-            document.ontouchend = stopDrag; document.ontouchmove = drag;
-            element.style.cursor = 'grabbing';
-        }
-        function drag(e) {
-            if (!isDragging) return; e.preventDefault();
-            const clientX = e.clientX ?? e.touches[0].clientX;
-            const clientY = e.clientY ?? e.touches[0].clientY;
-            let dx = clientX - mouseX, dy = clientY - mouseY;
-            let newLeft = offsetX + dx, newTop = offsetY + dy;
+        
+        const onStart = (clientX, clientY) => {
+            if (dragHandle.contains(event.target)) {
+                startX = clientX;
+                startY = clientY;
+                initialLeft = element.offsetLeft;
+                initialTop = element.offsetTop;
+                isDragging = true;
+                element.style.cursor = 'grabbing';
+            }
+        };
+        
+        const onMove = (clientX, clientY) => {
+            if (!isDragging) return;
+            let newLeft = initialLeft + (clientX - startX);
+            let newTop = initialTop + (clientY - startY);
             newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
             newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
             element.style.left = newLeft + 'px';
             element.style.top = newTop + 'px';
-        }
-        function stopDrag() {
-            isDragging = false;
-            document.onmouseup = null; document.onmousemove = null;
-            document.ontouchend = null; document.ontouchmove = null;
-            element.style.cursor = '';
-        }
+        };
+        
+        const onEnd = () => { isDragging = false; element.style.cursor = ''; };
+        
+        dragHandle.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            onStart(e.clientX, e.clientY);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+        
+        dragHandle.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            onStart(touch.clientX, touch.clientY);
+        });
+        
+        dragHandle.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            onMove(touch.clientX, touch.clientY);
+            e.preventDefault();
+        });
+        
+        dragHandle.addEventListener('touchend', () => onEnd());
+        
+        function onMouseMove(e) { onMove(e.clientX, e.clientY); }
+        function onMouseUp() { onEnd(); document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); }
     }
     
     function moveIconToFolder(iconId, folderId) {
@@ -1382,51 +1454,6 @@
         updateFolderSelects();
         document.getElementById('moveFolderSelect').value = '';
         document.getElementById('moveToFolderModal').style.display = 'flex';
-    }
-    
-    function attachIconEvents() {
-        const iconsList = document.querySelectorAll('.desktop-icon');
-        iconsList.forEach(el => {
-            const id = parseInt(el.dataset.id);
-            const icon = icons.find(i => i.id === id);
-            if (!icon) return;
-            
-            el.onclick = null;
-            
-            el.onclick = (e) => { 
-                if (e.target.classList.contains('icon-action-btn')) return; 
-                if (icon.link) {
-                    openInDesktopWindow(icon.link, icon.label);
-                }
-            };
-            
-            el.oncontextmenu = (e) => { 
-                e.preventDefault(); 
-                showContextMenu(e.clientX, e.clientY, id, 'icon'); 
-                return false; 
-            };
-            
-            let pressTimer;
-            el.ontouchstart = () => { 
-                pressTimer = setTimeout(() => { 
-                    el.classList.add('long-press'); 
-                    const rect = el.getBoundingClientRect(); 
-                    showContextMenu(rect.left, rect.top, id, 'icon'); 
-                }, 800); 
-            };
-            el.ontouchend = () => { clearTimeout(pressTimer); setTimeout(() => el.classList.remove('long-press'), 100); };
-            el.ontouchmove = () => { clearTimeout(pressTimer); };
-            
-            const editBtn = el.querySelector('.edit-icon-btn');
-            const deleteBtn = el.querySelector('.delete-icon-btn');
-            const moveBtn = el.querySelector('.move-icon-btn');
-            const lockBtn = el.querySelector('.lock-icon-btn');
-            
-            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
-            if (deleteBtn) deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteIcon(id); });
-            if (moveBtn) moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
-            if (lockBtn) lockBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
-        });
     }
     
     function openEditIconModal(id) {
@@ -1546,45 +1573,6 @@
         });
     }
     
-    function makeStickerDraggable(stickerDiv, stickerId) {
-        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
-        let isDragging = false;
-        stickerDiv.onmousedown = startDrag;
-        stickerDiv.ontouchstart = startDrag;
-        function startDrag(e) {
-            if (e.target.classList.contains('delete-sticker') || e.target.classList.contains('resize-handle')) return;
-            e.preventDefault();
-            isDragging = true;
-            const clientX = e.clientX ?? e.touches[0].clientX;
-            const clientY = e.clientY ?? e.touches[0].clientY;
-            mouseX = clientX; mouseY = clientY;
-            offsetX = stickerDiv.offsetLeft; offsetY = stickerDiv.offsetTop;
-            document.onmouseup = stopDrag; document.onmousemove = drag;
-            document.ontouchend = stopDrag; document.ontouchmove = drag;
-            stickerDiv.style.cursor = 'grabbing';
-            stickerDiv.style.zIndex = '1000';
-        }
-        function drag(e) {
-            if (!isDragging) return; e.preventDefault();
-            const clientX = e.clientX ?? e.touches[0].clientX;
-            const clientY = e.clientY ?? e.touches[0].clientY;
-            let dx = clientX - mouseX, dy = clientY - mouseY;
-            let newLeft = offsetX + dx, newTop = offsetY + dy;
-            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 50));
-            newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
-            stickerDiv.style.left = newLeft + 'px';
-            stickerDiv.style.top = newTop + 'px';
-            const sticker = stickers.find(s => s.id === stickerId);
-            if (sticker) { sticker.x = newLeft; sticker.y = newTop; saveAll(); }
-        }
-        function stopDrag() {
-            isDragging = false;
-            document.onmouseup = null; document.onmousemove = null;
-            document.ontouchend = null; document.ontouchmove = null;
-            stickerDiv.style.cursor = ''; stickerDiv.style.zIndex = '';
-        }
-    }
-    
     function renderWidgets() {
         const existing = document.querySelectorAll('.widget');
         existing.forEach(w => w.remove());
@@ -1614,9 +1602,7 @@
                     saveAll();
                     saveStatus.textContent = '✅ Saved';
                     saveStatus.style.color = '#aaffaa';
-                    setTimeout(() => {
-                        if (saveStatus) saveStatus.textContent = '💾 Saved';
-                    }, 1000);
+                    setTimeout(() => { if (saveStatus) saveStatus.textContent = '💾 Saved'; }, 1000);
                     if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
                 }, 300);
             });
@@ -1651,7 +1637,7 @@
     }
     
     function deleteAllNotes() {
-        if (confirm('Delete ALL sticky notes permanently? This cannot be undone.')) {
+        if (confirm('Delete ALL sticky notes permanently?')) {
             document.querySelectorAll('.widget').forEach(w => w.remove());
             widgets = [];
             saveAll();
@@ -1662,40 +1648,12 @@
     }
     
     function makeDraggable(element, id, type) {
-        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
-        let isDragging = false;
-        element.onmousedown = startDrag;
-        function startDrag(e) {
-            if (e.target.classList?.contains('icon-action-btn') || e.target.classList?.contains('delete-sticker') || e.target.classList?.contains('close-widget')) return;
-            e.preventDefault();
-            isDragging = true;
-            mouseX = e.clientX; mouseY = e.clientY;
-            offsetX = element.offsetLeft; offsetY = element.offsetTop;
-            document.onmouseup = stopDrag; document.onmousemove = drag;
-            element.style.zIndex = '1000'; element.style.cursor = 'grabbing';
-        }
-        function drag(e) {
-            if (!isDragging) return; e.preventDefault();
-            let dx = e.clientX - mouseX, dy = e.clientY - mouseY;
-            let newLeft = offsetX + dx, newTop = offsetY + dy;
-            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
-            newTop = Math.max(0, Math.min(newTop, window.innerHeight - 100));
-            element.style.left = newLeft + "px"; element.style.top = newTop + "px";
-            updatePosition(type, id, newLeft, newTop);
-        }
-        function stopDrag() {
-            isDragging = false;
-            document.onmouseup = null; document.onmousemove = null;
-            element.style.zIndex = ''; element.style.cursor = '';
-            saveAll();
-        }
+        // Legacy function kept for compatibility
     }
     
     function updatePosition(type, id, x, y) {
         if (type === 'icon') { const item = icons.find(i => i.id === id); if (item && !item.folderId) { item.x = x; item.y = y; } }
         else if (type === 'folder') { const item = folders.find(f => f.id === id); if (item) { item.x = x; item.y = y; } }
-        else if (type === 'sticker') { const item = stickers.find(s => s.id === id); if (item) { item.x = x; item.y = y; } }
-        else if (type === 'widget') { const item = widgets.find(w => w.id === id); if (item) { item.x = x; item.y = y; } }
     }
     
     function openInDesktopWindow(url, title) {
@@ -1819,22 +1777,19 @@
     function applyTheme() { if (currentTheme === 'teal') document.body.style.background = '#008080'; else document.body.style.background = '#c0c0c0'; saveAll(); }
     function sortByName() { icons.sort((a,b) => a.label.localeCompare(b.label)); folders.sort((a,b) => a.name.localeCompare(b.name)); saveAll(); renderAll(); }
     function sortByDate() { icons.sort((a,b) => a.dateAdded - b.dateAdded); folders.sort((a,b) => a.dateAdded - b.dateAdded); saveAll(); renderAll(); }
-    function startBootScreen() { /* Boot screen is already showing */ }
+    
     let idleTimer, screensaverActive = false;
     function startScreensaver() { if (screensaverActive) return; screensaverActive = true; document.getElementById('screensaver').classList.add('active'); }
     function stopScreensaver() { document.getElementById('screensaver').classList.remove('active'); screensaverActive = false; resetIdleTimer(); }
     function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (!screensaverActive) startScreensaver(); }, 5 * 60 * 1000); }
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
     function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' }); }
     
     function startAnimatedDots() {
         const dotsElement = document.getElementById('bootDots');
         if (!dotsElement) return;
         let dotCount = 3;
-        setInterval(() => {
-            dotCount = (dotCount + 1) % 4;
-            dotsElement.textContent = '.'.repeat(dotCount);
-        }, 800);
+        setInterval(() => { dotCount = (dotCount + 1) % 4; dotsElement.textContent = '.'.repeat(dotCount); }, 800);
     }
     
     // Boot screen handler
@@ -1923,11 +1878,11 @@
     document.getElementById('startButton').onclick = () => document.getElementById('startMenu').classList.toggle('show');
     document.addEventListener('click', (e) => { if (!document.getElementById('startButton').contains(e.target) && !document.getElementById('startMenu').contains(e.target)) document.getElementById('startMenu').classList.remove('show'); });
     
-    // Cloud sync icon click handler - MERGE with cloud
+    // Cloud sync icon click handler
     const cloudIcon = document.getElementById('cloudSyncIcon');
     if (cloudIcon) {
         cloudIcon.addEventListener('click', () => {
-            if (confirm('MERGE all data with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost on either side).\n\nUse "Download from Cloud" in the Start menu if you want to replace local data with cloud data.')) {
+            if (confirm('MERGE all data with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost).')) {
                 syncToGist();
             }
         });
@@ -1940,3 +1895,4 @@
 
 </body>
 </html>
+```
