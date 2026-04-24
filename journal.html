@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -1013,4 +1012,246 @@
         document.getElementById('entryTitle').value = entry.title;
         document.getElementById('entryDate').value = entry.date;
         document.getElementById('entryMood').value = entry.mood || '😊';
-        document
+        document.getElementById('entryContent').value = entry.content;
+        currentImages = [...(entry.images || [])];
+        currentStickers = [...(entry.stickers || [])];
+        renderImagesList();
+        renderStickerPalette();
+        renderSelectedStickers();
+        document.getElementById('entryModal').style.display = 'flex';
+    }
+
+    function deleteEntry(id) {
+        if (confirm('Delete this entry forever?')) {
+            journalEntries = journalEntries.filter(e => e.id !== id);
+            saveEntries();
+        }
+    }
+
+    function saveEntry() {
+        const title = document.getElementById('entryTitle').value.trim();
+        const date = document.getElementById('entryDate').value;
+        const mood = document.getElementById('entryMood').value;
+        const content = document.getElementById('entryContent').value.trim();
+
+        if (!date) {
+            alert('Please select a date');
+            return;
+        }
+        if (!content && !title) {
+            alert('Please write something in your entry');
+            return;
+        }
+
+        if (editingEntryId) {
+            const index = journalEntries.findIndex(e => e.id === editingEntryId);
+            if (index !== -1) {
+                journalEntries[index].title = title;
+                journalEntries[index].date = date;
+                journalEntries[index].mood = mood;
+                journalEntries[index].content = content;
+                journalEntries[index].images = [...currentImages];
+                journalEntries[index].stickers = [...currentStickers];
+            }
+        } else {
+            journalEntries.push({
+                id: Date.now(),
+                title: title,
+                date: date,
+                mood: mood,
+                content: content,
+                images: [...currentImages],
+                stickers: [...currentStickers]
+            });
+        }
+        saveEntries();
+        document.getElementById('entryModal').style.display = 'none';
+    }
+
+    function renderStickerPalette() {
+        const palette = document.getElementById('stickerPalette');
+        palette.innerHTML = availableStickers.map(s => 
+            `<div class="sticker-option" data-sticker="${s}">${s}</div>`
+        ).join('');
+        
+        document.querySelectorAll('.sticker-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                currentStickers.push(opt.dataset.sticker);
+                renderSelectedStickers();
+            });
+        });
+    }
+
+    function renderSelectedStickers() {
+        const container = document.getElementById('selectedStickers');
+        container.innerHTML = currentStickers.map((s, idx) => 
+            `<div style="position:relative; font-size:28px; padding:5px; border:1px solid #ccc;">
+                ${s}
+                <span style="position:absolute; top:-5px; right:-5px; width:14px; height:14px; background:#c0c0c0; border:1px solid #000; border-radius:10px; font-size:9px; text-align:center; line-height:12px; cursor:pointer;" data-idx="${idx}">✗</span>
+            </div>`
+        ).join('');
+        
+        document.querySelectorAll('#selectedStickers span').forEach(span => {
+            span.addEventListener('click', (e) => {
+                const idx = parseInt(span.dataset.idx);
+                currentStickers.splice(idx, 1);
+                renderSelectedStickers();
+            });
+        });
+    }
+
+    function applyFilter() {
+        renderEntries();
+        renderFilters();
+    }
+
+    function clearSearch() {
+        currentFilter = { keyword: '', date: '', year: null, month: null };
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchDate').value = '';
+        renderEntries();
+        renderFilters();
+    }
+
+    function exportAll() {
+        const dataStr = JSON.stringify(journalEntries, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `journal-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('Journal exported successfully!');
+    }
+
+    function formatDate(dateStr) {
+        const [year, month, day] = dateStr.split('-');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${monthNames[parseInt(month)-1]} ${parseInt(day)}, ${year}`;
+    }
+
+    function getImagePath(path) {
+        if (!path) return '';
+        if (path.startsWith('http') || path.startsWith('data:')) return path;
+        if (!path.startsWith('images/') && !path.startsWith('http')) return 'images/' + path;
+        return path;
+    }
+
+    function openLightbox(src) {
+        const lightbox = document.getElementById('lightbox');
+        const img = document.getElementById('lightboxImg');
+        img.src = src;
+        lightbox.style.display = 'flex';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, (m) => {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function makeDraggable(popupId, handleId) {
+        const popup = document.getElementById(popupId);
+        const handle = document.getElementById(handleId);
+        if (!popup || !handle) return;
+        
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        handle.onmousedown = dragMouseDown;
+        
+        function dragMouseDown(e) {
+            if (e.target.classList.contains('buttons')) return;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDrag;
+            document.onmousemove = elementDrag;
+        }
+        
+        function elementDrag(e) {
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            popup.style.top = (popup.offsetTop - pos2) + 'px';
+            popup.style.left = (popup.offsetLeft - pos1) + 'px';
+            popup.style.transform = 'none';
+        }
+        
+        function closeDrag() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    // ========== SYNC SETTINGS ==========
+    function openSyncModal() {
+        document.getElementById('syncToken').value = '';
+        document.getElementById('syncGistId').value = gistId || '';
+        document.getElementById('syncModal').style.display = 'flex';
+    }
+
+    function saveSyncSettings() {
+        const newToken = document.getElementById('syncToken').value.trim();
+        const newGistId = document.getElementById('syncGistId').value.trim();
+        if (newToken) {
+            githubToken = newToken;
+            localStorage.setItem('github_token_journal', newToken);
+        }
+        if (newGistId) {
+            gistId = newGistId;
+            localStorage.setItem('gist_id_journal', newGistId);
+        }
+        document.getElementById('syncModal').style.display = 'none';
+        updateSyncStatus("Settings saved, reloading...", "loading");
+        setTimeout(() => location.reload(), 1000);
+    }
+
+    function resetSyncSettings() {
+        localStorage.removeItem('github_token_journal');
+        localStorage.removeItem('gist_id_journal');
+        githubToken = null;
+        gistId = null;
+        document.getElementById('syncModal').style.display = 'none';
+        updateSyncStatus("Settings cleared", "success");
+        setTimeout(() => location.reload(), 1000);
+    }
+
+    // ========== INITIALIZE ==========
+    document.getElementById('newEntryBtn').onclick = openNewEntryModal;
+    document.getElementById('exportAllBtn').onclick = exportAll;
+    document.getElementById('helpBtn').onclick = () => document.getElementById('helpModal').style.display = 'flex';
+    document.getElementById('closeHelpModal').onclick = () => document.getElementById('helpModal').style.display = 'none';
+    document.getElementById('closeHelpBtn').onclick = () => document.getElementById('helpModal').style.display = 'none';
+    document.getElementById('closeModal').onclick = () => document.getElementById('entryModal').style.display = 'none';
+    document.getElementById('closeViewModal').onclick = () => document.getElementById('viewModal').style.display = 'none';
+    document.getElementById('saveEntryBtn').onclick = saveEntry;
+    document.getElementById('searchBtn').onclick = () => {
+        currentFilter.keyword = document.getElementById('searchInput').value;
+        currentFilter.date = document.getElementById('searchDate').value;
+        currentFilter.year = null;
+        currentFilter.month = null;
+        applyFilter();
+    };
+    document.getElementById('clearSearchBtn').onclick = clearSearch;
+    document.getElementById('lightbox').onclick = () => document.getElementById('lightbox').style.display = 'none';
+    document.getElementById('addImageBtn').onclick = addImageUrl;
+    document.getElementById('syncSettingsBtn').onclick = openSyncModal;
+    document.getElementById('saveSyncSettingsBtn').onclick = saveSyncSettings;
+    document.getElementById('resetSyncBtn').onclick = resetSyncSettings;
+    document.getElementById('closeSyncModal').onclick = () => document.getElementById('syncModal').style.display = 'none';
+    
+    makeDraggable('entryModal', 'modalTitleBar');
+    makeDraggable('helpModal', 'closeHelpModal');
+    makeDraggable('viewModal', 'viewTitleBar');
+    makeDraggable('syncModal', 'syncTitleBar');
+
+    loadEntries();
+</script>
+</body>
+</html>
