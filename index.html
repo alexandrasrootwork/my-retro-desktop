@@ -65,7 +65,6 @@
         
         .sticker img, .sticker .sticker-emoji { pointer-events: none; display: block; }
         
-        /* Widget (Sticky Note) */
         .widget {
             position: absolute;
             background: #ffffcc;
@@ -81,8 +80,7 @@
             background: #000080;
             color: white;
             padding: 4px 8px;
-            display: flex;
-            justify-content: space-between;
+            display: flex; justify-content: space-between;
             cursor: move;
             font-size: 11px;
         }
@@ -105,7 +103,6 @@
         .save-status { font-size: 9px; margin-right: 8px; color: #aaffaa; }
         .hide-widget { cursor: pointer; }
         
-        /* Notes Manager Window */
         .notes-manager {
             position: fixed;
             background: #c0c0c0;
@@ -122,8 +119,7 @@
             background: #000080;
             color: white;
             padding: 6px 8px;
-            display: flex;
-            justify-content: space-between;
+            display: flex; justify-content: space-between;
             cursor: move;
         }
         .notes-list {
@@ -276,7 +272,7 @@
         }
         .modal-content {
             background: #c0c0c0; border: 2px solid #fff; border-right-color: #000;
-            border-bottom-color: #000; width: 400px; max-width: 90%;
+            border-bottom-color: #000; width: 420px; max-width: 90%;
         }
         .modal-title-bar { background: #000080; color: white; padding: 6px 8px; display: flex; justify-content: space-between; cursor: move; }
         .modal-body { padding: 15px; }
@@ -298,7 +294,6 @@
         .context-menu-item { padding: 6px 12px; cursor: pointer; font-size: 12px; }
         .context-menu-item:hover { background: #000080; color: white; }
         
-        /* Boot Screen - Full screen, click to enter */
         .boot-screen {
             position: fixed;
             top: 0;
@@ -322,38 +317,11 @@
             to { opacity: 1; }
         }
         
-        .boot-logo {
-            font-size: 48px;
-            margin-bottom: 30px;
-            font-family: monospace;
-        }
-        
-        .boot-text {
-            font-size: 14px;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
-        
-        .boot-dots {
-            font-size: 20px;
-            font-family: monospace;
-            min-width: 60px;
-            text-align: left;
-            display: inline-block;
-        }
-        
-        .boot-subtext {
-            font-size: 11px;
-            margin-top: 40px;
-            color: #888;
-        }
-        
-        .boot-click-hint {
-            font-size: 10px;
-            margin-top: 20px;
-            color: #666;
-            animation: pulse 1.5s infinite;
-        }
+        .boot-logo { font-size: 48px; margin-bottom: 30px; font-family: monospace; }
+        .boot-text { font-size: 14px; margin-bottom: 10px; letter-spacing: 2px; }
+        .boot-dots { font-size: 20px; font-family: monospace; min-width: 60px; text-align: left; display: inline-block; }
+        .boot-subtext { font-size: 11px; margin-top: 40px; color: #888; }
+        .boot-click-hint { font-size: 10px; margin-top: 20px; color: #666; animation: pulse 1.5s infinite; }
         
         @keyframes pulse {
             0%, 100% { opacity: 0.3; }
@@ -372,24 +340,25 @@
             border-bottom-color: #000; z-index: 1100; display: none;
         }
         
-        /* Sync Status - Small, non-intrusive */
-        .sync-status {
+        /* Backup reminder */
+        .backup-reminder {
             position: fixed;
-            bottom: 50px;
+            bottom: 100px;
             right: 10px;
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 4px 10px;
+            padding: 8px 12px;
             font-size: 10px;
-            z-index: 1000;
+            z-index: 1001;
+            display: none;
             font-family: 'MS Sans Serif', Tahoma, sans-serif;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
         }
-        .sync-status:hover { opacity: 1; }
+        .backup-reminder button {
+            margin-left: 8px;
+        }
         
         @media (max-width: 768px) {
             .icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px 10px; }
@@ -401,13 +370,13 @@
             .notes-manager { width: 95%; height: 80%; left: 2.5% !important; top: 10% !important; }
             .boot-text { font-size: 10px; }
             .boot-logo { font-size: 32px; }
-            .sync-status { bottom: 60px; font-size: 8px; }
+            .backup-reminder { bottom: 110px; font-size: 9px; }
         }
     </style>
 </head>
 <body>
 
-<!-- BOOT SCREEN - Must click to enter desktop -->
+<!-- BOOT SCREEN -->
 <div class="boot-screen" id="bootScreen">
     <div class="boot-logo">
         <img src="images/Windows_95_FLYING_WINDOWS.png" style="width: 100px; height: 100px; image-rendering: pixelated;">
@@ -443,9 +412,8 @@
     <div class="start-menu-item" id="sortByNameBtn">🔤 Sort Icons by Name</div>
     <div class="start-menu-item" id="sortByDateBtn">📅 Sort by Date</div>
     <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="legacyBtn">💾 Legacy Export</div>
-    <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="syncSettingsBtn">☁️ Sync</div>
+    <div class="start-menu-item" id="legacyExportBtn">💾 Legacy Export</div>
+    <div class="start-menu-item" id="legacyImportBtn">📂 Legacy Import</div>
     <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="settingsBtn">⚙️ Settings</div>
 </div>
@@ -463,24 +431,9 @@
     </div>
 </div>
 
-<!-- Sync Settings Modal -->
-<div class="modal" id="syncModal">
-    <div class="modal-content">
-        <div class="modal-title-bar" id="syncTitleBar">
-            <span>☁️ Sync Settings</span>
-            <span style="cursor:pointer" id="closeSyncModal">✗</span>
-        </div>
-        <div class="modal-body">
-            <p style="margin-bottom:10px;">Your desktop syncs across all devices using GitHub Gist.</p>
-            <label>GitHub Token:</label>
-            <input type="password" id="syncToken" placeholder="Enter your GitHub Personal Access Token">
-            <label>Gist ID:</label>
-            <input type="text" id="syncGistId" placeholder="Gist ID" value="b1e0317194191680303f5106f4db0d27">
-            <button id="saveSyncSettingsBtn" class="retro-button">💾 Save & Sync</button>
-            <button id="resetSyncBtn" class="retro-button" style="margin-left:8px;">🗑️ Clear Settings</button>
-            <div id="syncStatusMsg" style="margin-top:10px; font-size:11px; color:#666;"></div>
-        </div>
-    </div>
+<!-- Backup Reminder -->
+<div id="backupReminder" class="backup-reminder">
+    💾 Time to backup your desktop! <button id="backupNowBtn">Backup Now</button> <button id="remindLaterBtn">Later</button>
 </div>
 
 <!-- Modals -->
@@ -507,9 +460,6 @@
 <div class="screensaver" id="screensaver"><div class="screensaver-text">✨ ~ Dreaming ~ ✨</div></div>
 <div class="context-menu" id="contextMenu"></div>
 
-<!-- Sync Status Indicator -->
-<div class="sync-status" id="syncStatusIndicator">☁️ Ready</div>
-
 <script>
     let icons = [];
     let folders = [];
@@ -528,103 +478,17 @@
     let pendingPasswordCallback = null;
     let pendingPasswordItem = null;
     
-    // Audio unlocked flag
     let audioUnlocked = false;
     let startupSoundPlayed = false;
     
-    // ========== SYNC CONFIGURATION ==========
-    const DEFAULT_GIST_ID = "b1e0317194191680303f5106f4db0d27";
-    let githubToken = localStorage.getItem('github_token_desktop');
-    let gistId = localStorage.getItem('gist_id_desktop') || DEFAULT_GIST_ID;
-    let syncInProgress = false;
-    
-    // ========== SYNC FUNCTIONS ==========
-    function updateSyncStatus(message, type) {
-        const indicator = document.getElementById('syncStatusIndicator');
-        if (indicator) {
-            indicator.textContent = message;
-            indicator.style.background = type === 'success' ? '#00aa00' : (type === 'error' ? '#aa0000' : (type === 'loading' ? '#000080' : '#c0c0c0'));
-            indicator.style.color = type === 'loading' ? 'white' : 'black';
-        }
-        // Auto-hide success messages after 3 seconds
-        if (type === 'success') {
-            setTimeout(() => {
-                if (indicator && indicator.textContent === message) {
-                    indicator.textContent = '☁️ Synced';
-                    indicator.style.background = '#c0c0c0';
-                    indicator.style.color = 'black';
-                }
-            }, 3000);
-        }
-    }
-    
-    async function loadFromGist() {
-        if (!githubToken) return false;
-        try {
-            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-                headers: { 'Authorization': `token ${githubToken}` }
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const gist = await response.json();
-            const content = gist.files['retro-desktop-data.json']?.content;
-            if (content) {
-                const data = JSON.parse(content);
-                icons = data.icons || [];
-                folders = data.folders || [];
-                stickers = data.stickers || [];
-                widgets = [];
-                recycleBin = data.recycleBin || [];
-                currentWallpaper = data.currentWallpaper || '';
-                currentTheme = data.currentTheme || 'teal';
-                return true;
-            }
-        } catch (err) {
-            console.warn('Gist load error (non-critical):', err);
-        }
-        return false;
-    }
-    
-    async function saveToGist() {
-        if (!githubToken || syncInProgress) return false;
-        syncInProgress = true;
-        try {
-            const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
-            const content = JSON.stringify(allData, null, 2);
-            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `token ${githubToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    files: { 'retro-desktop-data.json': { content: content } }
-                })
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return true;
-        } catch (err) {
-            console.warn('Gist save error:', err);
-            return false;
-        } finally {
-            syncInProgress = false;
-        }
-    }
-    
-    // Modified saveAll - saves locally first, then syncs in background
+    // ========== DATA MANAGEMENT ==========
     function saveAll() {
         const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
         localStorage.setItem('retroDesktop', JSON.stringify(allData));
-        renderAll();
-        // Background sync
-        if (githubToken) {
-            updateSyncStatus("Saving...", "loading");
-            saveToGist().then(success => {
-                updateSyncStatus(success ? "✓ Saved" : "⚠️ Offline", success ? "success" : "error");
-            });
-        }
+        // Update last backup tracking
+        localStorage.setItem('lastBackupDate', new Date().toISOString().split('T')[0]);
     }
     
-    // Modified loadAll - loads local first, syncs in background
     function loadAll() {
         const saved = localStorage.getItem('retroDesktop');
         if (saved) {
@@ -650,20 +514,88 @@
         else document.body.style.background = '#008080';
         renderAll();
         
-        // Background sync after load
-        if (githubToken) {
-            updateSyncStatus("Syncing...", "loading");
-            loadFromGist().then(success => {
-                if (success) {
-                    updateSyncStatus("✓ Synced", "success");
-                    renderAll(); // Re-render with cloud data
-                } else {
-                    updateSyncStatus("⚠️ Offline", "error");
-                }
-            });
+        // Check for backup reminder (once per day)
+        checkBackupReminder();
+    }
+    
+    // ========== BACKUP REMINDER ==========
+    function checkBackupReminder() {
+        const lastBackup = localStorage.getItem('lastBackupDate');
+        const today = new Date().toISOString().split('T')[0];
+        const reminderDismissed = localStorage.getItem('reminderDismissedDate');
+        
+        // If no backup today and reminder not dismissed today
+        if (lastBackup !== today && reminderDismissed !== today) {
+            setTimeout(() => {
+                document.getElementById('backupReminder').style.display = 'block';
+            }, 5000); // Show after 5 seconds
         }
     }
     
+    function performBackup() {
+        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
+        const dataStr = JSON.stringify(allData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `retro-desktop-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        localStorage.setItem('lastBackupDate', new Date().toISOString().split('T')[0]);
+        document.getElementById('backupReminder').style.display = 'none';
+        alert('✅ Backup saved to your downloads folder!');
+    }
+    
+    function dismissReminder() {
+        localStorage.setItem('reminderDismissedDate', new Date().toISOString().split('T')[0]);
+        document.getElementById('backupReminder').style.display = 'none';
+    }
+    
+    // ========== LEGACY IMPORT/EXPORT ==========
+    function legacyExport() {
+        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
+        const dataStr = JSON.stringify(allData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `retro-desktop-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('Desktop exported successfully!');
+    }
+    
+    function legacyImport() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    if (importedData.icons) icons = importedData.icons;
+                    if (importedData.folders) folders = importedData.folders;
+                    if (importedData.stickers) stickers = importedData.stickers;
+                    if (importedData.recycleBin) recycleBin = importedData.recycleBin;
+                    if (importedData.currentWallpaper) currentWallpaper = importedData.currentWallpaper;
+                    if (importedData.currentTheme) currentTheme = importedData.currentTheme;
+                    saveAll();
+                    alert('✅ Import successful! Refreshing...');
+                    location.reload();
+                } catch (err) {
+                    alert('❌ Invalid file');
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    }
+    
+    // ========== REMAINING ORIGINAL FUNCTIONS ==========
     function updateFolderSelects() {
         const select1 = document.getElementById('iconFolderSelect');
         const select2 = document.getElementById('moveFolderSelect');
@@ -677,11 +609,8 @@
         }
     }
     
-    // Unlock audio (called when boot screen is clicked)
     function unlockAudio() {
         if (audioUnlocked) return;
-        
-        // Create silent AudioContext to unlock audio
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const silentBuffer = audioCtx.createBuffer(1, 1, 22050);
         const source = audioCtx.createBufferSource();
@@ -689,11 +618,7 @@
         source.connect(audioCtx.destination);
         source.start();
         audioCtx.close();
-        
         audioUnlocked = true;
-        console.log('✅ Audio unlocked by boot screen click');
-        
-        // Play startup sound if enabled
         playStartupSound();
     }
     
@@ -704,9 +629,7 @@
             startupSoundPlayed = true;
             const audio = new Audio('sounds/winxp.mp3'); 
             audio.volume = 0.3; 
-            audio.play().then(() => {
-                console.log('✅ Startup sound played!');
-            }).catch(e=>console.log('Sound error:', e)); 
+            audio.play().catch(e=>console.log('Sound error:', e)); 
         } 
     }
     
@@ -714,7 +637,6 @@
         const container = document.getElementById('taskbarWindowsContainer');
         const existingBtn = document.querySelector(`.taskbar-window-btn[data-window-id="${windowId}"]`);
         if (existingBtn) return existingBtn;
-        
         const btn = document.createElement('div');
         btn.className = 'taskbar-window-btn';
         btn.setAttribute('data-window-id', windowId);
@@ -737,12 +659,10 @@
     function refreshNotesManager() {
         const notesList = document.getElementById('notesList');
         if (!notesList) return;
-        
         if (widgets.length === 0) {
             notesList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">📝 No sticky notes yet. Click "Add Sticky Note" to create one.</div>';
             return;
         }
-        
         notesList.innerHTML = '';
         widgets.slice().reverse().forEach(widget => {
             const noteDiv = document.createElement('div');
@@ -790,16 +710,13 @@
     }
     
     function showAllNotes() {
-        document.querySelectorAll('.widget').forEach(div => {
-            div.style.display = 'block';
-        });
+        document.querySelectorAll('.widget').forEach(div => { div.style.display = 'block'; });
         if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
     }
     
     function selectSticker(stickerId) {
         document.querySelectorAll('.sticker').forEach(s => s.classList.remove('selected'));
         if (hideHandlesTimeout) clearTimeout(hideHandlesTimeout);
-        
         const stickerDiv = document.querySelector(`.sticker[data-id="${stickerId}"]`);
         if (stickerDiv) {
             stickerDiv.classList.add('selected');
@@ -828,7 +745,6 @@
     function startResize(e, stickerDiv, stickerId, direction) {
         e.preventDefault();
         e.stopPropagation();
-        
         const startX = e.clientX ?? e.touches[0].clientX;
         const startY = e.clientY ?? e.touches[0].clientY;
         const startWidth = stickerDiv.offsetWidth;
@@ -837,7 +753,6 @@
         const startTop = stickerDiv.offsetTop;
         const sticker = stickers.find(s => s.id === stickerId);
         if (!sticker) return;
-        
         function doResize(moveEvent) {
             const clientX = moveEvent.clientX ?? moveEvent.touches[0].clientX;
             const clientY = moveEvent.clientY ?? moveEvent.touches[0].clientY;
@@ -1198,32 +1113,19 @@
         document.getElementById('moveToFolderModal').style.display = 'flex';
     }
     
-    // FIXED: attachIconEvents with drag detection
     function attachIconEvents() {
         document.querySelectorAll('.desktop-icon').forEach(el => {
             const id = parseInt(el.dataset.id);
             const icon = icons.find(i => i.id === id);
-            
             let isDragging = false;
-            
-            el.addEventListener('dragstart', () => { 
-                isDragging = true; 
-            });
-            
-            el.addEventListener('dragend', () => { 
-                setTimeout(() => { isDragging = false; }, 100);
-            });
-            
+            el.addEventListener('dragstart', () => { isDragging = true; });
+            el.addEventListener('dragend', () => { setTimeout(() => { isDragging = false; }, 100); });
             el.onclick = (e) => { 
                 if (e.target.classList.contains('icon-action-btn')) return; 
-                if (!isDragging) {
-                    openIconWithPassword(icon); 
-                }
+                if (!isDragging) { openIconWithPassword(icon); }
                 isDragging = false;
             };
-            
             el.oncontextmenu = (e) => { e.preventDefault(); showContextMenu(e.clientX, e.clientY, id, 'icon'); return false; };
-            
             let pressTimer;
             el.ontouchstart = () => { 
                 pressTimer = setTimeout(() => { 
@@ -1234,7 +1136,6 @@
             };
             el.ontouchend = () => { clearTimeout(pressTimer); setTimeout(() => el.classList.remove('long-press'), 100); };
             el.ontouchmove = () => { clearTimeout(pressTimer); };
-            
             el.querySelector('.edit-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
             el.querySelector('.delete-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); deleteIcon(id); });
             el.querySelector('.move-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
@@ -1401,7 +1302,6 @@
     function renderWidgets() {
         const existing = document.querySelectorAll('.widget');
         existing.forEach(w => w.remove());
-        
         widgets.forEach(widget => {
             const div = document.createElement('div');
             div.className = 'widget';
@@ -1415,13 +1315,10 @@
             div.innerHTML = `<div class="widget-title-bar"><span>📝 Sticky Note</span><div><span class="save-status" style="font-size:9px; margin-right:8px; color:#aaffaa;">💾 Saved</span><span class="hide-widget" data-id="${widget.id}" style="cursor:pointer;">✗</span></div></div>
                             <div class="widget-content"><textarea class="note-textarea" data-id="${widget.id}" placeholder="Write your note here...">${escapeHtml(widget.text || '')}</textarea></div>`;
             document.querySelector('.desktop').appendChild(div);
-            
             makeWindowDraggable(div, div.querySelector('.widget-title-bar'));
-            
             const textarea = div.querySelector('textarea');
             const saveStatus = div.querySelector('.save-status');
             let saveTimeout = null;
-            
             textarea.addEventListener('input', (e) => { 
                 widget.text = e.target.value;
                 saveStatus.textContent = '💾 Saving...';
@@ -1437,7 +1334,6 @@
                     if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
                 }, 300);
             });
-            
             const hideBtn = div.querySelector('.hide-widget');
             hideBtn.addEventListener('click', () => {
                 widget.text = textarea.value;
@@ -1445,13 +1341,11 @@
                 div.style.display = 'none';
                 if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
             });
-            
             div.addEventListener('focusout', () => {
                 widget.text = textarea.value;
                 saveAll();
                 if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
             });
-            
             const resizeObserver = new ResizeObserver(() => {
                 if (div.style.display !== 'none') {
                     widget.width = div.offsetWidth;
@@ -1465,15 +1359,7 @@
     
     function addWidget() {
         const newId = Date.now();
-        widgets.push({ 
-            id: newId, 
-            text: '', 
-            x: 100 + (widgets.length * 20), 
-            y: 100 + (widgets.length * 20), 
-            width: 220, 
-            height: 160, 
-            dateAdded: newId
-        });
+        widgets.push({ id: newId, text: '', x: 100 + (widgets.length * 20), y: 100 + (widgets.length * 20), width: 220, height: 160, dateAdded: newId });
         saveAll();
         renderWidgets();
     }
@@ -1647,7 +1533,6 @@
     function applyTheme() { if (currentTheme === 'teal') document.body.style.background = '#008080'; else document.body.style.background = '#c0c0c0'; saveAll(); }
     function sortByName() { icons.sort((a,b) => a.label.localeCompare(b.label)); folders.sort((a,b) => a.name.localeCompare(b.name)); saveAll(); renderAll(); }
     function sortByDate() { icons.sort((a,b) => a.dateAdded - b.dateAdded); folders.sort((a,b) => a.dateAdded - b.dateAdded); saveAll(); renderAll(); }
-    function legacyExport() { const data = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `retro-desktop-backup-${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url); alert('Backup exported!'); }
     function startBootScreen() { /* Boot screen is already showing */ }
     let idleTimer, screensaverActive = false;
     function startScreensaver() { if (screensaverActive) return; screensaverActive = true; document.getElementById('screensaver').classList.add('active'); }
@@ -1656,40 +1541,6 @@
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
     function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' }); }
     
-    // ========== SYNC SETTINGS FUNCTIONS ==========
-    function openSyncModal() {
-        document.getElementById('syncToken').value = '';
-        document.getElementById('syncGistId').value = gistId;
-        document.getElementById('syncModal').style.display = 'flex';
-    }
-    
-    function saveSyncSettings() {
-        const newToken = document.getElementById('syncToken').value.trim();
-        const newGistId = document.getElementById('syncGistId').value.trim();
-        if (newToken) {
-            githubToken = newToken;
-            localStorage.setItem('github_token_desktop', newToken);
-        }
-        if (newGistId) {
-            gistId = newGistId;
-            localStorage.setItem('gist_id_desktop', newGistId);
-        }
-        document.getElementById('syncModal').style.display = 'none';
-        updateSyncStatus("Settings saved", "success");
-        setTimeout(() => location.reload(), 1000);
-    }
-    
-    function resetSyncSettings() {
-        localStorage.removeItem('github_token_desktop');
-        localStorage.removeItem('gist_id_desktop');
-        githubToken = null;
-        gistId = DEFAULT_GIST_ID;
-        document.getElementById('syncModal').style.display = 'none';
-        updateSyncStatus("Settings cleared", "success");
-        setTimeout(() => location.reload(), 1000);
-    }
-    
-    // Animated dots on boot screen
     function startAnimatedDots() {
         const dotsElement = document.getElementById('bootDots');
         if (!dotsElement) return;
@@ -1700,29 +1551,26 @@
         }, 800);
     }
     
-    // Boot screen click handler - enters desktop and unlocks audio
+    // Boot screen handler
     const bootScreen = document.getElementById('bootScreen');
     const desktop = document.getElementById('desktop');
     const taskbar = document.getElementById('taskbar');
     
     bootScreen.addEventListener('click', function() {
-        // Unlock audio
         unlockAudio();
-        // Fade out boot screen
         bootScreen.style.opacity = '0';
         bootScreen.style.transition = 'opacity 0.5s ease';
         setTimeout(() => {
             bootScreen.style.display = 'none';
             desktop.style.display = 'block';
             taskbar.style.display = 'flex';
-            // Initialize everything after boot
             loadAll();
             setInterval(updateClock, 1000);
             resetIdleTimer();
         }, 500);
     });
     
-    // Event listeners for menu items
+    // Menu event listeners
     document.getElementById('addIconBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); window.editingIconId = null; updateFolderSelects(); document.getElementById('modalTitle').innerText = 'Add Icon'; document.getElementById('iconLabel').value = ''; document.getElementById('iconLink').value = ''; document.getElementById('iconImageUrl').value = ''; document.getElementById('iconPin').value = ''; document.getElementById('iconHint').value = ''; document.getElementById('iconFolderSelect').value = ''; document.getElementById('iconModal').style.display = 'flex'; };
     
     document.getElementById('saveIconBtn').onclick = () => {
@@ -1770,12 +1618,12 @@
     document.getElementById('recycleBinBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showRecycleBin(); };
     document.getElementById('sortByNameBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByName(); };
     document.getElementById('sortByDateBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByDate(); };
-    document.getElementById('legacyBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyExport(); };
+    document.getElementById('legacyExportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyExport(); };
+    document.getElementById('legacyImportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyImport(); };
     document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); document.getElementById('settingsModal').style.display = 'flex'; };
-    document.getElementById('syncSettingsBtn').onclick = openSyncModal;
-    document.getElementById('saveSyncSettingsBtn').onclick = saveSyncSettings;
-    document.getElementById('resetSyncBtn').onclick = resetSyncSettings;
-    document.getElementById('closeSyncModal').onclick = () => document.getElementById('syncModal').style.display = 'none';
+    
+    document.getElementById('backupNowBtn').onclick = () => { performBackup(); };
+    document.getElementById('remindLaterBtn').onclick = () => { dismissReminder(); };
     
     document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
     document.getElementById('closeWallpaperModal').onclick = () => document.getElementById('wallpaperModal').style.display = 'none';
@@ -1791,7 +1639,6 @@
     
     makeWindowDraggable(document.getElementById('notesManager'), document.getElementById('notesManagerTitleBar'));
     
-    // Start animated dots
     startAnimatedDots();
 </script>
 
