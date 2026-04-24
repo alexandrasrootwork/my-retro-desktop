@@ -266,7 +266,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   display: none;
-  width: 400px;
+  width: 420px;
   max-width: 90%;
   z-index: 2000;
   box-shadow: 4px 4px 0 #7a7a7a;
@@ -353,6 +353,22 @@ body {
   color: white;
 }
 
+/* Sync Status */
+.sync-status {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: #c0c0c0;
+  border: 2px solid #fff;
+  border-right-color: #000;
+  border-bottom-color: #000;
+  padding: 4px 10px;
+  font-size: 10px;
+  z-index: 1000;
+  font-family: 'MS Sans Serif', Tahoma, sans-serif;
+  cursor: pointer;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .menu {
@@ -364,6 +380,10 @@ body {
   .menu-item {
     font-size: 10px;
   }
+  .sync-status {
+    bottom: 50px;
+    font-size: 8px;
+  }
 }
 </style>
 </head>
@@ -371,7 +391,6 @@ body {
 <body>
 
 <div class="window">
-  <!-- No title bar here - removed -->
 
   <div class="menu">
     <span class="menu-item" id="addItemBtn">➕ Add Item</span>
@@ -379,6 +398,8 @@ body {
     <span class="menu-divider">|</span>
     <span class="menu-item" id="filterAllBtn">📋 All</span>
     <span class="menu-item" id="filterCompletedBtn">✅ Completed</span>
+    <span class="menu-divider">|</span>
+    <span class="menu-item" id="syncSettingsBtn">☁️ Sync</span>
     <span class="menu-divider">|</span>
     <span class="menu-item" id="helpBtn">❓ Help</span>
   </div>
@@ -450,23 +471,122 @@ body {
   </div>
 </div>
 
+<!-- Sync Settings Modal -->
+<div class="bucket-popup" id="syncModal">
+  <div class="title-bar" id="syncTitleBar">
+    <span>☁️ Sync Settings</span>
+    <div class="buttons">
+      <span id="closeSyncModal">X</span>
+    </div>
+  </div>
+  <div class="content">
+    <p style="font-size:11px; margin-bottom:10px;">Your bucket list syncs across all devices using GitHub Gist.</p>
+    <label>GitHub Token:</label>
+    <input type="password" id="syncToken" placeholder="Enter your GitHub Personal Access Token">
+    <label>Gist ID:</label>
+    <input type="text" id="syncGistId" placeholder="Gist ID">
+    <button id="saveSyncSettingsBtn" class="retro-button">💾 Save & Sync</button>
+    <button id="resetSyncBtn" class="retro-button" style="margin-left:8px;">🗑️ Clear Settings</button>
+    <div id="syncStatusMsg" style="margin-top:10px; font-size:11px; color:#666;"></div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox">
   <div class="close-lightbox">✗</div>
   <img id="lightboxImg" src="" alt="">
 </div>
 
+<div class="sync-status" id="syncStatusIndicator">☁️ Ready</div>
+
 <script>
-// ----- DATA -----
+// ========== GIST SYNC CONFIGURATION ==========
+const DEFAULT_GIST_ID = "b1e0317194191680303f5106f4db0d27";
+let githubToken = localStorage.getItem('github_token_bucketlist');
+let gistId = localStorage.getItem('gist_id_bucketlist') || DEFAULT_GIST_ID;
+let syncInProgress = false;
+
+// ========== DATA ==========
 let bucketItems = [];
 let currentFilter = 'all';
 
-// ----- LOAD/SAVE -----
-function loadData() {
-  const saved = localStorage.getItem('bucketlist_items');
-  if (saved) {
-    bucketItems = JSON.parse(saved);
+// ========== GIST SYNC FUNCTIONS ==========
+function updateSyncStatus(message, type) {
+  const indicator = document.getElementById('syncStatusIndicator');
+  if (indicator) {
+    indicator.textContent = message;
+    indicator.style.background = type === 'success' ? '#00aa00' : (type === 'error' ? '#aa0000' : (type === 'loading' ? '#000080' : '#c0c0c0'));
+    indicator.style.color = type === 'loading' ? 'white' : 'black';
+  }
+}
+
+async function loadFromGist() {
+  if (!githubToken) return false;
+  updateSyncStatus("Loading...", "loading");
+  try {
+    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${githubToken}` }
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const gist = await response.json();
+    const content = gist.files['bucketlist-data.json']?.content;
+    if (content) {
+      const data = JSON.parse(content);
+      bucketItems = data.bucketItems || [];
+      updateSyncStatus("✅ Synced", "success");
+      setTimeout(() => updateSyncStatus("☁️ Synced", "idle"), 2000);
+      return true;
+    }
+  } catch (err) {
+    console.error('Gist load error:', err);
+    updateSyncStatus("❌ Failed", "error");
+    setTimeout(() => updateSyncStatus("☁️ Error", "idle"), 2000);
+  }
+  return false;
+}
+
+async function saveToGist() {
+  if (!githubToken || syncInProgress) return false;
+  syncInProgress = true;
+  updateSyncStatus("Saving...", "loading");
+  try {
+    const allData = { bucketItems };
+    const content = JSON.stringify(allData, null, 2);
+    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `token ${githubToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        files: { 'bucketlist-data.json': { content: content } }
+      })
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    updateSyncStatus("✅ Saved", "success");
+    setTimeout(() => updateSyncStatus("☁️ Synced", "idle"), 2000);
+    return true;
+  } catch (err) {
+    console.error('Gist save error:', err);
+    updateSyncStatus("❌ Failed", "error");
+    setTimeout(() => updateSyncStatus("☁️ Error", "idle"), 2000);
+    return false;
+  } finally {
+    syncInProgress = false;
+  }
+}
+
+// ----- MODIFIED LOAD/SAVE -----
+async function loadData() {
+  if (githubToken && gistId) {
+    const loaded = await loadFromGist();
+    if (!loaded) {
+      loadLocalFallback();
+    }
   } else {
+    loadLocalFallback();
+  }
+  if (bucketItems.length === 0) {
     bucketItems = [
       { id: Date.now(), title: "Visit Japan", completed: false, notes: "", image: "", completedDate: null },
       { id: Date.now() + 1, title: "Learn to code", completed: true, notes: "Built this website!", image: "", completedDate: "2025-03-15" }
@@ -475,12 +595,22 @@ function loadData() {
   render();
 }
 
+function loadLocalFallback() {
+  const saved = localStorage.getItem('bucketlist_items');
+  if (saved) {
+    bucketItems = JSON.parse(saved);
+  }
+}
+
 function saveData() {
   localStorage.setItem('bucketlist_items', JSON.stringify(bucketItems));
+  if (githubToken) {
+    saveToGist();
+  }
   render();
 }
 
-// ----- RENDER -----
+// ----- RENDER (unchanged) -----
 function render() {
   const container = document.getElementById('bucketContainer');
   if (!container) return;
@@ -841,6 +971,39 @@ function setFilter(filter) {
   }
 }
 
+// ========== SYNC SETTINGS ==========
+function openSyncModal() {
+  document.getElementById('syncToken').value = '';
+  document.getElementById('syncGistId').value = gistId;
+  document.getElementById('syncModal').style.display = 'flex';
+}
+
+function saveSyncSettings() {
+  const newToken = document.getElementById('syncToken').value.trim();
+  const newGistId = document.getElementById('syncGistId').value.trim();
+  if (newToken) {
+    githubToken = newToken;
+    localStorage.setItem('github_token_bucketlist', newToken);
+  }
+  if (newGistId) {
+    gistId = newGistId;
+    localStorage.setItem('gist_id_bucketlist', newGistId);
+  }
+  document.getElementById('syncModal').style.display = 'none';
+  updateSyncStatus("Settings saved, reloading...", "loading");
+  setTimeout(() => location.reload(), 1000);
+}
+
+function resetSyncSettings() {
+  localStorage.removeItem('github_token_bucketlist');
+  localStorage.removeItem('gist_id_bucketlist');
+  githubToken = null;
+  gistId = DEFAULT_GIST_ID;
+  document.getElementById('syncModal').style.display = 'none';
+  updateSyncStatus("Settings cleared", "success");
+  setTimeout(() => location.reload(), 1000);
+}
+
 function makeDraggable(popupId, handleId) {
   const popup = document.getElementById(popupId);
   const handle = document.getElementById(handleId);
@@ -875,22 +1038,27 @@ function makeDraggable(popupId, handleId) {
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  loadData();
+// ========== INITIALIZE ==========
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadData();
   
   document.getElementById('addItemBtn').onclick = openAddPopup;
   document.getElementById('bulkAddBtn').onclick = openBulkPopup;
   document.getElementById('filterAllBtn').onclick = () => setFilter('all');
   document.getElementById('filterCompletedBtn').onclick = () => setFilter('completed');
   document.getElementById('helpBtn').onclick = openHelpPopup;
+  document.getElementById('syncSettingsBtn').onclick = openSyncModal;
   
   document.getElementById('closePopup').onclick = () => document.getElementById('itemPopup').style.display = 'none';
   document.getElementById('closeBulkPopup').onclick = () => document.getElementById('bulkPopup').style.display = 'none';
   document.getElementById('closeHelpPopup').onclick = () => document.getElementById('helpPopup').style.display = 'none';
   document.getElementById('closeHelpBtn').onclick = () => document.getElementById('helpPopup').style.display = 'none';
+  document.getElementById('closeSyncModal').onclick = () => document.getElementById('syncModal').style.display = 'none';
   
   document.getElementById('saveItemBtn').onclick = saveItem;
   document.getElementById('confirmBulkBtn').onclick = addBulkItems;
+  document.getElementById('saveSyncSettingsBtn').onclick = saveSyncSettings;
+  document.getElementById('resetSyncBtn').onclick = resetSyncSettings;
   
   document.getElementById('lightbox').onclick = closeLightbox;
   document.querySelector('.close-lightbox').onclick = closeLightbox;
@@ -898,6 +1066,7 @@ window.addEventListener('DOMContentLoaded', () => {
   makeDraggable('itemPopup', 'popupTitleBar');
   makeDraggable('bulkPopup', 'bulkTitleBar');
   makeDraggable('helpPopup', 'helpTitleBar');
+  makeDraggable('syncModal', 'syncTitleBar');
   
   setFilter('all');
 });
