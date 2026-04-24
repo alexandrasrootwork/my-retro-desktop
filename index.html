@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -373,7 +374,10 @@
 <div class="taskbar" style="display: none;" id="taskbar">
     <div class="start-button" id="startButton">🪟 Start</div>
     <div class="taskbar-windows-container" id="taskbarWindowsContainer"></div>
-    <div class="taskbar-time" id="clock"></div>
+    <div style="display: flex; align-items: center; gap: 4px; margin-left: auto;">
+        <span id="cloudSyncIcon" style="cursor: pointer; font-size: 14px; color: white; background: #000080; padding: 2px 6px; border-radius: 2px;" title="Sync all data to GitHub Gist">☁️</span>
+        <div class="taskbar-time" id="clock"></div>
+    </div>
 </div>
 
 <div class="start-menu" id="startMenu">
@@ -456,6 +460,159 @@
     
     let audioUnlocked = false;
     let startupSoundPlayed = false;
+    
+    // ========== GITHUB GIST SYNC ==========
+    let gistId = null;
+    let githubToken = null;
+    
+    function saveGistCredentials(id, token) {
+        localStorage.setItem('gist_id', id);
+        localStorage.setItem('github_token', token);
+        gistId = id;
+        githubToken = token;
+        alert('✅ Gist credentials saved!');
+    }
+    
+    function loadGistCredentials() {
+        gistId = localStorage.getItem('gist_id');
+        githubToken = localStorage.getItem('github_token');
+        if (gistId && githubToken) {
+            return true;
+        }
+        return false;
+    }
+    
+    async function syncToGist() {
+        if (!loadGistCredentials()) {
+            const id = prompt('Enter your Gist ID (the part after https://gist.github.com/username/):');
+            const token = prompt('Enter your GitHub Personal Access Token (with gist scope):');
+            if (id && token) {
+                saveGistCredentials(id, token);
+            } else {
+                alert('❌ Gist ID and Token are required!');
+                return;
+            }
+        }
+        
+        const cloudIcon = document.getElementById('cloudSyncIcon');
+        if (cloudIcon) {
+            cloudIcon.style.opacity = '0.5';
+            cloudIcon.title = 'Syncing...';
+        }
+        
+        const allData = {
+            desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
+            bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+            journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+            recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : [],
+            lastSync: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(allData, null, 2);
+        
+        try {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    files: {
+                        'nostalgiaos-backup.json': {
+                            content: dataStr
+                        }
+                    }
+                })
+            });
+            
+            if (response.ok) {
+                localStorage.setItem('lastSyncTime', new Date().toISOString());
+                if (cloudIcon) {
+                    cloudIcon.style.opacity = '1';
+                    cloudIcon.style.color = '#00ff00';
+                    cloudIcon.title = `Last sync: ${new Date().toLocaleString()}`;
+                    setTimeout(() => { if (cloudIcon) cloudIcon.style.color = 'white'; }, 1000);
+                }
+                alert('✅ All data synced! Desktop, Bucket List, Journal, and Recipes backed up.');
+            } else {
+                const error = await response.json();
+                if (cloudIcon) cloudIcon.style.opacity = '1';
+                alert('❌ Sync failed: ' + (error.message || 'Unknown error'));
+            }
+        } catch (err) {
+            if (cloudIcon) cloudIcon.style.opacity = '1';
+            alert('❌ Network error: ' + err.message);
+        }
+    }
+    
+    async function loadFromGist() {
+        if (!loadGistCredentials()) {
+            const id = prompt('Enter your Gist ID:');
+            const token = prompt('Enter your GitHub Token:');
+            if (id && token) {
+                saveGistCredentials(id, token);
+            } else {
+                alert('❌ Gist ID and Token are required!');
+                return;
+            }
+        }
+        
+        const cloudIcon = document.getElementById('cloudSyncIcon');
+        if (cloudIcon) {
+            cloudIcon.style.opacity = '0.5';
+            cloudIcon.title = 'Loading from cloud...';
+        }
+        
+        try {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`);
+            if (response.ok) {
+                const gist = await response.json();
+                const file = gist.files['nostalgiaos-backup.json'];
+                if (file && file.content) {
+                    const allData = JSON.parse(file.content);
+                    
+                    if (allData.desktop) {
+                        if (allData.desktop.icons) icons = allData.desktop.icons;
+                        if (allData.desktop.folders) folders = allData.desktop.folders;
+                        if (allData.desktop.stickers) stickers = allData.desktop.stickers;
+                        if (allData.desktop.recycleBin) recycleBin = allData.desktop.recycleBin;
+                        if (allData.desktop.currentWallpaper) currentWallpaper = allData.desktop.currentWallpaper;
+                        if (allData.desktop.currentTheme) currentTheme = allData.desktop.currentTheme;
+                        saveAll();
+                    }
+                    
+                    if (allData.bucketlist && allData.bucketlist.length > 0) {
+                        localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
+                    }
+                    
+                    if (allData.journal && allData.journal.length > 0) {
+                        localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
+                    }
+                    
+                    if (allData.recipes && allData.recipes.length > 0) {
+                        localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
+                    }
+                    
+                    if (cloudIcon) {
+                        cloudIcon.style.opacity = '1';
+                        cloudIcon.title = `Last loaded: ${new Date().toLocaleString()}`;
+                    }
+                    alert('✅ All data loaded from Gist! The page will now reload.');
+                    location.reload();
+                } else {
+                    if (cloudIcon) cloudIcon.style.opacity = '1';
+                    alert('❌ No backup file found. Create a backup first by clicking the cloud icon.');
+                }
+            } else {
+                if (cloudIcon) cloudIcon.style.opacity = '1';
+                alert('❌ Failed to load Gist');
+            }
+        } catch (err) {
+            if (cloudIcon) cloudIcon.style.opacity = '1';
+            alert('❌ Error: ' + err.message);
+        }
+    }
     
     // ========== COMPLETE BACKUP & RESTORE ==========
     function completeBackup() {
@@ -868,7 +1025,19 @@
         renderStickers();
         renderWidgets();
         updateClock();
-        attachIconEvents(); // Ensure events are attached after render
+        attachIconEvents();
+        
+        // Update cloud icon tooltip with last sync time
+        const cloudIcon = document.getElementById('cloudSyncIcon');
+        if (cloudIcon) {
+            const lastSync = localStorage.getItem('lastSyncTime');
+            if (lastSync) {
+                const date = new Date(lastSync);
+                cloudIcon.title = `Last sync: ${date.toLocaleString()}`;
+            } else {
+                cloudIcon.title = 'Sync all data to GitHub Gist';
+            }
+        }
     }
     
     function renderIcons() {
@@ -1114,27 +1283,17 @@
         document.getElementById('moveToFolderModal').style.display = 'flex';
     }
     
-    // FIXED: attachIconEvents - simplified and reliable
     function attachIconEvents() {
-        console.log('Attaching icon events...');
         const iconsList = document.querySelectorAll('.desktop-icon');
-        console.log('Found icons:', iconsList.length);
-        
         iconsList.forEach(el => {
             const id = parseInt(el.dataset.id);
             const icon = icons.find(i => i.id === id);
-            if (!icon) {
-                console.log('No icon found for id:', id);
-                return;
-            }
+            if (!icon) return;
             
-            // Remove existing listeners
             el.onclick = null;
             
-            // Simple click handler
             el.onclick = (e) => { 
                 if (e.target.classList.contains('icon-action-btn')) return; 
-                console.log('Icon clicked:', icon.label, '→', icon.link);
                 if (icon.link) {
                     openInDesktopWindow(icon.link, icon.label);
                 }
@@ -1661,6 +1820,16 @@
     
     document.getElementById('startButton').onclick = () => document.getElementById('startMenu').classList.toggle('show');
     document.addEventListener('click', (e) => { if (!document.getElementById('startButton').contains(e.target) && !document.getElementById('startMenu').contains(e.target)) document.getElementById('startMenu').classList.remove('show'); });
+    
+    // Cloud sync icon click handler
+    const cloudIcon = document.getElementById('cloudSyncIcon');
+    if (cloudIcon) {
+        cloudIcon.addEventListener('click', () => {
+            if (confirm('Sync ALL data (Desktop, Icons, Folders, Stickers, Notes, Wallpaper, Theme + Bucket List, Journal, Recipes) to GitHub Gist?\n\nThis will upload everything to the cloud so you can load it on another device.')) {
+                syncToGist();
+            }
+        });
+    }
     
     makeWindowDraggable(document.getElementById('notesManager'), document.getElementById('notesManagerTitleBar'));
     
