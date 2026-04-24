@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>📀 NostalgiaOS</title>
+    <title>📀 NostalgiaOS — a living capsule</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
@@ -258,7 +258,7 @@
         .start-menu {
             display: none; position: fixed; bottom: 40px; left: 8px;
             background: #c0c0c0; border: 2px solid #ffffff; border-right-color: #000;
-            border-bottom-color: #000; min-width: 260px; z-index: 1001; padding: 4px 0;
+            border-bottom-color: #000; min-width: 280px; z-index: 1001; padding: 4px 0;
         }
         .start-menu.show { display: block; }
         .start-menu-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
@@ -339,24 +339,6 @@
             border-bottom-color: #000; z-index: 1100; display: none;
         }
         
-        /* Sync Status */
-        .sync-status {
-            position: fixed;
-            bottom: 50px;
-            right: 10px;
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            padding: 4px 10px;
-            font-size: 10px;
-            z-index: 1000;
-            font-family: 'MS Sans Serif', Tahoma, sans-serif;
-            cursor: pointer;
-            opacity: 0.8;
-        }
-        .sync-status:hover { opacity: 1; }
-        
         @media (max-width: 768px) {
             .icons-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px 10px; }
             .desktop-icon, .folder-icon { position: static !important; width: auto; margin: 0 auto; }
@@ -367,13 +349,12 @@
             .notes-manager { width: 95%; height: 80%; left: 2.5% !important; top: 10% !important; }
             .boot-text { font-size: 10px; }
             .boot-logo { font-size: 32px; }
-            .sync-status { bottom: 60px; font-size: 8px; }
         }
     </style>
 </head>
 <body>
 
-<!-- BOOT SCREEN -->
+<!-- BOOT SCREEN - Must click to enter desktop -->
 <div class="boot-screen" id="bootScreen">
     <div class="boot-logo">
         <img src="images/Windows_95_FLYING_WINDOWS.png" style="width: 100px; height: 100px; image-rendering: pixelated;">
@@ -412,7 +393,8 @@
     <div class="start-menu-item" id="legacyExportBtn">💾 Legacy Export</div>
     <div class="start-menu-item" id="legacyImportBtn">📂 Legacy Import</div>
     <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="syncSettingsBtn">☁️ Sync Settings</div>
+    <div class="start-menu-item" id="completeBackupBtn">💾 Complete Backup (All Data)</div>
+    <div class="start-menu-item" id="completeRestoreBtn">📂 Complete Restore</div>
     <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="settingsBtn">⚙️ Settings</div>
 </div>
@@ -427,26 +409,6 @@
     <div style="padding:8px; background:#c0c0c0; display:flex; gap:8px;">
         <button id="showAllNotesBtn" class="retro-button">📂 Show All Notes</button>
         <button id="deleteAllNotesBtn" class="retro-button">🗑️ Delete All Notes</button>
-    </div>
-</div>
-
-<!-- Sync Settings Modal -->
-<div class="modal" id="syncModal">
-    <div class="modal-content">
-        <div class="modal-title-bar" id="syncTitleBar">
-            <span>☁️ Sync Settings</span>
-            <span style="cursor:pointer" id="closeSyncModal">✗</span>
-        </div>
-        <div class="modal-body">
-            <p style="margin-bottom:10px;">Enter your GitHub token to enable cloud sync across devices.</p>
-            <label>GitHub Token:</label>
-            <input type="password" id="syncToken" placeholder="Enter your GitHub Personal Access Token">
-            <label>Gist ID:</label>
-            <input type="text" id="syncGistId" placeholder="Gist ID" value="b1e0317194191680303f5106f4db0d27">
-            <button id="saveSyncSettingsBtn" class="retro-button">💾 Save & Enable Sync</button>
-            <button id="disableSyncBtn" class="retro-button" style="margin-left:8px;">🔴 Disable Sync</button>
-            <div id="syncStatusMsg" style="margin-top:10px; font-size:11px; color:#666;"></div>
-        </div>
     </div>
 </div>
 
@@ -473,10 +435,8 @@
 
 <div class="screensaver" id="screensaver"><div class="screensaver-text">✨ ~ Dreaming ~ ✨</div></div>
 <div class="context-menu" id="contextMenu"></div>
-<div class="sync-status" id="syncStatusIndicator">☁️ Sync off</div>
 
 <script>
-    // ========== DATA ==========
     let icons = [];
     let folders = [];
     let stickers = [];
@@ -497,157 +457,70 @@
     let audioUnlocked = false;
     let startupSoundPlayed = false;
     
-    // ========== SYNC CONFIGURATION ==========
-    const DEFAULT_GIST_ID = "b1e0317194191680303f5106f4db0d27";
-    let githubToken = localStorage.getItem('github_token_desktop');
-    let gistId = localStorage.getItem('gist_id_desktop') || DEFAULT_GIST_ID;
-    let syncInProgress = false;
-    
-    // ========== SYNC FUNCTIONS ==========
-    function updateSyncStatus(message, isError) {
-        const indicator = document.getElementById('syncStatusIndicator');
-        if (indicator) {
-            indicator.textContent = message;
-            indicator.style.background = isError ? '#aa0000' : '#c0c0c0';
-            indicator.style.color = isError ? 'white' : 'black';
-        }
-    }
-    
-    function mergeData(cloudData) {
-        // Merge icons (local wins if conflict, but cloud adds new ones)
-        if (cloudData.icons) {
-            const localIconIds = new Set(icons.map(i => i.id));
-            cloudData.icons.forEach(cloudIcon => {
-                if (!localIconIds.has(cloudIcon.id)) {
-                    icons.push(cloudIcon);
-                }
-            });
-        }
-        // Merge folders
-        if (cloudData.folders) {
-            const localFolderIds = new Set(folders.map(f => f.id));
-            cloudData.folders.forEach(cloudFolder => {
-                if (!localFolderIds.has(cloudFolder.id)) {
-                    folders.push(cloudFolder);
-                }
-            });
-        }
-        // Merge stickers
-        if (cloudData.stickers) {
-            const localStickerIds = new Set(stickers.map(s => s.id));
-            cloudData.stickers.forEach(cloudSticker => {
-                if (!localStickerIds.has(cloudSticker.id)) {
-                    stickers.push(cloudSticker);
-                }
-            });
-        }
-        if (cloudData.recycleBin) recycleBin = cloudData.recycleBin;
-        if (cloudData.currentWallpaper) currentWallpaper = cloudData.currentWallpaper;
-        if (cloudData.currentTheme) currentTheme = cloudData.currentTheme;
-    }
-    
-    async function loadFromGist() {
-        if (!githubToken) return false;
-        updateSyncStatus("Syncing...", false);
-        try {
-            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-                headers: { 'Authorization': `token ${githubToken}` }
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const gist = await response.json();
-            const content = gist.files['retro-desktop-data.json']?.content;
-            if (content) {
-                const cloudData = JSON.parse(content);
-                mergeData(cloudData);
-                updateSyncStatus("✓ Synced", false);
-                setTimeout(() => updateSyncStatus("☁️ Synced", false), 2000);
-                return true;
-            }
-        } catch (err) {
-            console.warn('Gist load error:', err);
-            updateSyncStatus("⚠️ Sync failed", true);
-            setTimeout(() => updateSyncStatus("☁️ Error", true), 2000);
-        }
-        return false;
-    }
-    
-    async function saveToGist() {
-        if (!githubToken || syncInProgress) return false;
-        syncInProgress = true;
-        try {
-            const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
-            const content = JSON.stringify(allData, null, 2);
-            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `token ${githubToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    files: { 'retro-desktop-data.json': { content: content } }
-                })
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            updateSyncStatus("✓ Saved", false);
-            setTimeout(() => updateSyncStatus("☁️ Synced", false), 2000);
-            return true;
-        } catch (err) {
-            console.warn('Gist save error:', err);
-            updateSyncStatus("⚠️ Save failed", true);
-            setTimeout(() => updateSyncStatus("☁️ Error", true), 2000);
-            return false;
-        } finally {
-            syncInProgress = false;
-        }
-    }
-    
-    async function performSync() {
-        if (githubToken) {
-            await loadFromGist();
-            saveAll();
-        }
-    }
-    
-    // ========== DATA MANAGEMENT ==========
-    function saveAll() {
-        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
-        localStorage.setItem('retroDesktop', JSON.stringify(allData));
-        renderAll();
-        // Background sync to cloud
-        if (githubToken) {
-            saveToGist();
-        }
-    }
-    
-    function loadAll() {
-        const saved = localStorage.getItem('retroDesktop');
-        if (saved) {
-            const data = JSON.parse(saved);
-            icons = data.icons || [];
-            folders = data.folders || [];
-            stickers = data.stickers || [];
-            widgets = [];
-            recycleBin = data.recycleBin || [];
-            currentWallpaper = data.currentWallpaper || '';
-            currentTheme = data.currentTheme || 'teal';
-        }
-        if (icons.length === 0) {
-            icons = [
-                { id: Date.now(), label: "Bucket List", link: "bucketlist.html", image: "📝", x: 30, y: 30, dateAdded: Date.now(), pin: "", hint: "", folderId: null },
-                { id: Date.now()+1, label: "Comfort Corner", link: "comfort.html", image: "🧸", x: 130, y: 30, dateAdded: Date.now()+1, pin: "", hint: "", folderId: null },
-                { id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null },
-                { id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null }
-            ];
-        }
-        applyTheme();
-        if (currentWallpaper) document.body.style.backgroundImage = `url(${currentWallpaper})`;
-        else document.body.style.background = '#008080';
-        renderAll();
+    // ========== COMPLETE BACKUP & RESTORE ==========
+    function completeBackup() {
+        const allData = {
+            desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
+            bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+            journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+            recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : [],
+            backupDate: new Date().toISOString()
+        };
         
-        // Background sync after load
-        if (githubToken) {
-            setTimeout(() => loadFromGist().then(() => saveAll()), 500);
-        }
+        const dataStr = JSON.stringify(allData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `complete-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        alert('✅ Complete backup saved! This includes Desktop, Bucket List, Journal, and Recipes.');
+    }
+    
+    function completeRestore() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const allData = JSON.parse(event.target.result);
+                    
+                    if (allData.desktop) {
+                        if (allData.desktop.icons) icons = allData.desktop.icons;
+                        if (allData.desktop.folders) folders = allData.desktop.folders;
+                        if (allData.desktop.stickers) stickers = allData.desktop.stickers;
+                        if (allData.desktop.recycleBin) recycleBin = allData.desktop.recycleBin;
+                        if (allData.desktop.currentWallpaper) currentWallpaper = allData.desktop.currentWallpaper;
+                        if (allData.desktop.currentTheme) currentTheme = allData.desktop.currentTheme;
+                        saveAll();
+                    }
+                    
+                    if (allData.bucketlist && allData.bucketlist.length > 0) {
+                        localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
+                    }
+                    
+                    if (allData.journal && allData.journal.length > 0) {
+                        localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
+                    }
+                    
+                    if (allData.recipes && allData.recipes.length > 0) {
+                        localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
+                    }
+                    
+                    alert('✅ Complete restore successful! The page will now reload.');
+                    location.reload();
+                } catch (err) {
+                    alert('❌ Invalid backup file');
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
     }
     
     // ========== LEGACY IMPORT/EXPORT ==========
@@ -693,43 +566,37 @@
         input.click();
     }
     
-    // ========== SYNC SETTINGS ==========
-    function openSyncModal() {
-        document.getElementById('syncToken').value = '';
-        document.getElementById('syncGistId').value = gistId;
-        document.getElementById('syncModal').style.display = 'flex';
+    function saveAll() {
+        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
+        localStorage.setItem('retroDesktop', JSON.stringify(allData));
     }
     
-    function saveSyncSettings() {
-        const newToken = document.getElementById('syncToken').value.trim();
-        const newGistId = document.getElementById('syncGistId').value.trim();
-        if (newToken) {
-            githubToken = newToken;
-            localStorage.setItem('github_token_desktop', newToken);
+    function loadAll() {
+        const saved = localStorage.getItem('retroDesktop');
+        if (saved) {
+            const data = JSON.parse(saved);
+            icons = data.icons || [];
+            folders = data.folders || [];
+            stickers = data.stickers || [];
+            widgets = [];
+            recycleBin = data.recycleBin || [];
+            currentWallpaper = data.currentWallpaper || '';
+            currentTheme = data.currentTheme || 'teal';
         }
-        if (newGistId) {
-            gistId = newGistId;
-            localStorage.setItem('gist_id_desktop', newGistId);
+        if (icons.length === 0) {
+            icons = [
+                { id: Date.now(), label: "Bucket List", link: "bucketlist.html", image: "📝", x: 30, y: 30, dateAdded: Date.now(), pin: "", hint: "", folderId: null },
+                { id: Date.now()+1, label: "Comfort Corner", link: "comfort.html", image: "🧸", x: 130, y: 30, dateAdded: Date.now()+1, pin: "", hint: "", folderId: null },
+                { id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null },
+                { id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null }
+            ];
         }
-        document.getElementById('syncModal').style.display = 'none';
-        updateSyncStatus("Settings saved, syncing...", false);
-        setTimeout(() => {
-            loadFromGist().then(() => saveAll());
-            alert('Sync enabled! Your desktop will now sync across devices.');
-        }, 500);
+        applyTheme();
+        if (currentWallpaper) document.body.style.backgroundImage = `url(${currentWallpaper})`;
+        else document.body.style.background = '#008080';
+        renderAll();
     }
     
-    function disableSync() {
-        localStorage.removeItem('github_token_desktop');
-        localStorage.removeItem('gist_id_desktop');
-        githubToken = null;
-        gistId = DEFAULT_GIST_ID;
-        document.getElementById('syncModal').style.display = 'none';
-        updateSyncStatus("☁️ Sync off", false);
-        alert('Sync disabled. Your data is now local only.');
-    }
-    
-    // ========== REMAINING ORIGINAL FUNCTIONS ==========
     function updateFolderSelects() {
         const select1 = document.getElementById('iconFolderSelect');
         const select2 = document.getElementById('moveFolderSelect');
@@ -1001,6 +868,7 @@
         renderStickers();
         renderWidgets();
         updateClock();
+        attachIconEvents(); // Ensure events are attached after render
     }
     
     function renderIcons() {
@@ -1027,7 +895,6 @@
             }
             container.appendChild(div);
         });
-        attachIconEvents();
     }
     
     function renderFolders() {
@@ -1247,19 +1114,38 @@
         document.getElementById('moveToFolderModal').style.display = 'flex';
     }
     
+    // FIXED: attachIconEvents - simplified and reliable
     function attachIconEvents() {
-        document.querySelectorAll('.desktop-icon').forEach(el => {
+        console.log('Attaching icon events...');
+        const iconsList = document.querySelectorAll('.desktop-icon');
+        console.log('Found icons:', iconsList.length);
+        
+        iconsList.forEach(el => {
             const id = parseInt(el.dataset.id);
             const icon = icons.find(i => i.id === id);
-            let isDragging = false;
-            el.addEventListener('dragstart', () => { isDragging = true; });
-            el.addEventListener('dragend', () => { setTimeout(() => { isDragging = false; }, 100); });
+            if (!icon) {
+                console.log('No icon found for id:', id);
+                return;
+            }
+            
+            // Remove existing listeners
+            el.onclick = null;
+            
+            // Simple click handler
             el.onclick = (e) => { 
                 if (e.target.classList.contains('icon-action-btn')) return; 
-                if (!isDragging) { openIconWithPassword(icon); }
-                isDragging = false;
+                console.log('Icon clicked:', icon.label, '→', icon.link);
+                if (icon.link) {
+                    openInDesktopWindow(icon.link, icon.label);
+                }
             };
-            el.oncontextmenu = (e) => { e.preventDefault(); showContextMenu(e.clientX, e.clientY, id, 'icon'); return false; };
+            
+            el.oncontextmenu = (e) => { 
+                e.preventDefault(); 
+                showContextMenu(e.clientX, e.clientY, id, 'icon'); 
+                return false; 
+            };
+            
             let pressTimer;
             el.ontouchstart = () => { 
                 pressTimer = setTimeout(() => { 
@@ -1270,10 +1156,16 @@
             };
             el.ontouchend = () => { clearTimeout(pressTimer); setTimeout(() => el.classList.remove('long-press'), 100); };
             el.ontouchmove = () => { clearTimeout(pressTimer); };
-            el.querySelector('.edit-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
-            el.querySelector('.delete-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); deleteIcon(id); });
-            el.querySelector('.move-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
-            el.querySelector('.lock-icon-btn')?.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
+            
+            const editBtn = el.querySelector('.edit-icon-btn');
+            const deleteBtn = el.querySelector('.delete-icon-btn');
+            const moveBtn = el.querySelector('.move-icon-btn');
+            const lockBtn = el.querySelector('.lock-icon-btn');
+            
+            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
+            if (deleteBtn) deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteIcon(id); });
+            if (moveBtn) moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
+            if (lockBtn) lockBtn.addEventListener('click', (e) => { e.stopPropagation(); editIconWithPassword(icon); });
         });
     }
     
@@ -1754,10 +1646,8 @@
     document.getElementById('sortByDateBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByDate(); };
     document.getElementById('legacyExportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyExport(); };
     document.getElementById('legacyImportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyImport(); };
-    document.getElementById('syncSettingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); openSyncModal(); };
-    document.getElementById('saveSyncSettingsBtn').onclick = saveSyncSettings;
-    document.getElementById('disableSyncBtn').onclick = disableSync;
-    document.getElementById('closeSyncModal').onclick = () => document.getElementById('syncModal').style.display = 'none';
+    document.getElementById('completeBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); completeBackup(); };
+    document.getElementById('completeRestoreBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); completeRestore(); };
     document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); document.getElementById('settingsModal').style.display = 'flex'; };
     
     document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
