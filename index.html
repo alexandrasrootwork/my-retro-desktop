@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -374,7 +375,7 @@
     <div class="start-button" id="startButton">🪟 Start</div>
     <div class="taskbar-windows-container" id="taskbarWindowsContainer"></div>
     <div style="display: flex; align-items: center; gap: 4px; margin-left: auto;">
-        <span id="cloudSyncIcon" style="cursor: pointer; font-size: 14px; color: white; background: #000080; padding: 2px 6px; border-radius: 2px;" title="Sync all data to GitHub Gist">☁️</span>
+        <span id="cloudSyncIcon" style="cursor: pointer; font-size: 14px; color: white; background: #000080; padding: 2px 6px; border-radius: 2px;" title="Merge with cloud">☁️</span>
         <div class="taskbar-time" id="clock"></div>
     </div>
 </div>
@@ -483,10 +484,34 @@
         return false;
     }
     
-    // UPLOAD to cloud
+    // ========== MERGE HELPER FUNCTIONS ==========
+    function mergeArrays(existing, incoming, idField = 'id') {
+        const merged = [...existing];
+        incoming.forEach(incomingItem => {
+            const exists = merged.some(existingItem => existingItem[idField] === incomingItem[idField]);
+            if (!exists) {
+                merged.push(incomingItem);
+            }
+        });
+        return merged;
+    }
+    
+    function mergeDesktop(existingDesktop, incomingDesktop) {
+        return {
+            icons: mergeArrays(existingDesktop.icons || [], incomingDesktop.icons || [], 'id'),
+            folders: mergeArrays(existingDesktop.folders || [], incomingDesktop.folders || [], 'id'),
+            stickers: mergeArrays(existingDesktop.stickers || [], incomingDesktop.stickers || [], 'id'),
+            widgets: mergeArrays(existingDesktop.widgets || [], incomingDesktop.widgets || [], 'id'),
+            recycleBin: mergeArrays(existingDesktop.recycleBin || [], incomingDesktop.recycleBin || [], 'id'),
+            currentWallpaper: incomingDesktop.currentWallpaper || existingDesktop.currentWallpaper,
+            currentTheme: incomingDesktop.currentTheme || existingDesktop.currentTheme
+        };
+    }
+    
+    // ========== MERGE UPLOAD (push to cloud) ==========
     async function syncToGist() {
         if (!loadGistCredentials()) {
-            const id = prompt('Enter your Gist ID (the part after https://gist.github.com/username/):');
+            const id = prompt('Enter your Gist ID:');
             const token = prompt('Enter your GitHub Personal Access Token (with gist scope):');
             if (id && token) {
                 saveGistCredentials(id, token);
@@ -499,20 +524,53 @@
         const cloudIcon = document.getElementById('cloudSyncIcon');
         if (cloudIcon) {
             cloudIcon.style.opacity = '0.5';
-            cloudIcon.title = 'Uploading...';
+            cloudIcon.title = 'Merging with cloud...';
         }
         
-        const allData = {
-            desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
-            bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
-            journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
-            recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : [],
-            lastSync: new Date().toISOString()
-        };
-        
-        const dataStr = JSON.stringify(allData, null, 2);
-        
         try {
+            // Get existing cloud data
+            let cloudData = {
+                desktop: { icons: [], folders: [], stickers: [], widgets: [], recycleBin: [], currentWallpaper: '', currentTheme: 'teal' },
+                bucketlist: [],
+                journal: [],
+                recipes: []
+            };
+            
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`);
+                if (response.ok) {
+                    const gist = await response.json();
+                    const file = gist.files['nostalgiaos-backup.json'];
+                    if (file && file.content) {
+                        cloudData = JSON.parse(file.content);
+                    }
+                }
+            } catch (e) { console.log('No existing cloud data'); }
+            
+            // Prepare local data
+            const localData = {
+                desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
+                bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+                journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+                recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []
+            };
+            
+            // MERGE local with cloud
+            const mergedDesktop = mergeDesktop(cloudData.desktop, localData.desktop);
+            const mergedBucketlist = mergeArrays(cloudData.bucketlist, localData.bucketlist, 'id');
+            const mergedJournal = mergeArrays(cloudData.journal, localData.journal, 'id');
+            const mergedRecipes = mergeArrays(cloudData.recipes, localData.recipes, 'id');
+            
+            const allData = {
+                desktop: mergedDesktop,
+                bucketlist: mergedBucketlist,
+                journal: mergedJournal,
+                recipes: mergedRecipes,
+                lastSync: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(allData, null, 2);
+            
             const response = await fetch(`https://api.github.com/gists/${gistId}`, {
                 method: 'PATCH',
                 headers: {
@@ -533,14 +591,29 @@
                 if (cloudIcon) {
                     cloudIcon.style.opacity = '1';
                     cloudIcon.style.color = '#00ff00';
-                    cloudIcon.title = `Last upload: ${new Date().toLocaleString()}`;
+                    cloudIcon.title = `Last merge: ${new Date().toLocaleString()}`;
                     setTimeout(() => { if (cloudIcon) cloudIcon.style.color = 'white'; }, 1000);
                 }
-                alert('✅ All data UPLOADED to cloud!');
+                
+                // Update local data with merged results
+                icons = mergedDesktop.icons;
+                folders = mergedDesktop.folders;
+                stickers = mergedDesktop.stickers;
+                widgets = mergedDesktop.widgets;
+                recycleBin = mergedDesktop.recycleBin;
+                currentWallpaper = mergedDesktop.currentWallpaper;
+                currentTheme = mergedDesktop.currentTheme;
+                saveAll();
+                localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
+                localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
+                localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
+                
+                renderAll();
+                alert('✅ Data MERGED with cloud! All devices now share combined data.');
             } else {
                 const error = await response.json();
                 if (cloudIcon) cloudIcon.style.opacity = '1';
-                alert('❌ Upload failed: ' + (error.message || 'Unknown error'));
+                alert('❌ Sync failed: ' + (error.message || 'Unknown error'));
             }
         } catch (err) {
             if (cloudIcon) cloudIcon.style.opacity = '1';
@@ -548,7 +621,7 @@
         }
     }
     
-    // DOWNLOAD from cloud
+    // ========== MERGE DOWNLOAD (pull from cloud) ==========
     async function loadFromGist() {
         if (!loadGistCredentials()) {
             const id = prompt('Enter your Gist ID:');
@@ -564,7 +637,7 @@
         const cloudIcon = document.getElementById('cloudSyncIcon');
         if (cloudIcon) {
             cloudIcon.style.opacity = '0.5';
-            cloudIcon.title = 'Downloading...';
+            cloudIcon.title = 'Merging from cloud...';
         }
         
         try {
@@ -573,39 +646,65 @@
                 const gist = await response.json();
                 const file = gist.files['nostalgiaos-backup.json'];
                 if (file && file.content) {
-                    const allData = JSON.parse(file.content);
+                    const cloudData = JSON.parse(file.content);
                     
-                    if (allData.desktop) {
-                        if (allData.desktop.icons) icons = allData.desktop.icons;
-                        if (allData.desktop.folders) folders = allData.desktop.folders;
-                        if (allData.desktop.stickers) stickers = allData.desktop.stickers;
-                        if (allData.desktop.recycleBin) recycleBin = allData.desktop.recycleBin;
-                        if (allData.desktop.currentWallpaper) currentWallpaper = allData.desktop.currentWallpaper;
-                        if (allData.desktop.currentTheme) currentTheme = allData.desktop.currentTheme;
+                    // Prepare current local data
+                    const localData = {
+                        desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme },
+                        bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+                        journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+                        recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []
+                    };
+                    
+                    // MERGE cloud with local
+                    const mergedDesktop = mergeDesktop(localData.desktop, cloudData.desktop);
+                    const mergedBucketlist = mergeArrays(localData.bucketlist, cloudData.bucketlist, 'id');
+                    const mergedJournal = mergeArrays(localData.journal, cloudData.journal, 'id');
+                    const mergedRecipes = mergeArrays(localData.recipes, cloudData.recipes, 'id');
+                    
+                    let changes = false;
+                    
+                    if (mergedDesktop) {
+                        icons = mergedDesktop.icons;
+                        folders = mergedDesktop.folders;
+                        stickers = mergedDesktop.stickers;
+                        widgets = mergedDesktop.widgets;
+                        recycleBin = mergedDesktop.recycleBin;
+                        currentWallpaper = mergedDesktop.currentWallpaper;
+                        currentTheme = mergedDesktop.currentTheme;
                         saveAll();
+                        changes = true;
                     }
                     
-                    if (allData.bucketlist && allData.bucketlist.length > 0) {
-                        localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
+                    if (mergedBucketlist.length > 0) {
+                        localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
+                        changes = true;
                     }
                     
-                    if (allData.journal && allData.journal.length > 0) {
-                        localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
+                    if (mergedJournal.length > 0) {
+                        localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
+                        changes = true;
                     }
                     
-                    if (allData.recipes && allData.recipes.length > 0) {
-                        localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
+                    if (mergedRecipes.length > 0) {
+                        localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
+                        changes = true;
                     }
                     
                     if (cloudIcon) {
                         cloudIcon.style.opacity = '1';
-                        cloudIcon.title = `Last download: ${new Date().toLocaleString()}`;
+                        cloudIcon.title = `Last merge: ${new Date().toLocaleString()}`;
                     }
-                    alert('✅ Data DOWNLOADED from cloud! The page will now reload.');
-                    location.reload();
+                    
+                    if (changes) {
+                        renderAll();
+                        alert('✅ Data MERGED from cloud! Local and cloud data combined.');
+                    } else {
+                        alert('✅ Already in sync. No new items found.');
+                    }
                 } else {
                     if (cloudIcon) cloudIcon.style.opacity = '1';
-                    alert('❌ No backup file found. Upload data first by clicking the cloud icon (Upload).');
+                    alert('❌ No backup file found. Upload data first by clicking the cloud icon.');
                 }
             } else {
                 if (cloudIcon) cloudIcon.style.opacity = '1';
@@ -1030,15 +1129,14 @@
         updateClock();
         attachIconEvents();
         
-        // Update cloud icon tooltip with last sync time
         const cloudIcon = document.getElementById('cloudSyncIcon');
         if (cloudIcon) {
             const lastSync = localStorage.getItem('lastSyncTime');
             if (lastSync) {
                 const date = new Date(lastSync);
-                cloudIcon.title = `Last upload: ${date.toLocaleString()}`;
+                cloudIcon.title = `Last merge: ${date.toLocaleString()}`;
             } else {
-                cloudIcon.title = 'Click to UPLOAD all data to cloud';
+                cloudIcon.title = 'Click to MERGE data with cloud';
             }
         }
     }
@@ -1825,11 +1923,11 @@
     document.getElementById('startButton').onclick = () => document.getElementById('startMenu').classList.toggle('show');
     document.addEventListener('click', (e) => { if (!document.getElementById('startButton').contains(e.target) && !document.getElementById('startMenu').contains(e.target)) document.getElementById('startMenu').classList.remove('show'); });
     
-    // Cloud sync icon click handler - UPLOAD only
+    // Cloud sync icon click handler - MERGE with cloud
     const cloudIcon = document.getElementById('cloudSyncIcon');
     if (cloudIcon) {
         cloudIcon.addEventListener('click', () => {
-            if (confirm('UPLOAD all data to GitHub Gist?\n\nThis will save your current desktop, bucket list, journal, and recipes to the cloud.\n\nUse "Download from Cloud" in the Start menu to load data from another device.')) {
+            if (confirm('MERGE all data with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost on either side).\n\nUse "Download from Cloud" in the Start menu if you want to replace local data with cloud data.')) {
                 syncToGist();
             }
         });
