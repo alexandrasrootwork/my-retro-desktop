@@ -803,38 +803,26 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                     </div>
                 </div>
                 
-                <!-- Backup Tab -->
+                <!-- Backup Tab - Clean with only essential options -->
                 <div id="settings-tab-backup" class="settings-tab-pane" style="display:none;">
                     <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📦 BACKUP & RESTORE</div>
                     
-                    <div style="margin-bottom:15px; border:1px solid #808080; padding:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="border:1px solid #808080; padding:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span><strong>💾 Complete Backup</strong><br><span style="font-size:10px; color:#666;">Saves ALL your data (desktop, notes, journal, recipes)</span></span>
                             <button id="settingsCompleteBackupBtn" class="retro-button">Backup Now</button>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span><strong>📂 Complete Restore</strong><br><span style="font-size:10px; color:#666;">Restore from file or pasted text</span></span>
                             <button id="settingsCompleteRestoreBtn" class="retro-button">Restore...</button>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                             <span><strong>📋 Copy to Clipboard</strong><br><span style="font-size:10px; color:#666;">Copy backup to clipboard</span></span>
                             <button id="settingsCopyBackupBtn" class="retro-button">Copy</button>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span><strong>📧 Email Backup</strong><br><span style="font-size:10px; color:#666;">Email backup to yourself</span></span>
                             <button id="settingsEmailBackupBtn" class="retro-button">Email</button>
-                        </div>
-                    </div>
-                    
-                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📀 LEGACY (Desktop Only)</div>
-                    <div style="border:1px solid #808080; padding:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span><strong>💾 Legacy Export</strong><br><span style="font-size:10px; color:#666;">Desktop icons only</span></span>
-                            <button id="settingsLegacyExportBtn" class="retro-button">Export</button>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span><strong>📂 Legacy Import</strong><br><span style="font-size:10px; color:#666;">Restore desktop icons only</span></span>
-                            <button id="settingsLegacyImportBtn" class="retro-button">Import</button>
                         </div>
                     </div>
                 </div>
@@ -946,8 +934,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         win.querySelector('#settingsCompleteRestoreBtn').onclick = () => completeRestore();
         win.querySelector('#settingsCopyBackupBtn').onclick = () => copyBackupToClipboard();
         win.querySelector('#settingsEmailBackupBtn').onclick = () => emailBackup();
-        win.querySelector('#settingsLegacyExportBtn').onclick = () => legacyExport();
-        win.querySelector('#settingsLegacyImportBtn').onclick = () => legacyImport();
         
         // Cloud tab buttons
         win.querySelector('#settingsSaveCloudBtn').onclick = () => {
@@ -1208,45 +1194,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         a.click();
         URL.revokeObjectURL(blob);
         alert('✅ Complete backup saved!');
-    }
-    
-    function legacyExport() {
-        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme };
-        const dataStr = JSON.stringify(allData, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `retro-desktop-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        URL.revokeObjectURL(blob);
-        alert('Desktop exported!');
-    }
-    
-    function legacyImport() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'application/json';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const importedData = JSON.parse(event.target.result);
-                    if (importedData.icons) icons = importedData.icons;
-                    if (importedData.folders) folders = importedData.folders;
-                    if (importedData.stickers) stickers = importedData.stickers;
-                    if (importedData.recycleBin) recycleBin = importedData.recycleBin;
-                    if (importedData.currentWallpaper) currentWallpaper = importedData.currentWallpaper;
-                    if (importedData.currentTheme) currentTheme = importedData.currentTheme;
-                    saveAll();
-                    alert('Import successful!');
-                    location.reload();
-                } catch (err) { alert('❌ Invalid file'); }
-            };
-            reader.readAsText(file);
-        };
-        input.click();
     }
     
     function saveAll() {
@@ -2284,9 +2231,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
     document.getElementById('syncWithCloudBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); syncToGist(); };
     document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); openSettings(); };
     
-    // Remove old backup button handlers since they're now in Settings
-    // The buttons still exist in the DOM but we're not attaching handlers anymore
-    
     document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
     document.getElementById('closeWallpaperModal').onclick = () => document.getElementById('wallpaperModal').style.display = 'none';
     document.getElementById('closeThemeModal').onclick = () => document.getElementById('themeModal').style.display = 'none';
@@ -2309,11 +2253,7 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
     
     makeWindowDraggable(document.getElementById('notesManager'), document.getElementById('notesManagerTitleBar'));
     startAnimatedDots();
-    
-    // Remove old backup menu items from DOM (they're still in HTML but hidden functionally)
-    // We'll just disable their click handlers by not attaching them
 </script>
 
 </body>
 </html>
-
