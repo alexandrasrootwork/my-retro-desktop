@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🎮 Games Archive</title>
+    <style>
+        body {
+            background: #c0c0c0;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .game-card {
+            text-align: center;
+            cursor: pointer;
+            padding: 15px;
+            background: #fff;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+        }
+        .game-card:hover {
+            background: #000080;
+            color: white;
+        }
+        .game-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .retro-button {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 6px 12px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div style="padding: 10px; background: #000080; color: white;">
+        <span>🎮 Games Archive</span>
+        <button class="retro-button" style="float: right;" onclick="window.close()">✗ Close</button>
+    </div>
+    <div class="games-grid" id="gamesGrid"></div>
+    
+    <script>
+        const games = [
+            { name: "MS-DOS Games", icon: "💾", url: "https://archive.org/details/softwarelibrary_msdos_games" },
+            { name: "NES Games", icon: "🎮", url: "https://www.retrogames.cc/nes-games.html" },
+            { name: "SNES Games", icon: "🕹️", url: "https://www.retrogames.cc/snes-games.html" },
+            { name: "GameBoy", icon: "📟", url: "https://www.retrogames.cc/gameboy-games.html" },
+            { name: "Minesweeper", icon: "💣", url: "https://minesweeper.online/" },
+            { name: "Solitaire", icon: "🃏", url: "https://www.solitr.com/" },
+            { name: "Space Pinball", icon: "⚡", url: "https://alexarey.itch.io/space-cadet-pinball" },
+            { name: "Neopets", icon: "🦄", url: "https://www.neopets.com/" },
+            { name: "Homestar Runner", icon: "⭐", url: "https://homestarrunner.com/" }
+        ];
+        
+        const grid = document.getElementById('gamesGrid');
+        games.forEach(game => {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = `
+                <span class="game-icon">${game.icon}</span>
+                <span>${game.name}</span>
+            `;
+            card.onclick = () => {
+                window.open(game.url, '_blank');
+            };
+            grid.appendChild(card);
+        });
+    </script>
+</body>
+</html>
