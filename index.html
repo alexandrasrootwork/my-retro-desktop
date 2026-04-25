@@ -1262,22 +1262,6 @@ function loadAll() {
             addTimestamp({ id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null }),
             addTimestamp({ id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null })
         ];
-    
-        const toggleBtn = document.getElementById('autoArrangeToggleBtn');
-        if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
-        applyTheme();
-        if (currentWallpaper && currentWallpaper !== '') {
-            document.body.style.backgroundImage = `url('${currentWallpaper}')`;
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center center';
-            document.body.style.backgroundRepeat = 'no-repeat';
-        } else {
-            document.body.style.backgroundImage = '';
-            document.body.style.backgroundColor = '#008080';
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center center';
-        }
-        renderAll();
     }
     
     function updateFolderSelects() {
