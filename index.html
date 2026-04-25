@@ -539,6 +539,25 @@
         };
     }
     
+    function applyRestoreData(allData) {
+        if (allData.desktop) {
+            if (allData.desktop.icons) icons = allData.desktop.icons;
+            if (allData.desktop.folders) folders = allData.desktop.folders;
+            if (allData.desktop.stickers) stickers = allData.desktop.stickers;
+            if (allData.desktop.recycleBin) recycleBin = allData.desktop.recycleBin;
+            if (allData.desktop.currentWallpaper) currentWallpaper = allData.desktop.currentWallpaper;
+            if (allData.desktop.currentTheme) currentTheme = allData.desktop.currentTheme;
+            if (allData.desktop.autoArrangeEnabled !== undefined) autoArrangeEnabled = allData.desktop.autoArrangeEnabled;
+            saveAll();
+        }
+        if (allData.bucketlist) localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
+        if (allData.journal) localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
+        if (allData.recipes) localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
+        
+        alert('✅ Restore successful! The page will now reload with your restored data.');
+        location.reload();
+    }
+    
     // ========== EMAIL BACKUP FEATURE ==========
     function emailBackup() {
         const now = new Date();
@@ -555,7 +574,7 @@
 Your backup data is below. To restore:
 1. Copy ALL the text between the lines below
 2. Go to NostalgiaOS and click "Complete Restore"
-3. Paste the text into a file and select it, or use "Copy Backup to Clipboard" and paste directly
+3. Choose "Restore from Pasted Text" and paste the text
 
 Backup size: ${dataSizeKB} KB
 Total items: ${icons.length} icons, ${folders.length} folders, ${stickers.length} stickers
@@ -603,13 +622,118 @@ If not, please manually email yourself the backup data.`);
 The complete NostalgiaOS backup is now on your clipboard.
 
 To restore:
-1. Save this text to a file (paste into Notepad, save as .json)
-2. Or paste directly if using "Complete Restore" in the future
+1. Go to NostalgiaOS and click "Complete Restore"
+2. Choose "Restore from Pasted Text"
+3. Paste the text and click restore
 
 Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers.length} stickers, plus all notes, journal entries, bucket list items, and recipes!`);
         }).catch(() => {
             alert('❌ Failed to copy. Your browser may not support clipboard access.');
         });
+    }
+    
+    // ========== COMPLETE RESTORE WITH PASTE OPTION ==========
+    function completeRestore() {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10001; display:flex; justify-content:center; align-items:center;';
+        
+        const dialog = document.createElement('div');
+        dialog.style.cssText = 'background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; width:500px; max-width:90%; font-family:"MS Sans Serif",Tahoma,sans-serif;';
+        
+        dialog.innerHTML = `
+            <div style="background:#000080; color:white; padding:6px 8px; display:flex; justify-content:space-between; cursor:move;">
+                <span>📂 Complete Restore</span>
+                <span style="cursor:pointer" id="closeRestoreModal">✗</span>
+            </div>
+            <div style="padding:15px;">
+                <p style="margin-bottom:10px;">Choose how to restore your data:</p>
+                
+                <div style="margin-bottom:15px;">
+                    <button id="restoreFromFileBtn" class="retro-button" style="width:100%; margin-bottom:8px;">📁 Restore from Backup File</button>
+                    <button id="restoreFromTextBtn" class="retro-button" style="width:100%;">📝 Restore from Pasted Text</button>
+                </div>
+                
+                <div id="pasteArea" style="display:none; margin-top:10px;">
+                    <p style="margin-bottom:8px;">Paste your backup text below:</p>
+                    <textarea id="restorePasteText" style="width:100%; height:200px; font-family:monospace; font-size:11px; border:1px solid #808080; padding:5px;" placeholder="Paste your backup JSON here..."></textarea>
+                    <button id="executePasteRestoreBtn" class="retro-button" style="margin-top:10px; width:100%;">▶ Restore from Pasted Text</button>
+                </div>
+            </div>
+        `;
+        
+        modal.appendChild(dialog);
+        document.body.appendChild(modal);
+        
+        // Make dialog draggable
+        let isDragging = false, dragOffsetX = 0, dragOffsetY = 0, startX = 0, startY = 0;
+        const titleBar = dialog.querySelector('div:first-child');
+        
+        titleBar.onmousedown = (e) => {
+            if (e.target.id === 'closeRestoreModal') return;
+            isDragging = true;
+            startX = e.clientX - dialog.offsetLeft;
+            startY = e.clientY - dialog.offsetTop;
+            dialog.style.position = 'absolute';
+            document.onmousemove = (moveEvent) => {
+                if (!isDragging) return;
+                dialog.style.left = (moveEvent.clientX - startX) + 'px';
+                dialog.style.top = (moveEvent.clientY - startY) + 'px';
+            };
+            document.onmouseup = () => { isDragging = false; document.onmousemove = null; };
+        };
+        
+        document.getElementById('closeRestoreModal').onclick = () => modal.remove();
+        
+        document.getElementById('restoreFromFileBtn').onclick = () => {
+            modal.remove();
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const allData = JSON.parse(event.target.result);
+                        applyRestoreData(allData);
+                    } catch (err) { alert('❌ Invalid backup file'); }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        };
+        
+        document.getElementById('restoreFromTextBtn').onclick = () => {
+            const pasteArea = document.getElementById('pasteArea');
+            if (pasteArea.style.display === 'none') {
+                pasteArea.style.display = 'block';
+            } else {
+                const text = document.getElementById('restorePasteText').value.trim();
+                if (text) {
+                    try {
+                        const allData = JSON.parse(text);
+                        applyRestoreData(allData);
+                        modal.remove();
+                    } catch (err) { alert('❌ Invalid backup text. Make sure you copied the entire backup.'); }
+                } else {
+                    alert('Please paste your backup text first.');
+                }
+            }
+        };
+        
+        document.getElementById('executePasteRestoreBtn').onclick = () => {
+            const text = document.getElementById('restorePasteText').value.trim();
+            if (!text) {
+                alert('Please paste your backup text first.');
+                return;
+            }
+            try {
+                const allData = JSON.parse(text);
+                applyRestoreData(allData);
+                modal.remove();
+            } catch (err) { alert('❌ Invalid backup text. Make sure you copied the entire backup.'); }
+        };
     }
     
     function mergeArraysAdvanced(existing, incoming, idField = 'id') {
@@ -857,39 +981,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         a.click();
         URL.revokeObjectURL(blob);
         alert('✅ Complete backup saved!');
-    }
-    
-    function completeRestore() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'application/json';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const allData = JSON.parse(event.target.result);
-                    if (allData.desktop) {
-                        if (allData.desktop.icons) icons = allData.desktop.icons;
-                        if (allData.desktop.folders) folders = allData.desktop.folders;
-                        if (allData.desktop.stickers) stickers = allData.desktop.stickers;
-                        if (allData.desktop.recycleBin) recycleBin = allData.desktop.recycleBin;
-                        if (allData.desktop.currentWallpaper) currentWallpaper = allData.desktop.currentWallpaper;
-                        if (allData.desktop.currentTheme) currentTheme = allData.desktop.currentTheme;
-                        if (allData.desktop.autoArrangeEnabled !== undefined) autoArrangeEnabled = allData.desktop.autoArrangeEnabled;
-                        saveAll();
-                    }
-                    if (allData.bucketlist) localStorage.setItem('bucketlist_items', JSON.stringify(allData.bucketlist));
-                    if (allData.journal) localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
-                    if (allData.recipes) localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
-                    alert('✅ Restore successful! Reloading...');
-                    location.reload();
-                } catch (err) { alert('❌ Invalid backup file'); }
-            };
-            reader.readAsText(file);
-        };
-        input.click();
     }
     
     function legacyExport() {
