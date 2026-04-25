@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -462,7 +463,6 @@
     const GRID_SIZE = 20;
     let autoArrangeEnabled = false;
     
-    // ========== WALLPAPER GALLERY ==========
     const wallpaperGallery = [
         { name: "Windows 95 Teal", url: "", isDefault: true },
         { name: "Bliss (XP)", url: "wallpapers/bliss.jpg" },
@@ -477,7 +477,6 @@
         return Math.round(value / GRID_SIZE) * GRID_SIZE;
     }
     
-    // ========== RESPONSIVE STICKER POSITIONING ==========
     function pixelToPercentage(pixel, viewportSize) {
         return (pixel / viewportSize) * 100;
     }
@@ -558,7 +557,6 @@
         location.reload();
     }
     
-    // ========== EMAIL BACKUP FEATURE ==========
     function emailBackup() {
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -593,21 +591,9 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
         window.location.href = mailtoLink;
         
         navigator.clipboard.writeText(dataStr).then(() => {
-            alert(`📧 Email backup prepared!
-
-Your backup (${dataSizeKB} KB) has been:
-1. Copied to your clipboard
-2. Your email app will open with the subject: "${decodeURIComponent(subject)}"
-
-Just paste the body (it's already there) and send!
-
-If your email doesn't open, paste the clipboard content into a new email.`);
+            alert(`📧 Email backup prepared! Your backup (${dataSizeKB} KB) has been copied to your clipboard. Your email app will open.`);
         }).catch(() => {
-            alert(`📧 Email window opening...
-
-Your backup (${dataSizeKB} KB) is ready. Your email app should open with the subject and body pre-filled.
-
-If not, please manually email yourself the backup data.`);
+            alert(`📧 Email window opening... Your backup (${dataSizeKB} KB) is ready.`);
         });
     }
     
@@ -617,22 +603,12 @@ If not, please manually email yourself the backup data.`);
         const dataSizeKB = Math.round(dataStr.length / 1024);
         
         navigator.clipboard.writeText(dataStr).then(() => {
-            alert(`✅ Backup copied to clipboard! (${dataSizeKB} KB)
-
-The complete NostalgiaOS backup is now on your clipboard.
-
-To restore:
-1. Go to NostalgiaOS > Settings > Backup
-2. Choose "Restore from Pasted Text"
-3. Paste the text and click restore
-
-Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers.length} stickers, plus all notes, journal entries, bucket list items, and recipes!`);
+            alert(`✅ Backup copied to clipboard! (${dataSizeKB} KB)`);
         }).catch(() => {
             alert('❌ Failed to copy. Your browser may not support clipboard access.');
         });
     }
     
-    // ========== COMPLETE RESTORE WITH PASTE OPTION ==========
     function completeRestore() {
         const modal = document.createElement('div');
         modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10001; display:flex; justify-content:center; align-items:center;';
@@ -647,12 +623,10 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
             </div>
             <div style="padding:15px;">
                 <p style="margin-bottom:10px;">Choose how to restore your data:</p>
-                
                 <div style="margin-bottom:15px;">
                     <button id="restoreFromFileBtn" class="retro-button" style="width:100%; margin-bottom:8px;">📁 Restore from Backup File</button>
                     <button id="restoreFromTextBtn" class="retro-button" style="width:100%;">📝 Restore from Pasted Text</button>
                 </div>
-                
                 <div id="pasteArea" style="display:none; margin-top:10px;">
                     <p style="margin-bottom:8px;">Paste your backup text below:</p>
                     <textarea id="restorePasteText" style="width:100%; height:200px; font-family:monospace; font-size:11px; border:1px solid #808080; padding:5px;" placeholder="Paste your backup JSON here..."></textarea>
@@ -714,7 +688,7 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                         const allData = JSON.parse(text);
                         applyRestoreData(allData);
                         modal.remove();
-                    } catch (err) { alert('❌ Invalid backup text. Make sure you copied the entire backup.'); }
+                    } catch (err) { alert('❌ Invalid backup text.'); }
                 } else {
                     alert('Please paste your backup text first.');
                 }
@@ -731,11 +705,10 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                 const allData = JSON.parse(text);
                 applyRestoreData(allData);
                 modal.remove();
-            } catch (err) { alert('❌ Invalid backup text. Make sure you copied the entire backup.'); }
+            } catch (err) { alert('❌ Invalid backup text.'); }
         };
     }
     
-    // ========== SETTINGS WINDOW (Windows 95/98 Style) ==========
     let settingsWindow = null;
     
     function openSettings() {
@@ -770,7 +743,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                 <button class="settings-tab" data-tab="about" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">ℹ️ About</button>
             </div>
             <div class="settings-content" style="background:#fff; flex:1; padding:15px; overflow:auto;">
-                <!-- System Tab -->
                 <div id="settings-tab-system" class="settings-tab-pane" style="display:block;">
                     <div style="margin-bottom:15px;">
                         <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">💡 General</div>
@@ -781,14 +753,8 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                             <input type="checkbox" id="settingsAutoSave" checked disabled> Auto-save changes
                         </label>
                     </div>
-                    <div>
-                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📁 Storage</div>
-                        <p style="font-size:11px; color:#666;">All data is saved to your browser's local storage.</p>
-                        <p style="font-size:11px; margin-top:5px;">Use the Backup tab to export/import your data.</p>
-                    </div>
                 </div>
                 
-                <!-- Desktop Tab -->
                 <div id="settings-tab-desktop" class="settings-tab-pane" style="display:none;">
                     <div style="margin-bottom:15px;">
                         <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🎨 Theme</div>
@@ -823,7 +789,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                     </div>
                 </div>
                 
-                <!-- Backup Tab -->
                 <div id="settings-tab-backup" class="settings-tab-pane" style="display:none;">
                     <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📦 BACKUP & RESTORE</div>
                     <div style="border:1px solid #808080; padding:10px;">
@@ -846,7 +811,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                     </div>
                 </div>
                 
-                <!-- Cloud Tab -->
                 <div id="settings-tab-cloud" class="settings-tab-pane" style="display:none;">
                     <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">☁️ GitHub Gist Sync</div>
                     <div style="border:1px solid #808080; padding:10px;">
@@ -863,14 +827,13 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                     </div>
                 </div>
                 
-                <!-- About Tab -->
                 <div id="settings-tab-about" class="settings-tab-pane" style="display:none;">
                     <div style="text-align:center; padding:20px;">
                         <div style="font-size:48px; margin-bottom:10px;">📀</div>
                         <h3>NostalgiaOS</h3>
                         <p style="margin:10px 0;">Version 2.0</p>
                         <p style="font-size:11px; color:#666;">A Windows 95-style personal website</p>
-                        <p style="font-size:11px; margin-top:15px;">✨ Features:<br>Draggable icons • Stickers • Sticky notes • Journal • Bucket List • Recipes • Cloud sync</p>
+                        <p style="font-size:11px; margin-top:15px;">✨ Features: Draggable icons • Stickers • Sticky notes • Journal • Bucket List • Recipes • Cloud sync</p>
                         <p style="font-size:10px; margin-top:15px; color:#999;">All data saved locally in your browser</p>
                     </div>
                 </div>
@@ -884,7 +847,6 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         document.body.appendChild(win);
         makeWindowDraggable(win, win.querySelector('.title-bar'));
         
-        // Tab switching
         const tabs = win.querySelectorAll('.settings-tab');
         const panes = win.querySelectorAll('.settings-tab-pane');
         
@@ -906,10 +868,8 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
             };
         });
         
-        // Close button
         win.querySelector('.close-window').onclick = () => win.remove();
         
-        // OK button
         win.querySelector('#settingsOkBtn').onclick = () => {
             const startupSound = win.querySelector('#settingsStartupSound').checked;
             document.getElementById('startupSoundToggle').checked = startupSound;
@@ -919,14 +879,12 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         
         win.querySelector('#settingsCancelBtn').onclick = () => win.remove();
         
-        // Desktop tab buttons
         win.querySelector('#settingsApplyThemeBtn').onclick = () => {
             currentTheme = win.querySelector('#settingsThemeSelect').value;
             applyTheme();
             saveAll();
         };
         
-        // Wallpaper gallery click handlers
         win.querySelectorAll('.wallpaper-option').forEach(option => {
             option.onclick = () => {
                 const url = option.dataset.url;
@@ -942,10 +900,8 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                     document.body.style.backgroundSize = 'cover';
                 }
                 saveAll();
-                
                 const customUrlInput = win.querySelector('#settingsWallpaperUrl');
                 if (customUrlInput) customUrlInput.value = currentWallpaper;
-                
                 win.querySelectorAll('.wallpaper-option').forEach(opt => opt.style.outline = 'none');
                 option.style.outline = '2px solid #000080';
             };
@@ -974,13 +930,11 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         win.querySelector('#settingsSortByNameBtn').onclick = () => sortByName();
         win.querySelector('#settingsSortByDateBtn').onclick = () => sortByDate();
         
-        // Backup tab buttons
         win.querySelector('#settingsCompleteBackupBtn').onclick = () => completeBackup();
         win.querySelector('#settingsCompleteRestoreBtn').onclick = () => completeRestore();
         win.querySelector('#settingsCopyBackupBtn').onclick = () => copyBackupToClipboard();
         win.querySelector('#settingsEmailBackupBtn').onclick = () => emailBackup();
         
-        // Cloud tab buttons
         win.querySelector('#settingsSaveCloudBtn').onclick = () => {
             const gistIdVal = win.querySelector('#settingsGistId').value.trim();
             const token = win.querySelector('#settingsGithubToken').value.trim();
@@ -994,12 +948,1302 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         win.style.display = 'flex';
     }
     
-    // [The rest of your functions remain the same - mergeArraysAdvanced, mergeDesktopAdvanced, lineUpIcons, toggleAutoArrange, syncToGist, loadFromGist, completeBackup, saveAll, loadAll, etc.]
-    // ... (keeping all the existing functions from your original code)
+    function mergeArraysAdvanced(existing, incoming, idField = 'id') {
+        const mergedMap = new Map();
+        existing.forEach(item => mergedMap.set(item[idField], item));
+        incoming.forEach(incomingItem => {
+            const existingItem = mergedMap.get(incomingItem[idField]);
+            if (!existingItem) {
+                mergedMap.set(incomingItem[idField], incomingItem);
+            } else {
+                const existingTime = existingItem.lastModified || existingItem.dateAdded || 0;
+                const incomingTime = incomingItem.lastModified || incomingItem.dateAdded || 0;
+                if (incomingTime > existingTime) {
+                    mergedMap.set(incomingItem[idField], incomingItem);
+                }
+            }
+        });
+        return Array.from(mergedMap.values());
+    }
     
-    // Note: For brevity, I'm showing the key changes. The complete file includes all your existing functions.
-    // The main changes are: removed wallpaper/theme from Start menu, added wallpaper gallery in Settings
+    function mergeDesktopAdvanced(existingDesktop, incomingDesktop) {
+        return {
+            icons: mergeArraysAdvanced(existingDesktop.icons || [], incomingDesktop.icons || [], 'id'),
+            folders: mergeArraysAdvanced(existingDesktop.folders || [], incomingDesktop.folders || [], 'id'),
+            stickers: mergeArraysAdvanced(existingDesktop.stickers || [], incomingDesktop.stickers || [], 'id'),
+            widgets: mergeArraysAdvanced(existingDesktop.widgets || [], incomingDesktop.widgets || [], 'id'),
+            recycleBin: mergeArraysAdvanced(existingDesktop.recycleBin || [], incomingDesktop.recycleBin || [], 'id'),
+            currentWallpaper: incomingDesktop.currentWallpaper || existingDesktop.currentWallpaper,
+            currentTheme: incomingDesktop.currentTheme || existingDesktop.currentTheme,
+            autoArrangeEnabled: incomingDesktop.autoArrangeEnabled !== undefined ? incomingDesktop.autoArrangeEnabled : existingDesktop.autoArrangeEnabled
+        };
+    }
     
+    function lineUpIcons() {
+        const desktopIcons = icons.filter(icon => !icon.folderId);
+        const desktopFolders = folders;
+        let currentX = 30;
+        let currentY = 30;
+        desktopIcons.forEach((icon, index) => {
+            icon.x = currentX;
+            icon.y = currentY;
+            currentX += 100;
+            if (currentX > window.innerWidth - 150) {
+                currentX = 30;
+                currentY += 100;
+            }
+        });
+        desktopFolders.forEach((folder, index) => {
+            folder.x = currentX;
+            folder.y = currentY;
+            currentX += 100;
+            if (currentX > window.innerWidth - 150) {
+                currentX = 30;
+                currentY += 100;
+            }
+        });
+        saveAll();
+        renderAll();
+    }
+    
+    function toggleAutoArrange() {
+        autoArrangeEnabled = !autoArrangeEnabled;
+        const toggleBtn = document.getElementById('autoArrangeToggleBtn');
+        if (toggleBtn) {
+            toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
+        }
+        if (autoArrangeEnabled) lineUpIcons();
+        saveAll();
+    }
+    
+    let gistId = null;
+    let githubToken = null;
+    
+    function saveGistCredentials(id, token) {
+        localStorage.setItem('gist_id', id);
+        localStorage.setItem('github_token', token);
+        gistId = id;
+        githubToken = token;
+        alert('✅ Gist credentials saved!');
+    }
+    
+    function loadGistCredentials() {
+        gistId = localStorage.getItem('gist_id');
+        githubToken = localStorage.getItem('github_token');
+        return !!(gistId && githubToken);
+    }
+    
+    async function syncToGist() {
+        if (!loadGistCredentials()) {
+            const id = prompt('Enter your Gist ID:');
+            const token = prompt('Enter your GitHub Personal Access Token (with gist scope):');
+            if (id && token) {
+                saveGistCredentials(id, token);
+            } else {
+                alert('❌ Gist ID and Token are required!');
+                return;
+            }
+        }
+        
+        const cloudIcon = document.getElementById('cloudSyncIcon');
+        if (cloudIcon) cloudIcon.style.opacity = '0.5';
+        
+        try {
+            let cloudData = {
+                desktop: { icons: [], folders: [], stickers: [], widgets: [], recycleBin: [], currentWallpaper: '', currentTheme: 'teal', autoArrangeEnabled: false },
+                bucketlist: [],
+                journal: [],
+                recipes: [],
+                lastSync: null
+            };
+            
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`);
+                if (response.ok) {
+                    const gist = await response.json();
+                    const file = gist.files['nostalgiaos-backup.json'];
+                    if (file && file.content) cloudData = JSON.parse(file.content);
+                }
+            } catch (e) { console.log('No existing cloud data'); }
+            
+            const localData = {
+                desktop: { icons: icons.map(addTimestamp), folders: folders.map(addTimestamp), stickers: stickers.map(addTimestamp), widgets: widgets.map(addTimestamp), recycleBin: recycleBin.map(addTimestamp), currentWallpaper, currentTheme, autoArrangeEnabled },
+                bucketlist: (localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : []).map(addTimestamp),
+                journal: (localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : []).map(addTimestamp),
+                recipes: (localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []).map(addTimestamp),
+                lastSync: Date.now()
+            };
+            
+            const mergedDesktop = mergeDesktopAdvanced(cloudData.desktop, localData.desktop);
+            const mergedBucketlist = mergeArraysAdvanced(cloudData.bucketlist, localData.bucketlist, 'id');
+            const mergedJournal = mergeArraysAdvanced(cloudData.journal, localData.journal, 'id');
+            const mergedRecipes = mergeArraysAdvanced(cloudData.recipes, localData.recipes, 'id');
+            
+            const mergedData = {
+                desktop: mergedDesktop,
+                bucketlist: mergedBucketlist,
+                journal: mergedJournal,
+                recipes: mergedRecipes,
+                lastSync: Date.now(),
+                lastSyncTime: new Date().toISOString()
+            };
+            
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ files: { 'nostalgiaos-backup.json': { content: JSON.stringify(mergedData, null, 2) } } })
+            });
+            
+            if (response.ok) {
+                icons = mergedDesktop.icons;
+                folders = mergedDesktop.folders;
+                stickers = mergedDesktop.stickers;
+                widgets = mergedDesktop.widgets;
+                recycleBin = mergedDesktop.recycleBin;
+                currentWallpaper = mergedDesktop.currentWallpaper;
+                currentTheme = mergedDesktop.currentTheme;
+                autoArrangeEnabled = mergedDesktop.autoArrangeEnabled;
+                saveAll();
+                localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
+                localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
+                localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
+                localStorage.setItem('lastSyncTime', mergedData.lastSyncTime);
+                
+                if (cloudIcon) {
+                    cloudIcon.style.opacity = '1';
+                    cloudIcon.style.color = '#00ff00';
+                    setTimeout(() => { if (cloudIcon) cloudIcon.style.color = 'white'; }, 1000);
+                }
+                renderAll();
+                alert('✅ Sync complete! Your data has been COMBINED with the cloud.');
+            } else {
+                if (cloudIcon) cloudIcon.style.opacity = '1';
+                alert('❌ Sync failed');
+            }
+        } catch (err) {
+            if (cloudIcon) cloudIcon.style.opacity = '1';
+            alert('❌ Network error: ' + err.message);
+        }
+    }
+    
+    async function loadFromGist() {
+        if (!loadGistCredentials()) {
+            const id = prompt('Enter your Gist ID:');
+            const token = prompt('Enter your GitHub Token:');
+            if (id && token) saveGistCredentials(id, token);
+            else { alert('❌ Required!'); return; }
+        }
+        
+        const cloudIcon = document.getElementById('cloudSyncIcon');
+        if (cloudIcon) cloudIcon.style.opacity = '0.5';
+        
+        try {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`);
+            if (response.ok) {
+                const gist = await response.json();
+                const file = gist.files['nostalgiaos-backup.json'];
+                if (file && file.content) {
+                    const cloudData = JSON.parse(file.content);
+                    const localData = {
+                        desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme, autoArrangeEnabled },
+                        bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+                        journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+                        recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : []
+                    };
+                    
+                    const mergedDesktop = mergeDesktopAdvanced(localData.desktop, cloudData.desktop);
+                    const mergedBucketlist = mergeArraysAdvanced(localData.bucketlist, cloudData.bucketlist, 'id');
+                    const mergedJournal = mergeArraysAdvanced(localData.journal, cloudData.journal, 'id');
+                    const mergedRecipes = mergeArraysAdvanced(localData.recipes, cloudData.recipes, 'id');
+                    
+                    icons = mergedDesktop.icons;
+                    folders = mergedDesktop.folders;
+                    stickers = mergedDesktop.stickers;
+                    widgets = mergedDesktop.widgets;
+                    recycleBin = mergedDesktop.recycleBin;
+                    currentWallpaper = mergedDesktop.currentWallpaper;
+                    currentTheme = mergedDesktop.currentTheme;
+                    autoArrangeEnabled = mergedDesktop.autoArrangeEnabled;
+                    saveAll();
+                    localStorage.setItem('bucketlist_items', JSON.stringify(mergedBucketlist));
+                    localStorage.setItem('journal_entries', JSON.stringify(mergedJournal));
+                    localStorage.setItem('recipe_book', JSON.stringify(mergedRecipes));
+                    
+                    if (cloudIcon) cloudIcon.style.opacity = '1';
+                    renderAll();
+                    alert('✅ Data merged from cloud!');
+                } else alert('❌ No backup file found');
+            } else alert('❌ Failed to load');
+        } catch (err) {
+            if (cloudIcon) cloudIcon.style.opacity = '1';
+            alert('❌ Error: ' + err.message);
+        }
+    }
+    
+    function completeBackup() {
+        const allData = getFullData();
+        const dataStr = JSON.stringify(allData, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `complete-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(blob);
+        alert('✅ Complete backup saved!');
+    }
+    
+    function saveAll() {
+        const allData = { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme, autoArrangeEnabled };
+        localStorage.setItem('retroDesktop', JSON.stringify(allData));
+    }
+    
+    function loadAll() {
+        const saved = localStorage.getItem('retroDesktop');
+        if (saved) {
+            const data = JSON.parse(saved);
+            icons = (data.icons || []).map(addTimestamp);
+            folders = (data.folders || []).map(addTimestamp);
+            stickers = (data.stickers || []).map(addTimestamp);
+            widgets = [];
+            recycleBin = (data.recycleBin || []).map(addTimestamp);
+            currentWallpaper = data.currentWallpaper || '';
+            currentTheme = data.currentTheme || 'teal';
+            autoArrangeEnabled = data.autoArrangeEnabled || false;
+        }
+        if (icons.length === 0) {
+            icons = [
+                addTimestamp({ id: Date.now(), label: "Bucket List", link: "bucketlist.html", image: "📝", x: 30, y: 30, dateAdded: Date.now(), pin: "", hint: "", folderId: null }),
+                addTimestamp({ id: Date.now()+1, label: "Comfort Corner", link: "comfort.html", image: "🧸", x: 130, y: 30, dateAdded: Date.now()+1, pin: "", hint: "", folderId: null }),
+                addTimestamp({ id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null }),
+                addTimestamp({ id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null })
+            ];
+        }
+        const toggleBtn = document.getElementById('autoArrangeToggleBtn');
+        if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
+        applyTheme();
+        if (currentWallpaper) document.body.style.backgroundImage = `url(${currentWallpaper})`;
+        else document.body.style.background = '#008080';
+        renderAll();
+    }
+    
+    function updateFolderSelects() {
+        const select1 = document.getElementById('iconFolderSelect');
+        const select2 = document.getElementById('moveFolderSelect');
+        if (select1) {
+            select1.innerHTML = '<option value="">-- Desktop (No Folder) --</option>';
+            folders.forEach(f => { select1.innerHTML += `<option value="${f.id}">📁 ${escapeHtml(f.name)}</option>`; });
+        }
+        if (select2) {
+            select2.innerHTML = '<option value="">-- Desktop (No Folder) --</option>';
+            folders.forEach(f => { select2.innerHTML += `<option value="${f.id}">📁 ${escapeHtml(f.name)}</option>`; });
+        }
+    }
+    
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const silentBuffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = silentBuffer;
+        source.connect(audioCtx.destination);
+        source.start();
+        audioCtx.close();
+        audioUnlocked = true;
+        playStartupSound();
+    }
+    
+    function playStartupSound() { 
+        if (!audioUnlocked || startupSoundPlayed) return;
+        if (document.getElementById('startupSoundToggle')?.checked) { 
+            startupSoundPlayed = true;
+            const audio = new Audio('sounds/winxp.mp3'); 
+            audio.volume = 0.3; 
+            audio.play().catch(e=>console.log('Sound error:', e)); 
+        } 
+    }
+    
+    function addTaskbarButton(windowId, title, windowElement) {
+        const container = document.getElementById('taskbarWindowsContainer');
+        const existingBtn = document.querySelector(`.taskbar-window-btn[data-window-id="${windowId}"]`);
+        if (existingBtn) return existingBtn;
+        const btn = document.createElement('div');
+        btn.className = 'taskbar-window-btn';
+        btn.setAttribute('data-window-id', windowId);
+        btn.innerText = title.length > 20 ? title.substring(0, 18) + '...' : title;
+        btn.onclick = () => { windowElement.style.zIndex = nextWindowZ++; windowElement.style.display = 'flex'; };
+        container.appendChild(btn);
+        container.scrollLeft = container.scrollWidth;
+        return btn;
+    }
+    
+    function removeTaskbarButton(windowId) {
+        const btn = document.querySelector(`.taskbar-window-btn[data-window-id="${windowId}"]`);
+        if (btn) btn.remove();
+    }
+    
+    function refreshNotesManager() {
+        const notesList = document.getElementById('notesList');
+        if (!notesList) return;
+        if (widgets.length === 0) {
+            notesList.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">📝 No sticky notes yet.</div>';
+            return;
+        }
+        notesList.innerHTML = '';
+        widgets.slice().reverse().forEach(widget => {
+            const date = new Date(widget.dateAdded || widget.id).toLocaleString();
+            const preview = widget.text ? widget.text.substring(0, 100) : '(empty note)';
+            const widgetDiv = document.querySelector(`.widget[data-widget-id="${widget.id}"]`);
+            const isVisible = widgetDiv && widgetDiv.style.display !== 'none';
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'note-item';
+            noteDiv.innerHTML = `<div class="delete-note-btn" data-id="${widget.id}">✗</div><div class="show-note-btn" data-id="${widget.id}">📂 Show</div><div class="note-date">📅 ${date}</div><div class="note-preview">${escapeHtml(preview)}${widget.text && widget.text.length > 100 ? '...' : ''}</div><div class="note-status">${isVisible ? '🟢 Visible' : '🔴 Hidden'}</div>`;
+            noteDiv.querySelector('.show-note-btn').onclick = () => { if (widgetDiv) { widgetDiv.style.display = 'block'; widgetDiv.style.zIndex = nextWindowZ++; saveAll(); refreshNotesManager(); } };
+            noteDiv.querySelector('.delete-note-btn').onclick = () => { if (confirm('Delete?')) { if (widgetDiv) widgetDiv.remove(); widgets = widgets.filter(w => w.id !== widget.id); saveAll(); refreshNotesManager(); } };
+            notesList.appendChild(noteDiv);
+        });
+    }
+    
+    function showNotesManager() {
+        const manager = document.getElementById('notesManager');
+        refreshNotesManager();
+        manager.style.display = 'flex';
+        manager.style.zIndex = nextWindowZ++;
+    }
+    
+    function showAllNotes() {
+        document.querySelectorAll('.widget').forEach(div => div.style.display = 'block');
+        if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
+    }
+    
+    function selectSticker(stickerId) {
+        document.querySelectorAll('.sticker').forEach(s => s.classList.remove('selected'));
+        if (hideHandlesTimeout) clearTimeout(hideHandlesTimeout);
+        const stickerDiv = document.querySelector(`.sticker[data-id="${stickerId}"]`);
+        if (stickerDiv) {
+            stickerDiv.classList.add('selected');
+            selectedStickerId = stickerId;
+            hideHandlesTimeout = setTimeout(() => {
+                if (selectedStickerId) {
+                    const s = document.querySelector(`.sticker[data-id="${selectedStickerId}"]`);
+                    if (s) s.classList.remove('selected');
+                    selectedStickerId = null;
+                }
+            }, 3000);
+        }
+    }
+    
+    function makeStickerResizable(stickerDiv, stickerId) {
+        const handles = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
+        handles.forEach(dir => {
+            const handle = document.createElement('div');
+            handle.className = `resize-handle ${dir}`;
+            stickerDiv.appendChild(handle);
+            handle.addEventListener('mousedown', (e) => { e.preventDefault(); e.stopPropagation(); startResize(e, stickerDiv, stickerId, dir); });
+            handle.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); startResize(e, stickerDiv, stickerId, dir); });
+        });
+    }
+    
+    function startResize(e, stickerDiv, stickerId, direction) {
+        e.preventDefault();
+        e.stopPropagation();
+        const startX = e.clientX ?? e.touches[0].clientX;
+        const startY = e.clientY ?? e.touches[0].clientY;
+        const startWidth = stickerDiv.offsetWidth;
+        const startHeight = stickerDiv.offsetHeight;
+        const startLeft = stickerDiv.offsetLeft;
+        const startTop = stickerDiv.offsetTop;
+        const sticker = stickers.find(s => s.id === stickerId);
+        if (!sticker) return;
+        
+        function doResize(moveEvent) {
+            const clientX = moveEvent.clientX ?? moveEvent.touches[0].clientX;
+            const clientY = moveEvent.clientY ?? moveEvent.touches[0].clientY;
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+            let newWidth = startWidth, newHeight = startHeight, newLeft = startLeft, newTop = startTop;
+            if (direction.includes('e')) newWidth = Math.max(20, startWidth + dx);
+            if (direction.includes('w')) { newWidth = Math.max(20, startWidth - dx); newLeft = startLeft + dx; }
+            if (direction.includes('s')) newHeight = Math.max(20, startHeight + dy);
+            if (direction.includes('n')) { newHeight = Math.max(20, startHeight - dy); newTop = startTop + dy; }
+            stickerDiv.style.width = newWidth + 'px';
+            stickerDiv.style.height = newHeight + 'px';
+            stickerDiv.style.left = newLeft + 'px';
+            stickerDiv.style.top = newTop + 'px';
+            const contentDiv = stickerDiv.querySelector('.sticker-content');
+            if (contentDiv) {
+                const baseSize = Math.min(newWidth, newHeight) * 0.8;
+                if (sticker.isImage) {
+                    const img = contentDiv.querySelector('img');
+                    if (img) { img.style.maxWidth = '100%'; img.style.maxHeight = '100%'; }
+                } else { contentDiv.style.fontSize = baseSize + 'px'; }
+            }
+            sticker.width = newWidth; sticker.height = newHeight; sticker.x = newLeft; sticker.y = newTop;
+            saveStickerPosition(sticker);
+            sticker.fontSize = Math.min(newWidth, newHeight) * 0.8;
+            saveAll();
+        }
+        function stopResize() {
+            document.removeEventListener('mousemove', doResize);
+            document.removeEventListener('mouseup', stopResize);
+            document.removeEventListener('touchmove', doResize);
+            document.removeEventListener('touchend', stopResize);
+        }
+        document.addEventListener('mousemove', doResize);
+        document.addEventListener('mouseup', stopResize);
+        document.addEventListener('touchmove', doResize);
+        document.addEventListener('touchend', stopResize);
+    }
+    
+    function showPasswordModal(item, onSuccess) {
+        pendingPasswordItem = item;
+        pendingPasswordCallback = onSuccess;
+        const modal = document.getElementById('passwordModal');
+        const hintDisplay = document.getElementById('hintDisplay');
+        hintDisplay.style.display = (item.hint && item.hint.trim()) ? 'block' : 'none';
+        if (item.hint) hintDisplay.innerHTML = `💡 Hint: ${escapeHtml(item.hint)}`;
+        document.getElementById('passwordInput').value = '';
+        modal.style.display = 'flex';
+    }
+    
+    function submitPassword() {
+        const enteredPassword = document.getElementById('passwordInput').value;
+        if (pendingPasswordCallback && pendingPasswordItem && enteredPassword === pendingPasswordItem.pin) {
+            document.getElementById('passwordModal').style.display = 'none';
+            pendingPasswordCallback(true);
+            document.getElementById('passwordInput').value = '';
+        } else { alert('Incorrect password!'); document.getElementById('passwordInput').value = ''; }
+    }
+    
+    function cancelPassword() {
+        if (pendingPasswordCallback) pendingPasswordCallback(false);
+        document.getElementById('passwordModal').style.display = 'none';
+        document.getElementById('passwordInput').value = '';
+        pendingPasswordCallback = null; pendingPasswordItem = null;
+    }
+    
+    let pendingRemoveId = null, pendingRemoveType = null;
+    
+    function showRemovePasswordModal(id, type, item) {
+        pendingRemoveId = id; pendingRemoveType = type;
+        const modal = document.getElementById('removePasswordModal');
+        const hintDisplay = document.getElementById('removeHintDisplay');
+        hintDisplay.style.display = (item.hint && item.hint.trim()) ? 'block' : 'none';
+        if (item.hint) hintDisplay.innerHTML = `💡 Hint: ${escapeHtml(item.hint)}`;
+        document.getElementById('removePasswordInput').value = '';
+        modal.style.display = 'flex';
+    }
+    
+    function confirmRemovePassword() {
+        const enteredPassword = document.getElementById('removePasswordInput').value;
+        let item = null;
+        if (pendingRemoveType === 'icon') item = icons.find(i => i.id === pendingRemoveId);
+        else if (pendingRemoveType === 'folder') item = folders.find(f => f.id === pendingRemoveId);
+        if (item && item.pin === enteredPassword) {
+            item.pin = ''; item.hint = ''; saveAll(); renderAll();
+            alert('Password removed!');
+            document.getElementById('removePasswordModal').style.display = 'none';
+        } else alert('Incorrect password!');
+        pendingRemoveId = null; pendingRemoveType = null;
+    }
+    
+    function cancelRemovePassword() {
+        document.getElementById('removePasswordModal').style.display = 'none';
+        pendingRemoveId = null; pendingRemoveType = null;
+    }
+    
+    function renderAll() {
+        updateFolderSelects();
+        renderIcons();
+        renderFolders();
+        renderStickers();
+        renderWidgets();
+        updateClock();
+        attachIconEvents();
+        const cloudIcon = document.getElementById('cloudSyncIcon');
+        if (cloudIcon) {
+            const lastSync = localStorage.getItem('lastSyncTime');
+            cloudIcon.title = lastSync ? `Last sync: ${new Date(lastSync).toLocaleString()}` : 'Click to MERGE/SYNC data with cloud';
+        }
+    }
+    
+    function renderIcons() {
+        const container = document.getElementById('iconsContainer');
+        const existing = container.querySelectorAll('.desktop-icon:not(.folder-icon)');
+        existing.forEach(el => el.remove());
+        const desktopIcons = icons.filter(icon => !icon.folderId);
+        desktopIcons.forEach(icon => {
+            const div = document.createElement('div');
+            div.className = 'desktop-icon';
+            div.setAttribute('data-id', icon.id);
+            div.setAttribute('data-type', 'icon');
+            const isEmoji = icon.image && (icon.image.length <= 4 || /[\u{1F300}-\u{1F9FF}]/u.test(icon.image));
+            div.innerHTML = `<div class="icon-action-btn edit-icon-btn" data-id="${icon.id}">✏️</div><div class="icon-action-btn delete-icon-btn" data-id="${icon.id}">✗</div><div class="icon-action-btn move-icon-btn" data-id="${icon.id}">📁 Move</div>${icon.pin ? `<div class="icon-action-btn lock-icon-btn" data-id="${icon.id}">🔒</div>` : ''}${isEmoji ? `<div class="icon-img">${icon.image || '📄'}</div>` : `<img src="${icon.image}" onerror="this.parentElement.innerHTML='<div class=icon-img>📄</div>'">`}<div class="icon-label">${escapeHtml(icon.label)}${icon.pin ? ' 🔒' : ''}</div>`;
+            if (window.innerWidth > 768) {
+                div.style.position = 'absolute';
+                div.style.left = (icon.x || 30) + 'px';
+                div.style.top = (icon.y || 30) + 'px';
+                makeDraggable(div, icon.id, 'icon');
+            }
+            container.appendChild(div);
+        });
+    }
+    
+    function renderFolders() {
+        const container = document.getElementById('iconsContainer');
+        const existing = container.querySelectorAll('.folder-icon');
+        existing.forEach(el => el.remove());
+        folders.forEach(folder => {
+            const div = document.createElement('div');
+            div.className = 'folder-icon';
+            div.setAttribute('data-id', folder.id);
+            div.setAttribute('data-type', 'folder');
+            div.innerHTML = `<div class="icon-action-btn edit-icon-btn" data-id="${folder.id}">✏️</div><div class="icon-action-btn delete-icon-btn" data-id="${folder.id}">✗</div>${folder.pin ? `<div class="icon-action-btn lock-icon-btn" data-id="${folder.id}">🔒</div>` : ''}<div class="icon-img">📁</div><div class="icon-label">${escapeHtml(folder.name)}${folder.pin ? ' 🔒' : ''} (${icons.filter(i => i.folderId === folder.id).length})</div>`;
+            if (window.innerWidth > 768) {
+                div.style.position = 'absolute';
+                div.style.left = (folder.x || 30) + 'px';
+                div.style.top = (folder.y || 30) + 'px';
+                makeDraggable(div, folder.id, 'folder');
+            }
+            container.appendChild(div);
+        });
+    }
+    
+    function openFolderWithPassword(folderId) {
+        const folder = folders.find(f => f.id === folderId);
+        if (!folder) return;
+        if (folder.pin) showPasswordModal(folder, (success) => { if (success) openFolder(folderId); });
+        else openFolder(folderId);
+    }
+    
+    function openIconWithPassword(icon) {
+        if (icon.pin) showPasswordModal(icon, (success) => { if (success) openOrFocusWindow(icon.link, icon.label); });
+        else if (icon.link) openOrFocusWindow(icon.link, icon.label);
+    }
+    
+    function openOrFocusWindow(url, title) {
+        const existing = openWindows.find(w => w.url === url && w.title === title);
+        if (existing && existing.windowElement) {
+            existing.windowElement.style.zIndex = nextWindowZ++;
+            existing.windowElement.style.display = 'flex';
+            return;
+        }
+        openInDesktopWindow(url, title);
+    }
+    
+    function editIconWithPassword(icon) {
+        if (icon.pin) showPasswordModal(icon, (success) => { if (success) openEditIconModal(icon.id); });
+        else openEditIconModal(icon.id);
+    }
+    
+    function editFolderWithPassword(folder) {
+        if (folder.pin) showPasswordModal(folder, (success) => { if (success) openEditFolderModal(folder.id); });
+        else openEditFolderModal(folder.id);
+    }
+    
+    function moveIconToDesktop(iconId) {
+        const icon = icons.find(i => i.id === iconId);
+        if (icon) { icon.folderId = null; saveAll(); renderAll(); }
+    }
+    
+    function moveAllToDesktop(folderId) {
+        icons.forEach(icon => { if (icon.folderId === folderId) icon.folderId = null; });
+        saveAll(); renderAll();
+        const folderWindow = document.getElementById(`folder-${folderId}`);
+        if (folderWindow && folderWindow.style.display === 'block') {
+            const content = folderWindow.querySelector('.folder-content');
+            if (content) renderFolderContents(folderId, content);
+        }
+    }
+    
+    function refreshFolderWindow(folderId) {
+        const folderWindow = document.getElementById(`folder-${folderId}`);
+        if (folderWindow && folderWindow.style.display === 'block') {
+            const content = folderWindow.querySelector('.folder-content');
+            if (content) renderFolderContents(folderId, content);
+        }
+    }
+    
+    function renderFolderContents(folderId, container) {
+        const folder = folders.find(f => f.id === folderId);
+        if (!folder) return;
+        const folderIcons = icons.filter(icon => icon.folderId === folderId);
+        container.innerHTML = '';
+        if (folderIcons.length === 0) {
+            container.innerHTML = '<div style="color:#999; text-align:center; width:100%; padding:20px;">📁 This folder is empty.</div>';
+        }
+        folderIcons.forEach(icon => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'folder-item';
+            const isEmoji = icon.image && (icon.image.length <= 4 || /[\u{1F300}-\u{1F9FF}]/u.test(icon.image));
+            itemDiv.innerHTML = `<div class="remove-from-folder" data-id="${icon.id}">✗</div><div class="move-to-desktop-btn" data-id="${icon.id}">🏠</div>${icon.pin ? '<div style="position:absolute; top:-5px; right:15px; font-size:10px;">🔒</div>' : ''}${isEmoji ? `<div class="folder-item-img">${icon.image || '📄'}</div>` : `<img src="${icon.image}" class="folder-item-img" style="width:40px; height:40px;">`}<div class="folder-item-label">${escapeHtml(icon.label)}</div>`;
+            itemDiv.onclick = (e) => {
+                if (e.target.classList.contains('remove-from-folder') || e.target.classList.contains('move-to-desktop-btn')) return;
+                openIconWithPassword(icon);
+            };
+            itemDiv.querySelector('.remove-from-folder')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteIcon(icon.id);
+                refreshFolderWindow(folderId);
+            });
+            itemDiv.querySelector('.move-to-desktop-btn')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moveIconToDesktop(icon.id);
+                refreshFolderWindow(folderId);
+            });
+            container.appendChild(itemDiv);
+        });
+    }
+    
+    function openFolder(id) {
+        const folder = folders.find(f => f.id === id);
+        if (!folder) return;
+        let win = document.getElementById(`folder-${id}`);
+        if (win) { win.style.display = 'flex'; win.style.zIndex = nextWindowZ++; return; }
+        win = document.createElement('div');
+        win.className = 'folder-window';
+        win.id = `folder-${id}`;
+        win.style.left = '150px';
+        win.style.top = '80px';
+        win.style.width = '500px';
+        win.style.height = '400px';
+        win.style.zIndex = nextWindowZ++;
+        win.innerHTML = `<div class="title-bar"><span>📁 ${escapeHtml(folder.name)}</span><span><span class="maximize-folder" style="cursor:pointer; margin-right:8px;">□</span><span class="close-folder" style="cursor:pointer;">✗</span></span></div><div class="folder-toolbar"><button class="move-all-to-desktop">🏠 Move All to Desktop</button><span style="font-size:10px; color:#555;">Tip: Click 🏠 on any icon to move it back</span></div><div class="folder-content" style="padding:15px; background:#fff; flex:1; display:flex; flex-wrap:wrap; gap:15px; align-content:flex-start; overflow-y:auto;"></div>`;
+        document.body.appendChild(win);
+        makeWindowDraggable(win, win.querySelector('.title-bar'));
+        win.querySelector('.close-folder').onclick = () => win.remove();
+        win.querySelector('.maximize-folder').onclick = () => {
+            if (win.style.width === '100%') {
+                win.style.width = '500px'; win.style.height = '400px';
+                win.style.left = '150px'; win.style.top = '80px';
+            } else {
+                win.style.width = '100%'; win.style.height = 'calc(100% - 50px)';
+                win.style.left = '0'; win.style.top = '0';
+            }
+        };
+        win.querySelector('.move-all-to-desktop').onclick = () => moveAllToDesktop(id);
+        win.onclick = () => win.style.zIndex = nextWindowZ++;
+        const content = win.querySelector('.folder-content');
+        renderFolderContents(id, content);
+        win.style.display = 'flex';
+    }
+    
+    function makeWindowDraggable(element, dragHandle) {
+        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0, isDragging = false;
+        dragHandle.onmousedown = startDrag;
+        dragHandle.ontouchstart = startDrag;
+        function startDrag(e) {
+            if (e.target.classList.contains('close-folder') || e.target.classList.contains('maximize-folder') || e.target.classList.contains('close-window') || e.target.classList.contains('maximize-window')) return;
+            e.preventDefault();
+            isDragging = true;
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            mouseX = clientX; mouseY = clientY;
+            offsetX = element.offsetLeft; offsetY = element.offsetTop;
+            document.onmouseup = stopDrag; document.onmousemove = drag;
+            document.ontouchend = stopDrag; document.ontouchmove = drag;
+            element.style.cursor = 'grabbing';
+        }
+        function drag(e) {
+            if (!isDragging) return; e.preventDefault();
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            let dx = clientX - mouseX, dy = clientY - mouseY;
+            let newLeft = offsetX + dx, newTop = offsetY + dy;
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
+            newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
+            element.style.left = newLeft + 'px';
+            element.style.top = newTop + 'px';
+        }
+        function stopDrag() {
+            isDragging = false;
+            document.onmouseup = null; document.onmousemove = null;
+            document.ontouchend = null; document.ontouchmove = null;
+            element.style.cursor = '';
+        }
+    }
+    
+    function moveIconToFolder(iconId, folderId) {
+        const icon = icons.find(i => i.id === iconId);
+        if (icon) {
+            icon.folderId = folderId === '' ? null : parseInt(folderId);
+            icon.x = 30; icon.y = 30;
+            saveAll(); renderAll();
+        }
+    }
+    
+    function openMoveModal(iconId) {
+        contextItemId = iconId;
+        updateFolderSelects();
+        document.getElementById('moveFolderSelect').value = '';
+        document.getElementById('moveToFolderModal').style.display = 'flex';
+    }
+    
+    function attachIconEvents() {
+        const iconsList = document.querySelectorAll('.desktop-icon, .folder-icon');
+        iconsList.forEach(el => {
+            const id = parseInt(el.dataset.id);
+            const isFolder = el.classList.contains('folder-icon');
+            const icon = isFolder ? folders.find(f => f.id === id) : icons.find(i => i.id === id);
+            if (!icon) return;
+            const newEl = el.cloneNode(true);
+            el.parentNode.replaceChild(newEl, el);
+            const finalEl = newEl;
+            finalEl.onclick = (e) => {
+                if (e.target.classList.contains('icon-action-btn')) return;
+                e.stopPropagation();
+                document.querySelectorAll('.desktop-icon, .folder-icon').forEach(ic => ic.classList.remove('selected'));
+                finalEl.classList.add('selected');
+            };
+            finalEl.ondblclick = (e) => {
+                if (e.target.classList.contains('icon-action-btn')) return;
+                e.stopPropagation();
+                if (isFolder) {
+                    if (icon.pin) showPasswordModal(icon, (success) => { if (success) openFolder(icon.id); });
+                    else openFolder(icon.id);
+                } else {
+                    if (icon.link) {
+                        if (icon.pin) showPasswordModal(icon, (success) => { if (success) openOrFocusWindow(icon.link, icon.label); });
+                        else openOrFocusWindow(icon.link, icon.label);
+                    }
+                }
+            };
+            finalEl.oncontextmenu = (e) => { e.preventDefault(); showContextMenu(e.clientX, e.clientY, id, isFolder ? 'folder' : 'icon'); return false; };
+            let pressTimer;
+            finalEl.ontouchstart = () => { pressTimer = setTimeout(() => { finalEl.classList.add('long-press'); const rect = finalEl.getBoundingClientRect(); showContextMenu(rect.left, rect.top, id, isFolder ? 'folder' : 'icon'); }, 800); };
+            finalEl.ontouchend = () => { clearTimeout(pressTimer); setTimeout(() => finalEl.classList.remove('long-press'), 100); };
+            finalEl.ontouchmove = () => { clearTimeout(pressTimer); };
+            const editBtn = finalEl.querySelector('.edit-icon-btn');
+            const deleteBtn = finalEl.querySelector('.delete-icon-btn');
+            const moveBtn = finalEl.querySelector('.move-icon-btn');
+            const lockBtn = finalEl.querySelector('.lock-icon-btn');
+            if (editBtn) editBtn.addEventListener('click', (e) => { e.stopPropagation(); if (isFolder) editFolderWithPassword(icon); else editIconWithPassword(icon); });
+            if (deleteBtn) deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); if (isFolder) deleteFolder(id); else deleteIcon(id); });
+            if (moveBtn && !isFolder) moveBtn.addEventListener('click', (e) => { e.stopPropagation(); openMoveModal(id); });
+            if (lockBtn) lockBtn.addEventListener('click', (e) => { e.stopPropagation(); if (isFolder) editFolderWithPassword(icon); else editIconWithPassword(icon); });
+        });
+    }
+    
+    function openEditIconModal(id) {
+        const icon = icons.find(i => i.id === id);
+        if (!icon) return;
+        window.editingIconId = id;
+        updateFolderSelects();
+        document.getElementById('modalTitle').innerText = 'Edit Icon';
+        document.getElementById('iconLabel').value = icon.label;
+        document.getElementById('iconLink').value = icon.link || '';
+        document.getElementById('iconImageUrl').value = icon.image || '';
+        document.getElementById('iconPin').value = icon.pin || '';
+        document.getElementById('iconHint').value = icon.hint || '';
+        document.getElementById('iconFolderSelect').value = icon.folderId || '';
+        document.getElementById('iconModal').style.display = 'flex';
+    }
+    
+    function openEditFolderModal(id) {
+        const folder = folders.find(f => f.id === id);
+        if (!folder) return;
+        window.editingFolderId = id;
+        document.getElementById('folderName').value = folder.name;
+        document.getElementById('folderPin').value = folder.pin || '';
+        document.getElementById('folderHint').value = folder.hint || '';
+        document.getElementById('folderModal').style.display = 'flex';
+    }
+    
+    function editFolder(id) {
+        const folder = folders.find(f => f.id === id);
+        if (!folder) return;
+        editFolderWithPassword(folder);
+    }
+    
+    function showContextMenu(x, y, id, type) {
+        contextItemId = id; contextItemType = type;
+        const menu = document.getElementById('contextMenu');
+        const item = type === 'icon' ? icons.find(i => i.id === id) : folders.find(f => f.id === id);
+        if (type === 'icon') {
+            menu.innerHTML = `<div class="context-menu-item" id="cm-open">🔗 Open</div><div class="context-menu-item" id="cm-edit">✏️ Edit</div><div class="context-menu-item" id="cm-move">📁 Move to Folder</div>${item && item.pin ? '<div class="context-menu-item" id="cm-remove-password">🔓 Remove Password</div>' : ''}<div class="context-menu-item" id="cm-delete">🗑️ Delete</div>`;
+        } else {
+            menu.innerHTML = `<div class="context-menu-item" id="cm-open">📂 Open</div><div class="context-menu-item" id="cm-edit">✏️ Edit</div>${item && item.pin ? '<div class="context-menu-item" id="cm-remove-password">🔓 Remove Password</div>' : ''}<div class="context-menu-item" id="cm-delete">🗑️ Delete</div>`;
+        }
+        menu.style.left = x + 'px'; menu.style.top = y + 'px'; menu.style.display = 'block';
+        document.getElementById('cm-open').onclick = () => {
+            if (type === 'icon') { const icon = icons.find(i => i.id === id); if (icon) openIconWithPassword(icon); }
+            else openFolderWithPassword(id);
+            menu.style.display = 'none';
+        };
+        document.getElementById('cm-edit').onclick = () => {
+            if (type === 'icon') { const icon = icons.find(i => i.id === id); if (icon) editIconWithPassword(icon); }
+            else { const folder = folders.find(f => f.id === id); if (folder) editFolderWithPassword(folder); }
+            menu.style.display = 'none';
+        };
+        if (type === 'icon' && document.getElementById('cm-move')) {
+            document.getElementById('cm-move').onclick = () => { openMoveModal(id); menu.style.display = 'none'; };
+        }
+        if (document.getElementById('cm-remove-password')) {
+            document.getElementById('cm-remove-password').onclick = () => {
+                if (type === 'icon') { const icon = icons.find(i => i.id === id); if (icon) showRemovePasswordModal(id, 'icon', icon); }
+                else { const folder = folders.find(f => f.id === id); if (folder) showRemovePasswordModal(id, 'folder', folder); }
+                menu.style.display = 'none';
+            };
+        }
+        document.getElementById('cm-delete').onclick = () => { if (type === 'icon') deleteIcon(id); else deleteFolder(id); menu.style.display = 'none'; };
+        setTimeout(() => { document.addEventListener('click', function closeMenu() { menu.style.display = 'none'; document.removeEventListener('click', closeMenu); }); }, 100);
+    }
+    
+    function renderStickers() {
+        const existing = document.querySelectorAll('.sticker');
+        existing.forEach(s => s.remove());
+        stickers.forEach(sticker => {
+            const positionedSticker = loadStickerPosition({ ...sticker });
+            const stickerDiv = document.createElement('div');
+            stickerDiv.className = 'sticker';
+            stickerDiv.setAttribute('data-id', sticker.id);
+            stickerDiv.style.left = positionedSticker.x + 'px';
+            stickerDiv.style.top = positionedSticker.y + 'px';
+            const width = sticker.width || 60;
+            const height = sticker.height || 60;
+            stickerDiv.style.width = width + 'px';
+            stickerDiv.style.height = height + 'px';
+            const fontSize = sticker.fontSize || 48;
+            if (sticker.isImage) {
+                stickerDiv.innerHTML = `<div class="delete-sticker" data-id="${sticker.id}">✗</div><div class="sticker-content" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;"><img src="${escapeHtml(sticker.emoji)}" style="max-width:100%; max-height:100%; width:auto; height:auto;"></div>`;
+            } else {
+                stickerDiv.innerHTML = `<div class="delete-sticker" data-id="${sticker.id}">✗</div><div class="sticker-content sticker-emoji" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:${fontSize}px; line-height:1;">${sticker.emoji}</div>`;
+            }
+            document.querySelector('.desktop').appendChild(stickerDiv);
+            makeStickerDraggable(stickerDiv, sticker.id);
+            makeStickerResizable(stickerDiv, sticker.id);
+            stickerDiv.addEventListener('click', (e) => { if (e.target.classList.contains('delete-sticker')) return; e.stopPropagation(); selectSticker(sticker.id); });
+            stickerDiv.querySelector('.delete-sticker')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                stickers = stickers.filter(s => s.id !== sticker.id);
+                if (selectedStickerId === sticker.id) selectedStickerId = null;
+                saveAll(); renderStickers();
+            });
+        });
+        document.querySelector('.desktop').addEventListener('click', (e) => {
+            if (!e.target.closest('.sticker')) {
+                document.querySelectorAll('.sticker').forEach(s => s.classList.remove('selected'));
+                if (hideHandlesTimeout) clearTimeout(hideHandlesTimeout);
+                selectedStickerId = null;
+            }
+        });
+    }
+    
+    function makeStickerDraggable(stickerDiv, stickerId) {
+        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0, isDragging = false;
+        stickerDiv.onmousedown = startDrag;
+        stickerDiv.ontouchstart = startDrag;
+        function startDrag(e) {
+            if (e.target.classList.contains('delete-sticker') || e.target.classList.contains('resize-handle')) return;
+            e.preventDefault();
+            isDragging = true;
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            mouseX = clientX; mouseY = clientY;
+            offsetX = stickerDiv.offsetLeft; offsetY = stickerDiv.offsetTop;
+            document.onmouseup = stopDrag; document.onmousemove = drag;
+            document.ontouchend = stopDrag; document.ontouchmove = drag;
+            stickerDiv.style.cursor = 'grabbing';
+            stickerDiv.style.zIndex = '1000';
+        }
+        function drag(e) {
+            if (!isDragging) return; e.preventDefault();
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            let dx = clientX - mouseX, dy = clientY - mouseY;
+            let newLeft = offsetX + dx, newTop = offsetY + dy;
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 50));
+            newTop = Math.max(0, Math.min(newTop, window.innerHeight - 50));
+            stickerDiv.style.left = newLeft + 'px';
+            stickerDiv.style.top = newTop + 'px';
+            const sticker = stickers.find(s => s.id === stickerId);
+            if (sticker) { 
+                sticker.x = newLeft; 
+                sticker.y = newTop;
+                saveStickerPosition(sticker);
+                saveAll(); 
+            }
+        }
+        function stopDrag() {
+            isDragging = false;
+            document.onmouseup = null; document.onmousemove = null;
+            document.ontouchend = null; document.ontouchmove = null;
+            stickerDiv.style.cursor = ''; stickerDiv.style.zIndex = '';
+        }
+    }
+    
+    function renderWidgets() {
+        const existing = document.querySelectorAll('.widget');
+        existing.forEach(w => w.remove());
+        widgets.forEach(widget => {
+            const div = document.createElement('div');
+            div.className = 'widget';
+            div.setAttribute('data-widget-id', widget.id);
+            div.style.left = (widget.x || 100) + 'px';
+            div.style.top = (widget.y || 100) + 'px';
+            div.style.width = (widget.width || 220) + 'px';
+            div.style.height = (widget.height || 160) + 'px';
+            div.style.position = 'absolute';
+            div.style.display = 'block';
+            div.innerHTML = `<div class="widget-title-bar"><span>📝 Sticky Note</span><div><span class="save-status" style="font-size:9px; margin-right:8px; color:#aaffaa;">💾 Saved</span><span class="hide-widget" data-id="${widget.id}" style="cursor:pointer;">✗</span></div></div><div class="widget-content"><textarea class="note-textarea" data-id="${widget.id}" placeholder="Write your note here...">${escapeHtml(widget.text || '')}</textarea></div>`;
+            document.querySelector('.desktop').appendChild(div);
+            makeWindowDraggable(div, div.querySelector('.widget-title-bar'));
+            const textarea = div.querySelector('textarea');
+            const saveStatus = div.querySelector('.save-status');
+            let saveTimeout = null;
+            textarea.addEventListener('input', (e) => { 
+                widget.text = e.target.value;
+                saveStatus.textContent = '💾 Saving...';
+                saveStatus.style.color = '#ffffaa';
+                if (saveTimeout) clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(() => {
+                    saveAll();
+                    saveStatus.textContent = '✅ Saved';
+                    saveStatus.style.color = '#aaffaa';
+                    setTimeout(() => { if (saveStatus) saveStatus.textContent = '💾 Saved'; }, 1000);
+                    if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
+                }, 300);
+            });
+            const hideBtn = div.querySelector('.hide-widget');
+            hideBtn.addEventListener('click', () => {
+                widget.text = textarea.value;
+                saveAll();
+                div.style.display = 'none';
+                if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
+            });
+            div.addEventListener('focusout', () => {
+                widget.text = textarea.value;
+                saveAll();
+                if (document.getElementById('notesManager').style.display === 'flex') refreshNotesManager();
+            });
+            const resizeObserver = new ResizeObserver(() => {
+                if (div.style.display !== 'none') {
+                    widget.width = div.offsetWidth;
+                    widget.height = div.offsetHeight;
+                    saveAll();
+                }
+            });
+            resizeObserver.observe(div);
+        });
+    }
+    
+    function addWidget() {
+        const newId = Date.now();
+        widgets.push(addTimestamp({ id: newId, text: '', x: 100 + (widgets.length * 20), y: 100 + (widgets.length * 20), width: 220, height: 160, dateAdded: newId }));
+        saveAll();
+        renderWidgets();
+    }
+    
+    function deleteAllNotes() {
+        if (confirm('Delete ALL sticky notes permanently?')) {
+            document.querySelectorAll('.widget').forEach(w => w.remove());
+            widgets = [];
+            saveAll();
+            renderWidgets();
+            refreshNotesManager();
+        }
+    }
+    
+    function makeDraggable(element, id, type) {
+        let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0, isDragging = false;
+        element.onmousedown = startDrag;
+        element.ontouchstart = startDrag;
+        function startDrag(e) {
+            if (e.target.classList?.contains('icon-action-btn') || e.target.classList?.contains('delete-sticker') || e.target.classList?.contains('close-widget')) return;
+            e.preventDefault();
+            e.stopPropagation();
+            isDragging = true;
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            mouseX = clientX; mouseY = clientY;
+            offsetX = element.offsetLeft; offsetY = element.offsetTop;
+            element.style.zIndex = '10000';
+            element.style.cursor = 'grabbing';
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', onDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+        function onDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            let dx = clientX - mouseX, dy = clientY - mouseY;
+            let newLeft = offsetX + dx, newTop = offsetY + dy;
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
+            newTop = Math.max(0, Math.min(newTop, window.innerHeight - 100));
+            newLeft = snapToGrid(newLeft);
+            newTop = snapToGrid(newTop);
+            element.style.left = newLeft + "px";
+            element.style.top = newTop + "px";
+            updatePosition(type, id, newLeft, newTop);
+            if (autoArrangeEnabled) {
+                autoArrangeEnabled = false;
+                const toggleBtn = document.getElementById('autoArrangeToggleBtn');
+                if (toggleBtn) toggleBtn.textContent = '🔲 Auto-arrange: OFF';
+                saveAll();
+            }
+        }
+        function stopDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            element.style.zIndex = '';
+            element.style.cursor = '';
+            if (type === 'icon') { const item = icons.find(i => i.id === id); if (item) item.lastModified = Date.now(); }
+            else if (type === 'folder') { const item = folders.find(f => f.id === id); if (item) item.lastModified = Date.now(); }
+            saveAll();
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('touchend', stopDrag);
+        }
+    }
+    
+    function updatePosition(type, id, x, y) {
+        if (type === 'icon') { const item = icons.find(i => i.id === id); if (item && !item.folderId) { item.x = x; item.y = y; } }
+        else if (type === 'folder') { const item = folders.find(f => f.id === id); if (item) { item.x = x; item.y = y; } }
+        else if (type === 'sticker') { const item = stickers.find(s => s.id === id); if (item) { item.x = x; item.y = y; saveStickerPosition(item); } }
+        else if (type === 'widget') { const item = widgets.find(w => w.id === id); if (item) { item.x = x; item.y = y; } }
+    }
+    
+    function openInDesktopWindow(url, title) {
+        const windowId = 'win_' + Date.now() + '_' + Math.random();
+        const zIndex = nextWindowZ++;
+        const win = document.createElement('div');
+        win.className = 'desktop-window';
+        win.id = windowId;
+        win.style.left = '100px';
+        win.style.top = '80px';
+        win.style.width = '700px';
+        win.style.height = '500px';
+        win.style.zIndex = zIndex;
+        win.innerHTML = `<div class="title-bar"><span>${escapeHtml(title || 'Window')}</span><div><span class="maximize-window">□</span><span class="close-window">✗</span></div></div><div class="window-content"><iframe src="${url}" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"></iframe></div>`;
+        document.body.appendChild(win);
+        const taskbarBtn = addTaskbarButton(windowId, title || 'Window', win);
+        openWindows.push({ id: windowId, url: url, title: title, windowElement: win, taskbarBtn: taskbarBtn });
+        makeWindowDraggable(win, win.querySelector('.title-bar'));
+        win.querySelector('.close-window').onclick = () => { win.remove(); removeTaskbarButton(windowId); openWindows = openWindows.filter(w => w.id !== windowId); };
+        win.querySelector('.maximize-window').onclick = () => {
+            if (win.style.width === '100%') {
+                win.style.width = '700px'; win.style.height = '500px';
+                win.style.left = '100px'; win.style.top = '80px';
+            } else {
+                win.style.width = '100%'; win.style.height = 'calc(100% - 50px)';
+                win.style.left = '0'; win.style.top = '0';
+            }
+        };
+        win.onclick = () => { win.style.zIndex = nextWindowZ++; };
+    }
+    
+    function deleteIcon(id) {
+        if (confirm('Move to Recycle Bin?')) {
+            const icon = icons.find(i => i.id === id);
+            if (icon) { recycleBin.push(addTimestamp({ ...icon, deletedAt: Date.now() })); icons = icons.filter(i => i.id !== id); saveAll(); renderAll(); }
+        }
+    }
+    
+    function deleteFolder(id) {
+        if (confirm('Move folder to Recycle Bin?')) {
+            icons.forEach(icon => { if (icon.folderId === id) icon.folderId = null; });
+            const folder = folders.find(f => f.id === id);
+            if (folder) { recycleBin.push(addTimestamp({ ...folder, type: 'folder', deletedAt: Date.now() })); folders = folders.filter(f => f.id !== id); saveAll(); renderAll(); }
+        }
+    }
+    
+    function addFolder() {
+        window.editingFolderId = null;
+        document.getElementById('folderName').value = '';
+        document.getElementById('folderPin').value = '';
+        document.getElementById('folderHint').value = '';
+        document.getElementById('folderModal').style.display = 'flex';
+    }
+    
+    function saveFolder() {
+        const name = document.getElementById('folderName').value.trim();
+        if (!name) { alert('Enter a folder name'); return; }
+        const pin = document.getElementById('folderPin').value.trim();
+        const hint = document.getElementById('folderHint').value.trim();
+        if (window.editingFolderId) {
+            const idx = folders.findIndex(f => f.id === window.editingFolderId);
+            if (idx !== -1) { folders[idx].name = name; folders[idx].pin = pin; folders[idx].hint = hint; folders[idx].lastModified = Date.now(); }
+        } else {
+            folders.push(addTimestamp({ id: Date.now(), name: name, pin: pin, hint: hint, x: 30 + folders.length * 20, y: 30 + folders.length * 20, dateAdded: Date.now() }));
+        }
+        saveAll(); renderAll();
+        document.getElementById('folderModal').style.display = 'none';
+    }
+    
+    function showStickerSelector() {
+        document.getElementById('stickerSelectorModal').style.display = 'flex';
+        const emojiGrid = document.getElementById('emojiGrid');
+        emojiGrid.innerHTML = '';
+        const emojis = ['🌟', '🎵', '☕', '💭', '🌸', '🕯️', '📖', '🧸', '✨', '🌙', '❤️', '🎨', '📷', '🌿', '🍂', '⭐', '🌈', '🍀', '🐱', '🐶', '☀️', '❄️', '🍁', '🎈', '💖'];
+        emojis.forEach(emoji => {
+            const btn = document.createElement('button');
+            btn.textContent = emoji;
+            btn.style.fontSize = '32px';
+            btn.style.margin = '5px';
+            btn.style.cursor = 'pointer';
+            btn.onclick = () => {
+                const newSticker = addTimestamp({ id: Date.now(), emoji: emoji, isImage: false, x: window.innerWidth / 2 - 30, y: window.innerHeight / 2 - 30, width: 60, height: 60, fontSize: 48 });
+                saveStickerPosition(newSticker);
+                stickers.push(newSticker);
+                saveAll(); renderAll();
+                document.getElementById('stickerSelectorModal').style.display = 'none';
+            };
+            emojiGrid.appendChild(btn);
+        });
+    }
+    
+    function addImageSticker() {
+        const url = document.getElementById('stickerImageUrl').value.trim();
+        if (url) {
+            const newSticker = addTimestamp({ id: Date.now(), emoji: url, isImage: true, x: window.innerWidth / 2 - 40, y: window.innerHeight / 2 - 40, width: 80, height: 80 });
+            saveStickerPosition(newSticker);
+            stickers.push(newSticker);
+            saveAll(); renderAll();
+            document.getElementById('stickerSelectorModal').style.display = 'none';
+            document.getElementById('stickerImageUrl').value = '';
+        } else alert('Enter an image URL');
+    }
+    
+    function showRecycleBin() {
+        const win = document.getElementById('recycleWindow');
+        const content = document.getElementById('recycleContent');
+        content.innerHTML = recycleBin.map(item => `<div style="padding:5px; border-bottom:1px solid #ccc;">${item.label || item.name} <button onclick="window.restoreFromBin(${item.id})">Restore</button></div>`).join('') || '<div>Empty</div>';
+        win.style.display = 'block';
+    }
+    
+    window.restoreFromBin = function(id) {
+        const item = recycleBin.find(i => i.id === id);
+        if (item) {
+            if (item.link !== undefined) icons.push(addTimestamp({ ...item, id: Date.now(), folderId: null }));
+            else if (item.name) folders.push(addTimestamp({ ...item, id: Date.now() }));
+            recycleBin = recycleBin.filter(i => i.id !== id);
+            saveAll(); renderAll(); showRecycleBin();
+        }
+    };
+    
+    function emptyRecycleBin() { if (confirm('Permanently delete all items?')) { recycleBin = []; saveAll(); renderAll(); showRecycleBin(); } }
+    function changeWallpaper() { const url = document.getElementById('wallpaperUrl').value; if (url) { currentWallpaper = url; document.body.style.backgroundImage = `url(${url})`; document.body.style.backgroundSize = 'cover'; saveAll(); } }
+    function resetWallpaper() { currentWallpaper = ''; document.body.style.backgroundImage = ''; document.body.style.background = '#008080'; saveAll(); }
+    function applyTheme() { document.body.style.background = currentTheme === 'teal' ? '#008080' : '#c0c0c0'; saveAll(); }
+    function sortByName() { icons.sort((a,b) => a.label.localeCompare(b.label)); folders.sort((a,b) => a.name.localeCompare(b.name)); saveAll(); renderAll(); }
+    function sortByDate() { icons.sort((a,b) => a.dateAdded - b.dateAdded); folders.sort((a,b) => a.dateAdded - b.dateAdded); saveAll(); renderAll(); }
+    let idleTimer, screensaverActive = false;
+    function startScreensaver() { if (screensaverActive) return; screensaverActive = true; document.getElementById('screensaver').classList.add('active'); }
+    function stopScreensaver() { document.getElementById('screensaver').classList.remove('active'); screensaverActive = false; resetIdleTimer(); }
+    function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (!screensaverActive) startScreensaver(); }, 5 * 60 * 1000); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' }); }
+    
+    function startAnimatedDots() {
+        const dotsElement = document.getElementById('bootDots');
+        if (!dotsElement) return;
+        let dotCount = 3;
+        setInterval(() => { dotCount = (dotCount + 1) % 4; dotsElement.textContent = '.'.repeat(dotCount); }, 800);
+    }
+    
+    function setupDesktopClick() {
+        const iconsContainer = document.getElementById('iconsContainer');
+        if (iconsContainer) {
+            iconsContainer.addEventListener('click', (e) => {
+                if (e.target === iconsContainer || e.target.classList.contains('icons-container')) {
+                    document.querySelectorAll('.desktop-icon, .folder-icon').forEach(ic => ic.classList.remove('selected'));
+                }
+            });
+        }
+    }
+    
+    const bootScreen = document.getElementById('bootScreen');
+    const desktop = document.getElementById('desktop');
+    const taskbar = document.getElementById('taskbar');
+    
+    bootScreen.addEventListener('click', function() {
+        unlockAudio();
+        bootScreen.style.opacity = '0';
+        bootScreen.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+            bootScreen.style.display = 'none';
+            desktop.style.display = 'block';
+            taskbar.style.display = 'flex';
+            loadAll();
+            setInterval(updateClock, 1000);
+            resetIdleTimer();
+            setupDesktopClick();
+            window.addEventListener('resize', () => { repositionStickersOnResize(); });
+        }, 500);
+    });
+    
+    document.getElementById('addIconBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); window.editingIconId = null; updateFolderSelects(); document.getElementById('modalTitle').innerText = 'Add Icon'; document.getElementById('iconLabel').value = ''; document.getElementById('iconLink').value = ''; document.getElementById('iconImageUrl').value = ''; document.getElementById('iconPin').value = ''; document.getElementById('iconHint').value = ''; document.getElementById('iconFolderSelect').value = ''; document.getElementById('iconModal').style.display = 'flex'; };
+    
+    document.getElementById('saveIconBtn').onclick = () => {
+        const label = document.getElementById('iconLabel').value.trim();
+        if (!label) return alert('Enter a name');
+        const link = document.getElementById('iconLink').value.trim();
+        let image = document.getElementById('iconImageUrl').value.trim() || '📄';
+        const pin = document.getElementById('iconPin').value.trim();
+        const hint = document.getElementById('iconHint').value.trim();
+        const folderId = document.getElementById('iconFolderSelect').value;
+        if (window.editingIconId) {
+            const idx = icons.findIndex(i => i.id === window.editingIconId);
+            if (idx !== -1) { icons[idx].label = label; icons[idx].link = link || '#'; icons[idx].image = image; icons[idx].pin = pin; icons[idx].hint = hint; icons[idx].folderId = folderId === '' ? null : parseInt(folderId); icons[idx].lastModified = Date.now(); }
+        } else {
+            icons.push(addTimestamp({ id: Date.now(), label, link: link || '#', image, pin, hint, folderId: folderId === '' ? null : parseInt(folderId), x: 30 + icons.length * 20, y: 30 + icons.length * 20, dateAdded: Date.now() }));
+        }
+        saveAll(); renderAll(); document.getElementById('iconModal').style.display = 'none';
+    };
+    
+    document.getElementById('addFolderBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); addFolder(); };
+    document.getElementById('saveFolderBtn').onclick = saveFolder;
+    document.getElementById('closeFolderModal').onclick = () => document.getElementById('folderModal').style.display = 'none';
+    document.getElementById('addWidgetBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); addWidget(); };
+    document.getElementById('viewAllNotesBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showNotesManager(); };
+    document.getElementById('closeNotesManager').onclick = () => document.getElementById('notesManager').style.display = 'none';
+    document.getElementById('showAllNotesBtn').onclick = () => showAllNotes();
+    document.getElementById('deleteAllNotesBtn').onclick = () => deleteAllNotes();
+    document.getElementById('confirmMoveBtn').onclick = () => { const folderId = document.getElementById('moveFolderSelect').value; if (contextItemId) moveIconToFolder(contextItemId, folderId); document.getElementById('moveToFolderModal').style.display = 'none'; };
+    document.getElementById('closeMoveModal').onclick = () => document.getElementById('moveToFolderModal').style.display = 'none';
+    document.getElementById('submitPasswordBtn').onclick = submitPassword;
+    document.getElementById('cancelPasswordBtn').onclick = cancelPassword;
+    document.getElementById('closePasswordModal').onclick = cancelPassword;
+    document.getElementById('confirmRemovePasswordBtn').onclick = confirmRemovePassword;
+    document.getElementById('cancelRemovePasswordBtn').onclick = cancelRemovePassword;
+    document.getElementById('closeRemovePasswordModal').onclick = cancelRemovePassword;
+    document.getElementById('addStickerBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showStickerSelector(); };
+    document.getElementById('stickerEmojiBtn').onclick = () => { document.getElementById('emojiGrid').style.display = 'flex'; document.getElementById('stickerImageUrl').style.display = 'none'; document.getElementById('addImageStickerBtn').style.display = 'none'; };
+    document.getElementById('stickerImageUrlBtn').onclick = () => { document.getElementById('emojiGrid').style.display = 'none'; document.getElementById('stickerImageUrl').style.display = 'block'; document.getElementById('addImageStickerBtn').style.display = 'block'; };
+    document.getElementById('addImageStickerBtn').onclick = addImageSticker;
+    document.getElementById('recycleBinBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showRecycleBin(); };
+    document.getElementById('sortByNameBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByName(); };
+    document.getElementById('sortByDateBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByDate(); };
+    document.getElementById('autoArrangeToggleBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); toggleAutoArrange(); };
+    document.getElementById('lineUpIconsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); lineUpIcons(); };
+    document.getElementById('syncWithCloudBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); syncToGist(); };
+    document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); openSettings(); };
+    
+    document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
+    document.getElementById('closeWallpaperModal').onclick = () => document.getElementById('wallpaperModal').style.display = 'none';
+    document.getElementById('closeThemeModal').onclick = () => document.getElementById('themeModal').style.display = 'none';
+    document.getElementById('closeStickerSelectorModal').onclick = () => document.getElementById('stickerSelectorModal').style.display = 'none';
+    document.getElementById('closeRecycleWindow').onclick = () => document.getElementById('recycleWindow').style.display = 'none';
+    document.getElementById('emptyRecycleBtn').onclick = emptyRecycleBin;
+    document.getElementById('screensaver').onclick = stopScreensaver;
+    
+    document.getElementById('startButton').onclick = () => document.getElementById('startMenu').classList.toggle('show');
+    document.addEventListener('click', (e) => { if (!document.getElementById('startButton').contains(e.target) && !document.getElementById('startMenu').contains(e.target)) document.getElementById('startMenu').classList.remove('show'); });
+    
+    const cloudIcon = document.getElementById('cloudSyncIcon');
+    if (cloudIcon) {
+        cloudIcon.addEventListener('click', () => {
+            if (confirm('MERGE/SYNC with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost on either side).\n\nThe cloud will keep the newest version of each item.\n\nYou can also manage cloud sync in Settings > Cloud.')) {
+                syncToGist();
+            }
+        });
+    }
+    
+    makeWindowDraggable(document.getElementById('notesManager'), document.getElementById('notesManagerTitleBar'));
+    startAnimatedDots();
 </script>
 
 </body>
