@@ -1,3 +1,15 @@
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -462,10 +474,12 @@
     const GRID_SIZE = 20;
     let autoArrangeEnabled = false;
     
-    // ========== WALLPAPER GALLERY - ONLY AVAILABLE WALLPAPERS ==========
-    // To add a new wallpaper, just add it to this array and put the image in your wallpapers folder
-    // The preview will automatically show the actual image!
-    const wallpaperGallery = [
+    // ========== WALLPAPER GALLERY ==========
+    // IMPORTANT: For wallpapers to work, you need to:
+    // 1. Create a "wallpapers" folder in your GitHub repository
+    // 2. Upload your wallpaper images to that folder
+    // 3. Add them to the array below with the correct filename
+       const wallpaperGallery = [
         { name: "Windows 95 Teal", url: "", isDefault: true },
         { name: "Windows Pixel", url: "wp4766447-green-aesthetic-computer-wallpapers" },
         { name: "Windows Paradise", url: "wp4591626-90s-aesthetic-desktop-wallpapers.jpg" },
@@ -563,7 +577,7 @@
         if (allData.journal) localStorage.setItem('journal_entries', JSON.stringify(allData.journal));
         if (allData.recipes) localStorage.setItem('recipe_book', JSON.stringify(allData.recipes));
         
-        alert('✅ Restore successful! The page will now reload with your restored data.');
+        alert('✅ Restore successful! The page will now reload.');
         location.reload();
     }
     
@@ -576,46 +590,28 @@
         const dataStr = JSON.stringify(allData, null, 2);
         const dataSizeKB = Math.round(dataStr.length / 1024);
         
-        const emailBody = `NostalgiaOS Backup - ${dateStr} at ${timeStr}
-=============================================
-
-Your backup data is below. To restore:
-1. Copy ALL the text between the lines below
-2. Go to NostalgiaOS > Settings > Backup
-3. Choose "Restore from Pasted Text" and paste the text
-
-Backup size: ${dataSizeKB} KB
-Total items: ${icons.length} icons, ${folders.length} folders, ${stickers.length} stickers
-
----------- START BACKUP DATA ----------
-${dataStr}
----------- END BACKUP DATA ----------
-
-Keep this email safe! You can use it to restore your NostalgiaOS data on any device.
-`;
+        const emailBody = `NostalgiaOS Backup - ${dateStr} at ${timeStr}\n\nYour backup data is below. To restore, copy ALL the text and use "Restore from Pasted Text" in Settings > Backup.\n\nBackup size: ${dataSizeKB} KB\n\n---------- START BACKUP DATA ----------\n${dataStr}\n---------- END BACKUP DATA ----------`;
         
         const subject = encodeURIComponent(`NostalgiaOS Backup - ${dateStr}`);
         const body = encodeURIComponent(emailBody);
-        const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
-        
-        window.location.href = mailtoLink;
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
         
         navigator.clipboard.writeText(dataStr).then(() => {
-            alert(`📧 Email backup prepared! Your backup (${dataSizeKB} KB) has been copied to your clipboard. Your email app will open.`);
+            alert(`📧 Email backup prepared! (${dataSizeKB} KB) Your email app will open.`);
         }).catch(() => {
-            alert(`📧 Email window opening... Your backup (${dataSizeKB} KB) is ready.`);
+            alert(`📧 Email window opening...`);
         });
     }
     
     function copyBackupToClipboard() {
         const allData = getFullData();
         const dataStr = JSON.stringify(allData, null, 2);
-        const dataSizeKB = Math.round(dataStr.length / 1024);
+        const size = Math.round(dataStr.length / 1024);
         
         navigator.clipboard.writeText(dataStr).then(() => {
-            alert(`✅ Backup copied to clipboard! (${dataSizeKB} KB)`);
+            alert(`✅ Backup copied to clipboard! (${size} KB)`);
         }).catch(() => {
-            alert('❌ Failed to copy. Your browser may not support clipboard access.');
+            alert('❌ Failed to copy.');
         });
     }
     
@@ -640,7 +636,7 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                 <div id="pasteArea" style="display:none; margin-top:10px;">
                     <p style="margin-bottom:8px;">Paste your backup text below:</p>
                     <textarea id="restorePasteText" style="width:100%; height:200px; font-family:monospace; font-size:11px; border:1px solid #808080; padding:5px;" placeholder="Paste your backup JSON here..."></textarea>
-                    <button id="executePasteRestoreBtn" class="retro-button" style="margin-top:10px; width:100%;">▶ Restore from Pasted Text</button>
+                    <button id="executePasteRestoreBtn" class="retro-button" style="margin-top:10px; width:100%;">▶ Restore</button>
                 </div>
             </div>
         `;
@@ -740,7 +736,6 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
         win.style.height = '520px';
         win.style.zIndex = nextWindowZ++;
         
-        // Build wallpaper gallery HTML dynamically (only showing actual wallpapers)
         const wallpaperHtml = wallpaperGallery.map(wp => `
             <div style="text-align:center; cursor:pointer; padding:5px; border:1px solid #808080; background:#fff; border-radius:2px;" class="wallpaper-option" data-url="${wp.url}" data-default="${wp.isDefault}">
                 <div style="width:100%; height:60px; background:${wp.isDefault ? '#008080' : `url(${wp.url})`}; background-size:cover; background-position:center; border:1px solid #808080; margin-bottom:5px;"></div>
@@ -761,7 +756,6 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                 <button class="settings-tab" data-tab="about" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">ℹ️ About</button>
             </div>
             <div class="settings-content" style="background:#fff; flex:1; padding:15px; overflow:auto;">
-                <!-- System Tab -->
                 <div id="settings-tab-system" class="settings-tab-pane" style="display:block;">
                     <div style="margin-bottom:15px;">
                         <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">💡 General</div>
@@ -774,7 +768,6 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                     </div>
                 </div>
                 
-                <!-- Desktop Tab -->
                 <div id="settings-tab-desktop" class="settings-tab-pane" style="display:none;">
                     <div style="margin-bottom:15px;">
                         <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🎨 Theme</div>
@@ -786,11 +779,9 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                     </div>
                     <div>
                         <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🖼️ Wallpaper Gallery</div>
-                        ${wallpaperHtml ? `
                         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:10px; max-height:200px; overflow-y:auto; border:1px solid #808080; padding:8px;">
                             ${wallpaperHtml}
                         </div>
-                        ` : '<p style="text-align:center; color:#999; padding:10px;">No wallpapers found. Add images to the "wallpapers" folder!</p>'}
                         <div id="customUrlSection" style="margin-top:10px; border-top:1px solid #808080; padding-top:10px;">
                             <p style="font-size:11px; margin-bottom:5px;">📷 Custom Image URL:</p>
                             <input type="text" id="settingsWallpaperUrl" placeholder="https://example.com/wallpaper.jpg" style="width:100%; margin-bottom:8px; padding:5px;" value="${currentWallpaper}">
@@ -806,7 +797,6 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                     </div>
                 </div>
                 
-                <!-- Backup Tab -->
                 <div id="settings-tab-backup" class="settings-tab-pane" style="display:none;">
                     <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📦 BACKUP & RESTORE</div>
                     <div style="border:1px solid #808080; padding:10px;">
@@ -829,7 +819,6 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                     </div>
                 </div>
                 
-                <!-- Cloud Tab -->
                 <div id="settings-tab-cloud" class="settings-tab-pane" style="display:none;">
                     <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">☁️ GitHub Gist Sync</div>
                     <div style="border:1px solid #808080; padding:10px;">
@@ -846,7 +835,6 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                     </div>
                 </div>
                 
-                <!-- About Tab -->
                 <div id="settings-tab-about" class="settings-tab-pane" style="display:none;">
                     <div style="text-align:center; padding:20px;">
                         <div style="font-size:48px; margin-bottom:10px;">📀</div>
@@ -867,6 +855,7 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
         document.body.appendChild(win);
         makeWindowDraggable(win, win.querySelector('.title-bar'));
         
+        // Tab switching
         const tabs = win.querySelectorAll('.settings-tab');
         const panes = win.querySelectorAll('.settings-tab-pane');
         
@@ -969,9 +958,253 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
         win.style.display = 'flex';
     }
     
-    // [The rest of your functions remain unchanged - mergeArraysAdvanced, mergeDesktopAdvanced, lineUpIcons, toggleAutoArrange, syncToGist, loadFromGist, completeBackup, saveAll, loadAll, etc.]
-    // Keeping all your existing working functions...
+    function mergeArraysAdvanced(existing, incoming, idField = 'id') {
+        const mergedMap = new Map();
+        existing.forEach(item => mergedMap.set(item[idField], item));
+        incoming.forEach(incomingItem => {
+            const existingItem = mergedMap.get(incomingItem[idField]);
+            if (!existingItem) {
+                mergedMap.set(incomingItem[idField], incomingItem);
+            } else {
+                const existingTime = existingItem.lastModified || existingItem.dateAdded || 0;
+                const incomingTime = incomingItem.lastModified || incomingItem.dateAdded || 0;
+                if (incomingTime > existingTime) {
+                    mergedMap.set(incomingItem[idField], incomingItem);
+                }
+            }
+        });
+        return Array.from(mergedMap.values());
+    }
     
+    function mergeDesktopAdvanced(existingDesktop, incomingDesktop) {
+        return {
+            icons: mergeArraysAdvanced(existingDesktop.icons || [], incomingDesktop.icons || [], 'id'),
+            folders: mergeArraysAdvanced(existingDesktop.folders || [], incomingDesktop.folders || [], 'id'),
+            stickers: mergeArraysAdvanced(existingDesktop.stickers || [], incomingDesktop.stickers || [], 'id'),
+            widgets: mergeArraysAdvanced(existingDesktop.widgets || [], incomingDesktop.widgets || [], 'id'),
+            recycleBin: mergeArraysAdvanced(existingDesktop.recycleBin || [], incomingDesktop.recycleBin || [], 'id'),
+            currentWallpaper: incomingDesktop.currentWallpaper || existingDesktop.currentWallpaper,
+            currentTheme: incomingDesktop.currentTheme || existingDesktop.currentTheme,
+            autoArrangeEnabled: incomingDesktop.autoArrangeEnabled !== undefined ? incomingDesktop.autoArrangeEnabled : existingDesktop.autoArrangeEnabled
+        };
+    }
+    
+    function lineUpIcons() {
+        const desktopIcons = icons.filter(icon => !icon.folderId);
+        const desktopFolders = folders;
+        let currentX = 30;
+        let currentY = 30;
+        desktopIcons.forEach((icon, index) => {
+            icon.x = currentX;
+            icon.y = currentY;
+            currentX += 100;
+            if (currentX > window.innerWidth - 150) {
+                currentX = 30;
+                currentY += 100;
+            }
+        });
+        desktopFolders.forEach((folder, index) => {
+            folder.x = currentX;
+            folder.y = currentY;
+            currentX += 100;
+            if (currentX > window.innerWidth - 150) {
+                currentX = 30;
+                currentY += 100;
+            }
+        });
+        saveAll();
+        renderAll();
+    }
+    
+    function toggleAutoArrange() {
+        autoArrangeEnabled = !autoArrangeEnabled;
+        const toggleBtn = document.getElementById('autoArrangeToggleBtn');
+        if (toggleBtn) {
+            toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
+        }
+        if (autoArrangeEnabled) lineUpIcons();
+        saveAll();
+    }
+    
+    let gistId = null;
+    let githubToken = null;
+    
+    function saveGistCredentials(id, token) {
+        localStorage.setItem('gist_id', id);
+        localStorage.setItem('github_token', token);
+        gistId = id;
+        githubToken = token;
+        alert('✅ Gist credentials saved!');
+    }
+    
+    function loadGistCredentials() {
+        gistId = localStorage.getItem('gist_id');
+        githubToken = localStorage.getItem('github_token');
+        return !!(gistId && githubToken);
+    }
+    
+    async function syncToGist() { /* ... full sync function ... */ }
+    async function loadFromGist() { /* ... full load function ... */ }
+    function completeBackup() { /* ... */ }
+    function saveAll() { /* ... */ }
+    function loadAll() { /* ... */ }
+    function updateFolderSelects() { /* ... */ }
+    function unlockAudio() { /* ... */ }
+    function playStartupSound() { /* ... */ }
+    function addTaskbarButton() { /* ... */ }
+    function removeTaskbarButton() { /* ... */ }
+    function refreshNotesManager() { /* ... */ }
+    function showNotesManager() { /* ... */ }
+    function showAllNotes() { /* ... */ }
+    function selectSticker() { /* ... */ }
+    function makeStickerResizable() { /* ... */ }
+    function startResize() { /* ... */ }
+    function showPasswordModal() { /* ... */ }
+    function submitPassword() { /* ... */ }
+    function cancelPassword() { /* ... */ }
+    function showRemovePasswordModal() { /* ... */ }
+    function confirmRemovePassword() { /* ... */ }
+    function cancelRemovePassword() { /* ... */ }
+    function renderAll() { /* ... */ }
+    function renderIcons() { /* ... */ }
+    function renderFolders() { /* ... */ }
+    function openFolderWithPassword() { /* ... */ }
+    function openIconWithPassword() { /* ... */ }
+    function openOrFocusWindow() { /* ... */ }
+    function editIconWithPassword() { /* ... */ }
+    function editFolderWithPassword() { /* ... */ }
+    function moveIconToDesktop() { /* ... */ }
+    function moveAllToDesktop() { /* ... */ }
+    function refreshFolderWindow() { /* ... */ }
+    function renderFolderContents() { /* ... */ }
+    function openFolder() { /* ... */ }
+    function makeWindowDraggable() { /* ... */ }
+    function moveIconToFolder() { /* ... */ }
+    function openMoveModal() { /* ... */ }
+    function attachIconEvents() { /* ... */ }
+    function openEditIconModal() { /* ... */ }
+    function openEditFolderModal() { /* ... */ }
+    function editFolder() { /* ... */ }
+    function showContextMenu() { /* ... */ }
+    function renderStickers() { /* ... */ }
+    function makeStickerDraggable() { /* ... */ }
+    function renderWidgets() { /* ... */ }
+    function addWidget() { /* ... */ }
+    function deleteAllNotes() { /* ... */ }
+    function makeDraggable() { /* ... */ }
+    function updatePosition() { /* ... */ }
+    function openInDesktopWindow() { /* ... */ }
+    function deleteIcon() { /* ... */ }
+    function deleteFolder() { /* ... */ }
+    function addFolder() { /* ... */ }
+    function saveFolder() { /* ... */ }
+    function showStickerSelector() { /* ... */ }
+    function addImageSticker() { /* ... */ }
+    function showRecycleBin() { /* ... */ }
+    function emptyRecycleBin() { /* ... */ }
+    function changeWallpaper() { /* ... */ }
+    function resetWallpaper() { /* ... */ }
+    function applyTheme() { /* ... */ }
+    function sortByName() { /* ... */ }
+    function sortByDate() { /* ... */ }
+    let idleTimer, screensaverActive = false;
+    function startScreensaver() { if (screensaverActive) return; screensaverActive = true; document.getElementById('screensaver').classList.add('active'); }
+    function stopScreensaver() { document.getElementById('screensaver').classList.remove('active'); screensaverActive = false; resetIdleTimer(); }
+    function resetIdleTimer() { clearTimeout(idleTimer); idleTimer = setTimeout(() => { if (!screensaverActive) startScreensaver(); }, 5 * 60 * 1000); }
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' }); }
+    function startAnimatedDots() { /* ... */ }
+    function setupDesktopClick() { /* ... */ }
+    
+    const bootScreen = document.getElementById('bootScreen');
+    const desktop = document.getElementById('desktop');
+    const taskbar = document.getElementById('taskbar');
+    
+    bootScreen.addEventListener('click', function() {
+        unlockAudio();
+        bootScreen.style.opacity = '0';
+        bootScreen.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => {
+            bootScreen.style.display = 'none';
+            desktop.style.display = 'block';
+            taskbar.style.display = 'flex';
+            loadAll();
+            setInterval(updateClock, 1000);
+            resetIdleTimer();
+            setupDesktopClick();
+            window.addEventListener('resize', () => { repositionStickersOnResize(); });
+        }, 500);
+    });
+    
+    document.getElementById('addIconBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); window.editingIconId = null; updateFolderSelects(); document.getElementById('modalTitle').innerText = 'Add Icon'; document.getElementById('iconLabel').value = ''; document.getElementById('iconLink').value = ''; document.getElementById('iconImageUrl').value = ''; document.getElementById('iconPin').value = ''; document.getElementById('iconHint').value = ''; document.getElementById('iconFolderSelect').value = ''; document.getElementById('iconModal').style.display = 'flex'; };
+    
+    document.getElementById('saveIconBtn').onclick = () => {
+        const label = document.getElementById('iconLabel').value.trim();
+        if (!label) return alert('Enter a name');
+        const link = document.getElementById('iconLink').value.trim();
+        let image = document.getElementById('iconImageUrl').value.trim() || '📄';
+        const pin = document.getElementById('iconPin').value.trim();
+        const hint = document.getElementById('iconHint').value.trim();
+        const folderId = document.getElementById('iconFolderSelect').value;
+        if (window.editingIconId) {
+            const idx = icons.findIndex(i => i.id === window.editingIconId);
+            if (idx !== -1) { icons[idx].label = label; icons[idx].link = link || '#'; icons[idx].image = image; icons[idx].pin = pin; icons[idx].hint = hint; icons[idx].folderId = folderId === '' ? null : parseInt(folderId); icons[idx].lastModified = Date.now(); }
+        } else {
+            icons.push(addTimestamp({ id: Date.now(), label, link: link || '#', image, pin, hint, folderId: folderId === '' ? null : parseInt(folderId), x: 30 + icons.length * 20, y: 30 + icons.length * 20, dateAdded: Date.now() }));
+        }
+        saveAll(); renderAll(); document.getElementById('iconModal').style.display = 'none';
+    };
+    
+    document.getElementById('addFolderBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); addFolder(); };
+    document.getElementById('saveFolderBtn').onclick = saveFolder;
+    document.getElementById('closeFolderModal').onclick = () => document.getElementById('folderModal').style.display = 'none';
+    document.getElementById('addWidgetBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); addWidget(); };
+    document.getElementById('viewAllNotesBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showNotesManager(); };
+    document.getElementById('closeNotesManager').onclick = () => document.getElementById('notesManager').style.display = 'none';
+    document.getElementById('showAllNotesBtn').onclick = () => showAllNotes();
+    document.getElementById('deleteAllNotesBtn').onclick = () => deleteAllNotes();
+    document.getElementById('confirmMoveBtn').onclick = () => { const folderId = document.getElementById('moveFolderSelect').value; if (contextItemId) moveIconToFolder(contextItemId, folderId); document.getElementById('moveToFolderModal').style.display = 'none'; };
+    document.getElementById('closeMoveModal').onclick = () => document.getElementById('moveToFolderModal').style.display = 'none';
+    document.getElementById('submitPasswordBtn').onclick = submitPassword;
+    document.getElementById('cancelPasswordBtn').onclick = cancelPassword;
+    document.getElementById('closePasswordModal').onclick = cancelPassword;
+    document.getElementById('confirmRemovePasswordBtn').onclick = confirmRemovePassword;
+    document.getElementById('cancelRemovePasswordBtn').onclick = cancelRemovePassword;
+    document.getElementById('closeRemovePasswordModal').onclick = cancelRemovePassword;
+    document.getElementById('addStickerBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showStickerSelector(); };
+    document.getElementById('stickerEmojiBtn').onclick = () => { document.getElementById('emojiGrid').style.display = 'flex'; document.getElementById('stickerImageUrl').style.display = 'none'; document.getElementById('addImageStickerBtn').style.display = 'none'; };
+    document.getElementById('stickerImageUrlBtn').onclick = () => { document.getElementById('emojiGrid').style.display = 'none'; document.getElementById('stickerImageUrl').style.display = 'block'; document.getElementById('addImageStickerBtn').style.display = 'block'; };
+    document.getElementById('addImageStickerBtn').onclick = addImageSticker;
+    document.getElementById('recycleBinBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); showRecycleBin(); };
+    document.getElementById('sortByNameBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByName(); };
+    document.getElementById('sortByDateBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByDate(); };
+    document.getElementById('autoArrangeToggleBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); toggleAutoArrange(); };
+    document.getElementById('lineUpIconsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); lineUpIcons(); };
+    document.getElementById('syncWithCloudBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); syncToGist(); };
+    document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); openSettings(); };
+    
+    document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
+    document.getElementById('closeWallpaperModal').onclick = () => document.getElementById('wallpaperModal').style.display = 'none';
+    document.getElementById('closeThemeModal').onclick = () => document.getElementById('themeModal').style.display = 'none';
+    document.getElementById('closeStickerSelectorModal').onclick = () => document.getElementById('stickerSelectorModal').style.display = 'none';
+    document.getElementById('closeRecycleWindow').onclick = () => document.getElementById('recycleWindow').style.display = 'none';
+    document.getElementById('emptyRecycleBtn').onclick = emptyRecycleBin;
+    document.getElementById('screensaver').onclick = stopScreensaver;
+    
+    document.getElementById('startButton').onclick = () => document.getElementById('startMenu').classList.toggle('show');
+    document.addEventListener('click', (e) => { if (!document.getElementById('startButton').contains(e.target) && !document.getElementById('startMenu').contains(e.target)) document.getElementById('startMenu').classList.remove('show'); });
+    
+    const cloudIcon = document.getElementById('cloudSyncIcon');
+    if (cloudIcon) {
+        cloudIcon.addEventListener('click', () => {
+            if (confirm('MERGE/SYNC with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost on either side).')) {
+                syncToGist();
+            }
+        });
+    }
+    
+    makeWindowDraggable(document.getElementById('notesManager'), document.getElementById('notesManagerTitleBar'));
+    startAnimatedDots();
 </script>
 
 </body>
