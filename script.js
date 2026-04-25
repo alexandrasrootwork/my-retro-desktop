@@ -1796,7 +1796,14 @@ bootScreen.addEventListener('click', function() {
         setInterval(updateClock, 1000);
         resetIdleTimer();
         setupDesktopClick();
-        window.addEventListener('resize', () => { repositionStickersOnResize(); });
+        window.addEventListener('resize', () => { 
+            repositionStickersOnResize();
+            // Also reposition wallpaper on resize
+            if (currentWallpaper) {
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center center';
+            }
+        });
     }, 500);
 });
 
