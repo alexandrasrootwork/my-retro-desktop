@@ -399,7 +399,7 @@
     <div class="start-menu-item" id="sortByNameBtn">🔤 Sort Icons by Name</div>
     <div class="start-menu-item" id="sortByDateBtn">📅 Sort by Date</div>
     <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="autoArrangeToggleBtn">🔲 Auto-arrange: ON</div>
+    <div class="start-menu-item" id="autoArrangeToggleBtn">🔲 Auto-arrange: OFF</div>
     <div class="start-menu-item" id="lineUpIconsBtn">📏 Line Up Icons</div>
     <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="legacyExportBtn">💾 Legacy Export</div>
@@ -488,7 +488,6 @@
         // Start from a base position
         let currentX = 30;
         let currentY = 30;
-        let maxHeightInRow = 0;
         
         // Line up icons first
         desktopIcons.forEach((icon, index) => {
@@ -1365,7 +1364,7 @@
         document.getElementById('moveToFolderModal').style.display = 'flex';
     }
     
-    // NEW: attachIconEvents with single-click select, double-click open
+    // attachIconEvents with single-click select, double-click open
     function attachIconEvents() {
         const iconsList = document.querySelectorAll('.desktop-icon, .folder-icon');
         
@@ -1706,24 +1705,59 @@
         }
     }
     
-    // MODIFIED: makeDraggable with snap-to-grid
+    // UPDATED: makeDraggable with smooth drag and snap-to-grid
     function makeDraggable(element, id, type) {
         let offsetX = 0, offsetY = 0, mouseX = 0, mouseY = 0;
         let isDragging = false;
+        
         element.onmousedown = startDrag;
+        element.ontouchstart = startDrag;
+        
         function startDrag(e) {
-            if (e.target.classList?.contains('icon-action-btn') || e.target.classList?.contains('delete-sticker') || e.target.classList?.contains('close-widget')) return;
+            // Don't drag if clicking on action buttons
+            if (e.target.classList?.contains('icon-action-btn') || 
+                e.target.classList?.contains('delete-sticker') || 
+                e.target.classList?.contains('close-widget')) return;
+            
             e.preventDefault();
+            e.stopPropagation();
             isDragging = true;
-            mouseX = e.clientX; mouseY = e.clientY;
-            offsetX = element.offsetLeft; offsetY = element.offsetTop;
-            document.onmouseup = stopDrag; document.onmousemove = drag;
-            element.style.zIndex = '1000'; element.style.cursor = 'grabbing';
+            
+            // Get starting position
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            mouseX = clientX;
+            mouseY = clientY;
+            
+            // Get current position of the element
+            offsetX = element.offsetLeft;
+            offsetY = element.offsetTop;
+            
+            // Set high z-index while dragging
+            element.style.zIndex = '10000';
+            element.style.cursor = 'grabbing';
+            
+            // Add global event listeners
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchmove', onDrag);
+            document.addEventListener('touchend', stopDrag);
         }
-        function drag(e) {
-            if (!isDragging) return; e.preventDefault();
-            let dx = e.clientX - mouseX, dy = e.clientY - mouseY;
-            let newLeft = offsetX + dx, newTop = offsetY + dy;
+        
+        function onDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const clientX = e.clientX ?? e.touches[0].clientX;
+            const clientY = e.clientY ?? e.touches[0].clientY;
+            
+            let dx = clientX - mouseX;
+            let dy = clientY - mouseY;
+            
+            let newLeft = offsetX + dx;
+            let newTop = offsetY + dy;
+            
+            // Keep within desktop bounds
             newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - 100));
             newTop = Math.max(0, Math.min(newTop, window.innerHeight - 100));
             
@@ -1733,9 +1767,11 @@
             
             element.style.left = newLeft + "px";
             element.style.top = newTop + "px";
+            
+            // Update the stored position
             updatePosition(type, id, newLeft, newTop);
             
-            // If auto-arrange is on, turn it off when user manually moves an icon
+            // If auto-arrange was on, turn it off when user manually moves an icon
             if (autoArrangeEnabled) {
                 autoArrangeEnabled = false;
                 const toggleBtn = document.getElementById('autoArrangeToggleBtn');
@@ -1745,11 +1781,21 @@
                 saveAll();
             }
         }
+        
         function stopDrag() {
+            if (!isDragging) return;
             isDragging = false;
-            document.onmouseup = null; document.onmousemove = null;
-            element.style.zIndex = ''; element.style.cursor = '';
+            element.style.zIndex = '';
+            element.style.cursor = '';
+            
+            // Save final position
             saveAll();
+            
+            // Remove global event listeners
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('touchend', stopDrag);
         }
     }
     
