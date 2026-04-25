@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -405,6 +406,8 @@
     <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="completeBackupBtn">💾 Complete Backup (All Data)</div>
     <div class="start-menu-item" id="completeRestoreBtn">📂 Complete Restore</div>
+    <div class="start-menu-item" id="copyBackupBtn">📋 Copy Backup to Clipboard</div>
+    <div class="start-menu-item" id="emailBackupBtn">📧 Email Backup (Full)</div>
     <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="downloadFromCloudBtn">☁️ Download from Cloud</div>
     <div class="start-menu-divider"></div>
@@ -523,6 +526,90 @@
             item.yPercent = pixelToPercentage(item.y, window.innerHeight || 1080);
         }
         return item;
+    }
+    
+    function getFullData() {
+        return {
+            desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme, autoArrangeEnabled },
+            bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
+            journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
+            recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : [],
+            backupDate: new Date().toISOString(),
+            version: '1.0'
+        };
+    }
+    
+    // ========== EMAIL BACKUP FEATURE ==========
+    function emailBackup() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        
+        const allData = getFullData();
+        const dataStr = JSON.stringify(allData, null, 2);
+        const dataSizeKB = Math.round(dataStr.length / 1024);
+        
+        const emailBody = `NostalgiaOS Backup - ${dateStr} at ${timeStr}
+=============================================
+
+Your backup data is below. To restore:
+1. Copy ALL the text between the lines below
+2. Go to NostalgiaOS and click "Complete Restore"
+3. Paste the text into a file and select it, or use "Copy Backup to Clipboard" and paste directly
+
+Backup size: ${dataSizeKB} KB
+Total items: ${icons.length} icons, ${folders.length} folders, ${stickers.length} stickers
+
+---------- START BACKUP DATA ----------
+${dataStr}
+---------- END BACKUP DATA ----------
+
+Keep this email safe! You can use it to restore your NostalgiaOS data on any device.
+`;
+        
+        const subject = encodeURIComponent(`NostalgiaOS Backup - ${dateStr}`);
+        const body = encodeURIComponent(emailBody);
+        const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+        
+        window.location.href = mailtoLink;
+        
+        navigator.clipboard.writeText(dataStr).then(() => {
+            alert(`📧 Email backup prepared!
+
+Your backup (${dataSizeKB} KB) has been:
+1. Copied to your clipboard
+2. Your email app will open with the subject: "${decodeURIComponent(subject)}"
+
+Just paste the body (it's already there) and send!
+
+If your email doesn't open, paste the clipboard content into a new email.`);
+        }).catch(() => {
+            alert(`📧 Email window opening...
+
+Your backup (${dataSizeKB} KB) is ready. Your email app should open with the subject and body pre-filled.
+
+If not, please manually email yourself the backup data.`);
+        });
+    }
+    
+    function copyBackupToClipboard() {
+        const allData = getFullData();
+        const dataStr = JSON.stringify(allData, null, 2);
+        const dataSizeKB = Math.round(dataStr.length / 1024);
+        
+        navigator.clipboard.writeText(dataStr).then(() => {
+            alert(`✅ Backup copied to clipboard! (${dataSizeKB} KB)
+
+The complete NostalgiaOS backup is now on your clipboard.
+
+To restore:
+1. Save this text to a file (paste into Notepad, save as .json)
+2. Or paste directly if using "Complete Restore" in the future
+
+Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers.length} stickers, plus all notes, journal entries, bucket list items, and recipes!`);
+        }).catch(() => {
+            alert('❌ Failed to copy. Your browser may not support clipboard access.');
+        });
     }
     
     function mergeArraysAdvanced(existing, incoming, idField = 'id') {
@@ -761,12 +848,7 @@
     }
     
     function completeBackup() {
-        const allData = { desktop: { icons, folders, stickers, widgets, recycleBin, currentWallpaper, currentTheme, autoArrangeEnabled },
-            bucketlist: localStorage.getItem('bucketlist_items') ? JSON.parse(localStorage.getItem('bucketlist_items')) : [],
-            journal: localStorage.getItem('journal_entries') ? JSON.parse(localStorage.getItem('journal_entries')) : [],
-            recipes: localStorage.getItem('recipe_book') ? JSON.parse(localStorage.getItem('recipe_book')) : [],
-            backupDate: new Date().toISOString()
-        };
+        const allData = getFullData();
         const dataStr = JSON.stringify(allData, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const a = document.createElement('a');
@@ -1885,6 +1967,8 @@
     document.getElementById('legacyImportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyImport(); };
     document.getElementById('completeBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); completeBackup(); };
     document.getElementById('completeRestoreBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); completeRestore(); };
+    document.getElementById('copyBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); copyBackupToClipboard(); };
+    document.getElementById('emailBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); emailBackup(); };
     document.getElementById('downloadFromCloudBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); loadFromGist(); };
     document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); document.getElementById('settingsModal').style.display = 'flex'; };
     
