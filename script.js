@@ -463,43 +463,49 @@ function openSettings() {
         });
     }
     
-    win.querySelectorAll('.wallpaper-option').forEach(option => {
-        option.onclick = () => {
-            const url = option.dataset.url;
-            const isDefault = option.dataset.default === 'true';
-            const imgPreview = option.querySelector('div:first-child');
-            
-            if (isDefault) {
-                currentWallpaper = '';
-                document.body.style.backgroundImage = 'url(wallpapers/${filename})';
-                document.body.style.background = '#008080';
-                if (imgPreview) imgPreview.style.background = '#008080';
+win.querySelectorAll('.wallpaper-option').forEach(option => {
+    option.onclick = () => {
+        const url = option.dataset.url;
+        const isDefault = option.dataset.default === 'true';
+        
+        if (isDefault) {
+            currentWallpaper = '';
+            document.body.style.backgroundImage = '';
+            document.body.style.backgroundColor = '#008080';
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center center';
+        } else if (url) {
+            // Test if image exists before applying
+            const testImg = new Image();
+            testImg.onload = () => {
+                currentWallpaper = url;
+                document.body.style.backgroundImage = `url(${url})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundAttachment = 'fixed';
                 saveAll();
-                highlightActiveWallpaper();
-                alert('✅ Reset to Windows 95 Teal wallpaper!');
-            } else if (url) {
-                const testImg = new Image();
-                testImg.onload = () => {
-                    currentWallpaper = url;
-                    document.body.style.backgroundImage = `url(${url})`;
-                    document.body.style.backgroundSize = 'cover';
-                    document.body.style.backgroundPosition = 'center';
-                    document.body.style.backgroundRepeat = 'no-repeat';
-                    if (imgPreview) imgPreview.style.backgroundImage = `url(${url})`;
-                    saveAll();
-                    highlightActiveWallpaper();
-                    alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
-                };
-                testImg.onerror = () => {
-                    alert(`❌ Wallpaper image not found!\n\nPlease upload "${url}" to your wallpapers folder.\n\nMake sure the filename matches exactly.`);
-                };
-                testImg.src = url;
-            }
-            
-            const customUrlInput = win.querySelector('#settingsWallpaperUrl');
-            if (customUrlInput) customUrlInput.value = currentWallpaper;
-        };
-    });
+                alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
+            };
+            testImg.onerror = () => {
+                alert(`❌ Wallpaper image not found!\n\nPlease check the file path: ${url}`);
+            };
+            testImg.src = url;
+        }
+        
+        saveAll();
+        const customUrlInput = win.querySelector('#settingsWallpaperUrl');
+        if (customUrlInput) customUrlInput.value = currentWallpaper;
+        
+        // Highlight selected wallpaper
+        win.querySelectorAll('.wallpaper-option').forEach(opt => {
+            opt.style.outline = 'none';
+            opt.style.backgroundColor = '#fff';
+        });
+        option.style.outline = '2px solid #000080';
+        option.style.backgroundColor = '#e0e0e0';
+    };
+});
     
     win.querySelector('#settingsSetWallpaperBtn').onclick = () => {
         const url = win.querySelector('#settingsWallpaperUrl').value;
@@ -825,6 +831,17 @@ function loadAll() {
             addTimestamp({ id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null }),
             addTimestamp({ id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null })
         ];
+            // Apply wallpaper after loading
+    if (currentWallpaper) {
+        document.body.style.backgroundImage = `url(${currentWallpaper})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+    } else {
+        document.body.style.backgroundImage = '';
+        document.body.style.backgroundColor = '#008080';
+    }
     }
     const toggleBtn = document.getElementById('autoArrangeToggleBtn');
     if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
