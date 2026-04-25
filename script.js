@@ -1796,12 +1796,15 @@ bootScreen.addEventListener('click', function() {
         setInterval(updateClock, 1000);
         resetIdleTimer();
         setupDesktopClick();
+         // Handle window resize - reposition both stickers AND wallpaper
         window.addEventListener('resize', () => { 
             repositionStickersOnResize();
-            // Also reposition wallpaper on resize
+            // Reposition wallpaper on resize to maintain proper centering
             if (currentWallpaper) {
                 document.body.style.backgroundSize = 'cover';
                 document.body.style.backgroundPosition = 'center center';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundAttachment = 'fixed';
             }
         });
     }, 500);
