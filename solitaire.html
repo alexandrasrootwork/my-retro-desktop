@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 Solitaire</title>
+    <style>
+        * { user-select: none; }
+        body {
+            background: #008080;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .game-container {
+            background: #008080;
+            padding: 20px;
+        }
+        .tableau {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .stock-area {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .pile {
+            width: 100px;
+            height: 140px;
+            background: #008080;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            position: relative;
+            cursor: pointer;
+        }
+        .card {
+            position: absolute;
+            width: 100px;
+            height: 140px;
+            background: #fff;
+            border: 1px solid #000;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 2px 2px 3px rgba(0,0,0,0.3);
+        }
+        .card.red {
+            color: #ff0000;
+        }
+        .card.black {
+            color: #000000;
+        }
+        .card.face-down {
+            background: repeating-linear-gradient(45deg, #000080, #000080 10px, #0000aa 10px, #0000aa 20px);
+            border: 1px solid #fff;
+        }
+        .retro-button {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 20px;
+        }
+        .message {
+            text-align: center;
+            margin-top: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="stock-area">
+        <div id="stock" class="pile"></div>
+        <div id="waste" class="pile"></div>
+    </div>
+    <div class="tableau" id="tableau"></div>
+    <div class="foundations" id="foundations" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;"></div>
+    <div style="text-align: center;">
+        <button class="retro-button" id="newGameBtn">🔄 New Game</button>
+    </div>
+    <div id="message" class="message"></div>
+</div>
+
+<script>
+    let stock = [];
+    let waste = [];
+    let tableau = [[],[],[],[],[],[],[]];
+    let foundations = [[],[],[],[]];
+    let gameOver = false;
+    
+    const suits = ['♠', '♥', '♣', '♦'];
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    
+    function createDeck() {
+        const deck = [];
+        for (let suit of suits) {
+            for (let rank of ranks) {
+                deck.push({
+                    suit: suit,
+                    rank: rank,
+                    color: (suit === '♥' || suit === '♦') ? 'red' : 'black',
+                    faceUp: false
+                });
+            }
+        }
+        return shuffle(deck);
+    }
+    
+    function shuffle(deck) {
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+    }
+    
+    function getRankValue(rank) {
+        return ranks.indexOf(rank);
+    }
+    
+    function canPlaceOnFoundation(card, foundation) {
+        if (foundation.length === 0) {
+            return card.rank === 'A';
+        }
+        const topCard = foundation[foundation.length - 1];
+        return topCard.suit === card.suit && getRankValue(card.rank) === getRankValue(topCard.rank) + 1;
+    }
+    
+    function canPlaceOnTableau(card, pile) {
+        if (pile.length === 0) {
+            return card.rank === 'K';
+        }
+        const topCard = pile[pile.length - 1];
+        return topCard.color !== card.color && getRankValue(card.rank) === getRankValue(topCard.rank) - 1;
+    }
+    
+    function dealGame() {
+        const deck = createDeck();
+        tableau = [[],[],[],[],[],[],[]];
+        
+        for (let i = 0; i < 7; i++) {
+            for (let j = i; j < 7; j++) {
+                const card = deck.pop();
+                card.faceUp = (i === j);
+                tableau[j].push(card);
+            }
+        }
+        
+        stock = deck;
+        waste = [];
+        foundations = [[],[],[],[]];
+        gameOver = false;
+        render();
+    }
+    
+    function drawStock() {
+        if (stock.length === 0) {
+            stock = [...waste];
+            waste = [];
+            for (let card of stock) {
+                card.faceUp = false;
+            }
+            render();
+            return;
+        }
+        const card = stock.pop();
+        card.faceUp = true;
+        waste.push(card);
+        render();
+    }
+    
+    function moveCard(source, sourceType, sourceIdx, destType, destIdx, cardIdx = -1) {
+        let cards = [];
+        
+        if (sourceType === 'tableau') {
+            cards = tableau[sourceIdx].splice(cardIdx === -1 ? tableau[sourceIdx].length - 1 : cardIdx);
+        } else if (sourceType === 'waste') {
+            cards = [waste.pop()];
+        } else if (sourceType === 'foundation') {
+            cards = [foundations[sourceIdx].pop()];
+        }
+        
+        let success = false;
+        
+        if (destType === 'tableau') {
+            if (canPlaceOnTableau(cards[0], tableau[destIdx])) {
+                tableau[destIdx].push(...cards);
+                success = true;
+            }
+        } else if (destType === 'foundation') {
+            if (cards.length === 1 && canPlaceOnFoundation(cards[0], foundations[destIdx])) {
+                foundations[destIdx].push(cards[0]);
+                success = true;
+            }
+        }
+        
+        if (!success) {
+            if (sourceType === 'tableau') {
+                tableau[sourceIdx].push(...cards);
+            } else if (sourceType === 'waste') {
+                waste.push(...cards);
+            } else if (sourceType === 'foundation') {
+                foundations[sourceIdx].push(...cards);
+            }
+        } else {
+            if (sourceType === 'tableau' && tableau[sourceIdx].length > 0) {
+                tableau[sourceIdx][tableau[sourceIdx].length - 1].faceUp = true;
+            }
+        }
+        
+        render();
+        checkWin();
+        return success;
+    }
+    
+    function checkWin() {
+        if (foundations.every(f => f.length === 13)) {
+            gameOver = true;
+            document.getElementById('message').textContent = '🎉 YOU WIN! 🎉';
+        }
+    }
+    
+    function render() {
+        const stockDiv = document.getElementById('stock');
+        const wasteDiv = document.getElementById('waste');
+        const tableauDiv = document.getElementById('tableau');
+        const foundationsDiv = document.getElementById('foundations');
+        
+        stockDiv.innerHTML = stock.length > 0 ? '<div class="card face-down" style="position:relative;">?</div>' : '<div class="pile" style="background:#008080;"></div>';
+        stockDiv.onclick = () => drawStock();
+        
+        wasteDiv.innerHTML = waste.length > 0 ? renderCardHTML(waste[waste.length - 1], true) : '<div class="pile"></div>';
+        
+        tableauDiv.innerHTML = '';
+        for (let i = 0; i < tableau.length; i++) {
+            const pileDiv = document.createElement('div');
+            pileDiv.className = 'pile';
+            pileDiv.style.position = 'relative';
+            pileDiv.style.height = '160px';
+            
+            for (let j = 0; j < tableau[i].length; j++) {
+                const card = tableau[i][j];
+                const cardDiv = renderCardHTML(card, false);
+                cardDiv.style.top = (j * 25) + 'px';
+                cardDiv.style.position = 'absolute';
+                cardDiv.onclick = ((pileIdx, cardIdx) => () => {
+                    if (gameOver) return;
+                    moveCard('tableau', pileIdx, 'foundation', findFoundationForCard(card), cardIdx);
+                })(i, j);
+                pileDiv.appendChild(cardDiv);
+            }
+            pileDiv.ondrop = (e) => e.preventDefault();
+            pileDiv.ondragover = (e) => e.preventDefault();
+            tableauDiv.appendChild(pileDiv);
+        }
+        
+        foundationsDiv.innerHTML = '';
+        for (let i = 0; i < foundations.length; i++) {
+            const pileDiv = document.createElement('div');
+            pileDiv.className = 'pile';
+            if (foundations[i].length > 0) {
+                const card = foundations[i][foundations[i].length - 1];
+                const cardDiv = renderCardHTML(card, true);
+                pileDiv.appendChild(cardDiv);
+            } else {
+                pileDiv.innerHTML = '<div class="pile" style="text-align:center; line-height:140px; color:#fff;">◻️</div>';
+            }
+            pileDiv.onclick = () => {
+                if (gameOver) return;
+                if (foundations[i].length > 0) {
+                    moveCard('foundation', i, 'tableau', findTableauForCard(foundations[i][foundations[i].length - 1]));
+                }
+            };
+            foundationsDiv.appendChild(pileDiv);
+        }
+    }
+    
+    function findFoundationForCard(card) {
+        for (let i = 0; i < foundations.length; i++) {
+            if (canPlaceOnFoundation(card, foundations[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    function findTableauForCard(card) {
+        for (let i = 0; i < tableau.length; i++) {
+            if (canPlaceOnTableau(card, tableau[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
+    function renderCardHTML(card, faceUp) {
+        const div = document.createElement('div');
+        div.className = `card ${card.color}`;
+        if (!card.faceUp && !faceUp) {
+            div.className = 'card face-down';
+            div.textContent = '?';
+        } else {
+            div.innerHTML = `<div>${card.rank}${card.suit}</div>`;
+            div.style.fontSize = '20px';
+        }
+        return div;
+    }
+    
+    document.getElementById('newGameBtn').onclick = () => dealGame();
+    dealGame();
+</script>
+</body>
+</html>
