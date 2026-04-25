@@ -471,7 +471,7 @@ function openSettings() {
             
             if (isDefault) {
                 currentWallpaper = '';
-                document.body.style.backgroundImage = '';
+                document.body.style.backgroundImage = 'url(wallpapers/${filename})';
                 document.body.style.background = '#008080';
                 if (imgPreview) imgPreview.style.background = '#008080';
                 saveAll();
