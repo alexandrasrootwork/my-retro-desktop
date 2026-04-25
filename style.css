@@ -15,7 +15,7 @@ body {
     bottom: 0;
     transition: background-image 0.3s ease;
     background-size: cover;
-    background-position: center;
+    background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
