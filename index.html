@@ -467,6 +467,7 @@
     
     const GRID_SIZE = 20;
     let autoArrangeEnabled = false;
+    let currentWallpaperScaleMode = localStorage.getItem('wallpaperScaleMode') || 'cover';
     
     const wallpaperGallery = [
         { name: "Windows 95 Teal", url: "", isDefault: true },
@@ -774,6 +775,15 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
                         </select>
                         <button id="settingsApplyThemeBtn" class="retro-button">Apply Theme</button>
                     </div>
+                   <div style="margin-bottom:15px;">
+            <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📐 Wallpaper Scaling</div>
+            <select id="wallpaperScaleMode" style="width:100%; margin-bottom:10px; padding:5px;">
+                <option value="cover" ${localStorage.getItem('wallpaperScaleMode') === 'cover' || !localStorage.getItem('wallpaperScaleMode') ? 'selected' : ''}>Cover (fills screen, may crop edges)</option>
+                <option value="contain" ${localStorage.getItem('wallpaperScaleMode') === 'contain' ? 'selected' : ''}>Contain (shows all, may have borders)</option>
+                <option value="100% 100%" ${localStorage.getItem('wallpaperScaleMode') === '100% 100%' ? 'selected' : ''}>Stretch (fills exactly, may distort)</option>
+            </select>
+            <button id="applyScaleModeBtn" class="retro-button">Apply Scaling</button>
+        </div>
                     <div>
                         <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🖼️ Wallpaper Gallery</div>
                         <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:10px; max-height:200px; overflow-y:auto; border:1px solid #808080; padding:8px;">
@@ -894,7 +904,20 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
             applyTheme();
             saveAll();
         };
-        
+         win.querySelector('#applyScaleModeBtn').onclick = () => {
+            const selectedMode = win.querySelector('#wallpaperScaleMode').value;
+            currentWallpaperScaleMode = selectedMode;
+            localStorage.setItem('wallpaperScaleMode', selectedMode);
+            if (currentWallpaper && currentWallpaper !== '') {
+                document.body.style.backgroundSize = selectedMode;
+                if (selectedMode === '100% 100%') {
+                    document.body.style.backgroundPosition = 'top left';
+                } else {
+                    document.body.style.backgroundPosition = 'center center';
+                }
+            }
+            alert(`✅ Wallpaper scaling changed to: ${selectedMode}`);
+        };
 win.querySelectorAll('.wallpaper-option').forEach(option => {
     option.onclick = () => {
         const url = option.dataset.url;
@@ -904,13 +927,13 @@ win.querySelectorAll('.wallpaper-option').forEach(option => {
             currentWallpaper = '';
             document.body.style.backgroundImage = '';
             document.body.style.backgroundColor = '#008080';
-            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundSize = currentWallpaperScaleMode;
             document.body.style.backgroundPosition = 'center center';
             document.body.style.backgroundRepeat = 'no-repeat';
         } else if (url) {
             currentWallpaper = url;
             document.body.style.backgroundImage = `url('${url}')`;
-            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundSize = currentWallpaperScaleMode;
             document.body.style.backgroundPosition = 'center center';
             document.body.style.backgroundRepeat = 'no-repeat';
         }
@@ -927,7 +950,7 @@ win.querySelectorAll('.wallpaper-option').forEach(option => {
             if (url) {
                 currentWallpaper = url;
                 document.body.style.backgroundImage = `url('${url}')`;
-                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundSize = currentWallpaperScaleMode;
                 document.body.style.backgroundPosition = 'center center';
                 document.body.style.backgroundRepeat = 'no-repeat';
                 saveAll();
@@ -939,7 +962,7 @@ win.querySelectorAll('.wallpaper-option').forEach(option => {
             currentWallpaper = '';
             document.body.style.backgroundImage = '';
             document.body.style.backgroundColor = '#008080';
-            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundSize = currentWallpaperScaleMode;
             document.body.style.backgroundPosition = 'center center';
             document.body.style.backgroundRepeat = 'no-repeat';
             saveAll();
@@ -1219,26 +1242,46 @@ win.querySelectorAll('.wallpaper-option').forEach(option => {
         localStorage.setItem('retroDesktop', JSON.stringify(allData));
     }
     
-    function loadAll() {
-        const saved = localStorage.getItem('retroDesktop');
-        if (saved) {
-            const data = JSON.parse(saved);
-            icons = (data.icons || []).map(addTimestamp);
-            folders = (data.folders || []).map(addTimestamp);
-            stickers = (data.stickers || []).map(addTimestamp);
-            widgets = [];
-            recycleBin = (data.recycleBin || []).map(addTimestamp);
-            currentWallpaper = data.currentWallpaper || '';
-            currentTheme = data.currentTheme || 'teal';
-            autoArrangeEnabled = data.autoArrangeEnabled || false;
-        }
-        if (icons.length === 0) {
-            icons = [
-                addTimestamp({ id: Date.now(), label: "Bucket List", link: "bucketlist.html", image: "📝", x: 30, y: 30, dateAdded: Date.now(), pin: "", hint: "", folderId: null }),
-                addTimestamp({ id: Date.now()+1, label: "Comfort Corner", link: "comfort.html", image: "🧸", x: 130, y: 30, dateAdded: Date.now()+1, pin: "", hint: "", folderId: null }),
-                addTimestamp({ id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null }),
-                addTimestamp({ id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null })
-            ];
+function loadAll() {
+    const saved = localStorage.getItem('retroDesktop');
+    if (saved) {
+        const data = JSON.parse(saved);
+        icons = (data.icons || []).map(addTimestamp);
+        folders = (data.folders || []).map(addTimestamp);
+        stickers = (data.stickers || []).map(addTimestamp);
+        widgets = [];
+        recycleBin = (data.recycleBin || []).map(addTimestamp);
+        currentWallpaper = data.currentWallpaper || '';
+        currentTheme = data.currentTheme || 'teal';
+        autoArrangeEnabled = data.autoArrangeEnabled || false;
+    }
+    if (icons.length === 0) {
+        icons = [
+            addTimestamp({ id: Date.now(), label: "Bucket List", link: "bucketlist.html", image: "📝", x: 30, y: 30, dateAdded: Date.now(), pin: "", hint: "", folderId: null }),
+            addTimestamp({ id: Date.now()+1, label: "Comfort Corner", link: "comfort.html", image: "🧸", x: 130, y: 30, dateAdded: Date.now()+1, pin: "", hint: "", folderId: null }),
+            addTimestamp({ id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null }),
+            addTimestamp({ id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null })
+        ];
+    }
+    const toggleBtn = document.getElementById('autoArrangeToggleBtn');
+    if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
+    applyTheme();
+    
+    // UPDATED WALLPAPER LOADING SECTION
+    if (currentWallpaper && currentWallpaper !== '') {
+        document.body.style.backgroundImage = `url('${currentWallpaper}')`;
+        document.body.style.backgroundSize = currentWallpaperScaleMode;
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+    } else {
+        document.body.style.backgroundImage = '';
+        document.body.style.backgroundColor = '#008080';
+        document.body.style.backgroundSize = currentWallpaperScaleMode;
+        document.body.style.backgroundPosition = 'center center';
+    }
+    
+    renderAll();
+}
         }
         const toggleBtn = document.getElementById('autoArrangeToggleBtn');
         if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
@@ -2163,6 +2206,23 @@ function applyTheme() {
         document.body.style.backgroundColor = currentTheme === 'teal' ? '#008080' : '#c0c0c0';
     }
     saveAll(); 
+}
+    function applyWallpaperScale() {
+    const scaleMode = document.getElementById('wallpaperScaleMode')?.value || currentWallpaperScaleMode;
+    if (document.body.style.backgroundImage && document.body.style.backgroundImage !== 'none' && document.body.style.backgroundImage !== '') {
+        document.body.style.backgroundSize = scaleMode;
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        if (scaleMode === 'cover') {
+            document.body.style.backgroundPosition = 'center center';
+        } else if (scaleMode === 'contain') {
+            document.body.style.backgroundPosition = 'center center';
+        } else if (scaleMode === '100% 100%') {
+            document.body.style.backgroundPosition = 'top left';
+        }
+    }
+    currentWallpaperScaleMode = scaleMode;
+    localStorage.setItem('wallpaperScaleMode', scaleMode);
 }
     function sortByName() { icons.sort((a,b) => a.label.localeCompare(b.label)); folders.sort((a,b) => a.name.localeCompare(b.name)); saveAll(); renderAll(); }
     function sortByDate() { icons.sort((a,b) => a.dateAdded - b.dateAdded); folders.sort((a,b) => a.dateAdded - b.dateAdded); saveAll(); renderAll(); }
