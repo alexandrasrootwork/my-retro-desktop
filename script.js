@@ -463,49 +463,49 @@ function openSettings() {
         });
     }
     
-win.querySelectorAll('.wallpaper-option').forEach(option => {
-    option.onclick = () => {
-        const url = option.dataset.url;
-        const isDefault = option.dataset.default === 'true';
-        
-        if (isDefault) {
-            currentWallpaper = '';
-            document.body.style.backgroundImage = '';
-            document.body.style.backgroundColor = '#008080';
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center center';
-        } else if (url) {
-            // Test if image exists before applying
-            const testImg = new Image();
-            testImg.onload = () => {
-                currentWallpaper = url;
-                document.body.style.backgroundImage = `url(${url})`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center center';
+    win.querySelectorAll('.wallpaper-option').forEach(option => {
+        option.onclick = () => {
+            const url = option.dataset.url;
+            const isDefault = option.dataset.default === 'true';
+            
+            if (isDefault) {
+                currentWallpaper = '';
+                document.body.style.backgroundImage = '';
+                document.body.style.backgroundColor = '#008080';
+                document.body.style.backgroundSize = '100% 100%';
+                document.body.style.backgroundPosition = 'top left';
                 document.body.style.backgroundRepeat = 'no-repeat';
-                document.body.style.backgroundAttachment = 'fixed';
-                saveAll();
-                alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
-            };
-            testImg.onerror = () => {
-                alert(`❌ Wallpaper image not found!\n\nPlease check the file path: ${url}`);
-            };
-            testImg.src = url;
-        }
-        
-        saveAll();
-        const customUrlInput = win.querySelector('#settingsWallpaperUrl');
-        if (customUrlInput) customUrlInput.value = currentWallpaper;
-        
-        // Highlight selected wallpaper
-        win.querySelectorAll('.wallpaper-option').forEach(opt => {
-            opt.style.outline = 'none';
-            opt.style.backgroundColor = '#fff';
-        });
-        option.style.outline = '2px solid #000080';
-        option.style.backgroundColor = '#e0e0e0';
-    };
-});
+            } else if (url) {
+                // Test if image exists before applying
+                const testImg = new Image();
+                testImg.onload = () => {
+                    currentWallpaper = url;
+                    document.body.style.backgroundImage = `url(${url})`;
+                    document.body.style.backgroundSize = '100% 100%';
+                    document.body.style.backgroundPosition = 'top left';
+                    document.body.style.backgroundRepeat = 'no-repeat';
+                    saveAll();
+                    alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
+                };
+                testImg.onerror = () => {
+                    alert(`❌ Wallpaper image not found!\n\nPlease check the file path: ${url}`);
+                };
+                testImg.src = url;
+            }
+            
+            saveAll();
+            const customUrlInput = win.querySelector('#settingsWallpaperUrl');
+            if (customUrlInput) customUrlInput.value = currentWallpaper;
+            
+            // Highlight selected wallpaper
+            win.querySelectorAll('.wallpaper-option').forEach(opt => {
+                opt.style.outline = 'none';
+                opt.style.backgroundColor = '#fff';
+            });
+            option.style.outline = '2px solid #000080';
+            option.style.backgroundColor = '#e0e0e0';
+        };
+    });
     
     win.querySelector('#settingsSetWallpaperBtn').onclick = () => {
         const url = win.querySelector('#settingsWallpaperUrl').value;
@@ -514,8 +514,8 @@ win.querySelectorAll('.wallpaper-option').forEach(option => {
             testImg.onload = () => {
                 currentWallpaper = url;
                 document.body.style.backgroundImage = `url(${url})`;
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundSize = '100% 100%';
+                document.body.style.backgroundPosition = 'top left';
                 document.body.style.backgroundRepeat = 'no-repeat';
                 saveAll();
                 highlightActiveWallpaper();
@@ -532,6 +532,8 @@ win.querySelectorAll('.wallpaper-option').forEach(option => {
         currentWallpaper = '';
         document.body.style.backgroundImage = '';
         document.body.style.background = '#008080';
+        document.body.style.backgroundSize = '100% 100%';
+        document.body.style.backgroundPosition = 'top left';
         saveAll();
         win.querySelector('#settingsWallpaperUrl').value = '';
         highlightActiveWallpaper();
@@ -831,23 +833,22 @@ function loadAll() {
             addTimestamp({ id: Date.now()+2, label: "Recipes", link: "recipes.html", image: "🍳", x: 230, y: 30, dateAdded: Date.now()+2, pin: "", hint: "", folderId: null }),
             addTimestamp({ id: Date.now()+3, label: "Journal", link: "journal.html", image: "📔", x: 330, y: 30, dateAdded: Date.now()+3, pin: "", hint: "", folderId: null })
         ];
-            // Apply wallpaper after loading
+    }
+    // Apply wallpaper after loading
     if (currentWallpaper) {
         document.body.style.backgroundImage = `url(${currentWallpaper})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundSize = '100% 100%';
+        document.body.style.backgroundPosition = 'top left';
         document.body.style.backgroundRepeat = 'no-repeat';
-        document.body.style.backgroundAttachment = 'fixed';
     } else {
         document.body.style.backgroundImage = '';
         document.body.style.backgroundColor = '#008080';
-    }
+        document.body.style.backgroundSize = '100% 100%';
+        document.body.style.backgroundPosition = 'top left';
     }
     const toggleBtn = document.getElementById('autoArrangeToggleBtn');
     if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
     applyTheme();
-    if (currentWallpaper) document.body.style.backgroundImage = `url(${currentWallpaper})`;
-    else document.body.style.background = '#008080';
     renderAll();
 }
 
@@ -1750,8 +1751,8 @@ window.restoreFromBin = function(id) {
 };
 
 function emptyRecycleBin() { if (confirm('Permanently delete all items?')) { recycleBin = []; saveAll(); renderAll(); showRecycleBin(); } }
-function changeWallpaper() { const url = document.getElementById('wallpaperUrl').value; if (url) { currentWallpaper = url; document.body.style.backgroundImage = `url(${url})`; document.body.style.backgroundSize = 'cover'; saveAll(); } }
-function resetWallpaper() { currentWallpaper = ''; document.body.style.backgroundImage = ''; document.body.style.background = '#008080'; saveAll(); }
+function changeWallpaper() { const url = document.getElementById('wallpaperUrl').value; if (url) { currentWallpaper = url; document.body.style.backgroundImage = `url(${url})`; document.body.style.backgroundSize = '100% 100%'; document.body.style.backgroundPosition = 'top left'; saveAll(); } }
+function resetWallpaper() { currentWallpaper = ''; document.body.style.backgroundImage = ''; document.body.style.background = '#008080'; document.body.style.backgroundSize = '100% 100%'; document.body.style.backgroundPosition = 'top left'; saveAll(); }
 function applyTheme() { document.body.style.background = currentTheme === 'teal' ? '#008080' : '#c0c0c0'; saveAll(); }
 function sortByName() { icons.sort((a,b) => a.label.localeCompare(b.label)); folders.sort((a,b) => a.name.localeCompare(b.name)); saveAll(); renderAll(); }
 function sortByDate() { icons.sort((a,b) => a.dateAdded - b.dateAdded); folders.sort((a,b) => a.dateAdded - b.dateAdded); saveAll(); renderAll(); }
@@ -1796,16 +1797,9 @@ bootScreen.addEventListener('click', function() {
         setInterval(updateClock, 1000);
         resetIdleTimer();
         setupDesktopClick();
-         // Handle window resize - reposition both stickers AND wallpaper
+        // Handle window resize - reposition stickers
         window.addEventListener('resize', () => { 
             repositionStickersOnResize();
-            // Reposition wallpaper on resize to maintain proper centering
-            if (currentWallpaper) {
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center center';
-                document.body.style.backgroundRepeat = 'no-repeat';
-                document.body.style.backgroundAttachment = 'fixed';
-            }
         });
     }, 500);
 });
