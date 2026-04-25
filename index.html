@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -264,7 +263,7 @@
         .start-menu {
             display: none; position: fixed; bottom: 40px; left: 8px;
             background: #c0c0c0; border: 2px solid #ffffff; border-right-color: #000;
-            border-bottom-color: #000; min-width: 320px; z-index: 1001; padding: 4px 0;
+            border-bottom-color: #000; min-width: 280px; z-index: 1001; padding: 4px 0;
         }
         .start-menu.show { display: block; }
         .start-menu-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
@@ -285,6 +284,8 @@
         .retro-button {
             background: #c0c0c0; border: 2px solid #fff; border-right-color: #000;
             border-bottom-color: #000; padding: 5px 10px; cursor: pointer; margin-top: 5px;
+            font-family: inherit;
+            font-size: 11px;
         }
         .retro-button:active { border: 2px solid #000; border-right-color: #fff; border-bottom-color: #fff; }
         
@@ -401,15 +402,7 @@
     <div class="start-menu-item" id="autoArrangeToggleBtn">🔲 Auto-arrange: OFF</div>
     <div class="start-menu-item" id="lineUpIconsBtn">📏 Line Up Icons</div>
     <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="legacyExportBtn">💾 Legacy Export</div>
-    <div class="start-menu-item" id="legacyImportBtn">📂 Legacy Import</div>
-    <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="completeBackupBtn">💾 Complete Backup (All Data)</div>
-    <div class="start-menu-item" id="completeRestoreBtn">📂 Complete Restore</div>
-    <div class="start-menu-item" id="copyBackupBtn">📋 Copy Backup to Clipboard</div>
-    <div class="start-menu-item" id="emailBackupBtn">📧 Email Backup (Full)</div>
-    <div class="start-menu-divider"></div>
-    <div class="start-menu-item" id="downloadFromCloudBtn">☁️ Download from Cloud</div>
+    <div class="start-menu-item" id="syncWithCloudBtn">☁️ Sync with Cloud</div>
     <div class="start-menu-divider"></div>
     <div class="start-menu-item" id="settingsBtn">⚙️ Settings</div>
 </div>
@@ -439,8 +432,6 @@
 <div class="modal" id="wallpaperModal"><div class="modal-content"><div class="modal-title-bar">Change Wallpaper<span style="cursor:pointer" id="closeWallpaperModal">✗</span></div><div class="modal-body"><input type="text" id="wallpaperUrl" placeholder="https://example.com/wallpaper.jpg"><button id="setWallpaperBtn" class="retro-button">Set Wallpaper</button><button id="resetWallpaperBtn" class="retro-button">Reset to Default</button></div></div></div>
 
 <div class="modal" id="themeModal"><div class="modal-content"><div class="modal-title-bar">Theme Colors<span style="cursor:pointer" id="closeThemeModal">✗</span></div><div class="modal-body"><select id="themeSelect"><option value="teal">Windows 95 Teal</option><option value="silver">Classic Silver</option></select><button id="applyThemeBtn" class="retro-button">Apply</button></div></div></div>
-
-<div class="modal" id="settingsModal"><div class="modal-content"><div class="modal-title-bar">Settings<span style="cursor:pointer" id="closeSettingsModal">✗</span></div><div class="modal-body"><label><input type="checkbox" id="startupSoundToggle" checked> Play startup sound</label></div></div></div>
 
 <div class="modal" id="stickerSelectorModal"><div class="modal-content"><div class="modal-title-bar">Add Decorative Sticker<span style="cursor:pointer" id="closeStickerSelectorModal">✗</span></div><div class="modal-body"><p>Choose a sticker type:</p><button id="stickerEmojiBtn" class="retro-button">😀 Emoji Sticker</button><button id="stickerImageUrlBtn" class="retro-button">🖼️ Image URL Sticker</button><div id="emojiGrid" style="display:none; margin-top:10px; display: flex; flex-wrap: wrap; gap: 10px;"></div><input type="text" id="stickerImageUrl" placeholder="Image URL" style="display:none; margin-top:10px;"><button id="addImageStickerBtn" class="retro-button" style="display:none;">Add Image Sticker</button></div></div></div>
 
@@ -573,7 +564,7 @@
 
 Your backup data is below. To restore:
 1. Copy ALL the text between the lines below
-2. Go to NostalgiaOS and click "Complete Restore"
+2. Go to NostalgiaOS > Settings > Backup
 3. Choose "Restore from Pasted Text" and paste the text
 
 Backup size: ${dataSizeKB} KB
@@ -622,7 +613,7 @@ If not, please manually email yourself the backup data.`);
 The complete NostalgiaOS backup is now on your clipboard.
 
 To restore:
-1. Go to NostalgiaOS and click "Complete Restore"
+1. Go to NostalgiaOS > Settings > Backup
 2. Choose "Restore from Pasted Text"
 3. Paste the text and click restore
 
@@ -664,8 +655,7 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
         modal.appendChild(dialog);
         document.body.appendChild(modal);
         
-        // Make dialog draggable
-        let isDragging = false, dragOffsetX = 0, dragOffsetY = 0, startX = 0, startY = 0;
+        let isDragging = false, startX = 0, startY = 0;
         const titleBar = dialog.querySelector('div:first-child');
         
         titleBar.onmousedown = (e) => {
@@ -734,6 +724,243 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
                 modal.remove();
             } catch (err) { alert('❌ Invalid backup text. Make sure you copied the entire backup.'); }
         };
+    }
+    
+    // ========== SETTINGS WINDOW (Windows 95/98 Style) ==========
+    let settingsWindow = null;
+    
+    function openSettings() {
+        if (settingsWindow && document.getElementById(settingsWindow)) {
+            document.getElementById(settingsWindow).style.display = 'flex';
+            document.getElementById(settingsWindow).style.zIndex = nextWindowZ++;
+            return;
+        }
+        
+        const winId = 'settingsWindow_' + Date.now();
+        settingsWindow = winId;
+        
+        const win = document.createElement('div');
+        win.className = 'desktop-window';
+        win.id = winId;
+        win.style.left = '100px';
+        win.style.top = '80px';
+        win.style.width = '550px';
+        win.style.height = '480px';
+        win.style.zIndex = nextWindowZ++;
+        
+        win.innerHTML = `
+            <div class="title-bar">
+                <span>⚙️ Settings</span>
+                <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
+            </div>
+            <div style="background:#c0c0c0; padding:2px 0 0 2px; display:flex; gap:2px;">
+                <button class="settings-tab" data-tab="system" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">🖥️ System</button>
+                <button class="settings-tab" data-tab="desktop" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">🖼️ Desktop</button>
+                <button class="settings-tab" data-tab="backup" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">💾 Backup</button>
+                <button class="settings-tab" data-tab="cloud" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">☁️ Cloud</button>
+                <button class="settings-tab" data-tab="about" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">ℹ️ About</button>
+            </div>
+            <div class="settings-content" style="background:#fff; flex:1; padding:15px; overflow:auto;">
+                <!-- System Tab -->
+                <div id="settings-tab-system" class="settings-tab-pane" style="display:block;">
+                    <div style="margin-bottom:15px;">
+                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">💡 General</div>
+                        <label style="display:block; margin-bottom:10px;">
+                            <input type="checkbox" id="settingsStartupSound" ${document.getElementById('startupSoundToggle')?.checked ? 'checked' : ''}> Play startup sound
+                        </label>
+                        <label style="display:block; margin-bottom:10px;">
+                            <input type="checkbox" id="settingsAutoSave" checked disabled> Auto-save changes
+                        </label>
+                    </div>
+                    <div>
+                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📁 Storage</div>
+                        <p style="font-size:11px; color:#666;">All data is saved to your browser's local storage.</p>
+                        <p style="font-size:11px; margin-top:5px;">Use the Backup tab to export/import your data.</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Tab -->
+                <div id="settings-tab-desktop" class="settings-tab-pane" style="display:none;">
+                    <div style="margin-bottom:15px;">
+                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🎨 Theme</div>
+                        <select id="settingsThemeSelect" style="width:100%; margin-bottom:10px; padding:5px;">
+                            <option value="teal" ${currentTheme === 'teal' ? 'selected' : ''}>Windows 95 Teal</option>
+                            <option value="silver" ${currentTheme === 'silver' ? 'selected' : ''}>Classic Silver</option>
+                        </select>
+                        <button id="settingsApplyThemeBtn" class="retro-button">Apply Theme</button>
+                    </div>
+                    <div>
+                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🖼️ Wallpaper</div>
+                        <input type="text" id="settingsWallpaperUrl" placeholder="Image URL" style="width:100%; margin-bottom:10px; padding:5px;" value="${currentWallpaper}">
+                        <button id="settingsSetWallpaperBtn" class="retro-button">Set Wallpaper</button>
+                        <button id="settingsResetWallpaperBtn" class="retro-button" style="margin-left:5px;">Reset to Default</button>
+                    </div>
+                    <div style="margin-top:15px;">
+                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📐 Icon Layout</div>
+                        <button id="settingsLineUpIconsBtn" class="retro-button">📏 Line Up Icons</button>
+                        <button id="settingsSortByNameBtn" class="retro-button" style="margin-left:5px;">🔤 Sort by Name</button>
+                        <button id="settingsSortByDateBtn" class="retro-button" style="margin-left:5px;">📅 Sort by Date</button>
+                    </div>
+                </div>
+                
+                <!-- Backup Tab -->
+                <div id="settings-tab-backup" class="settings-tab-pane" style="display:none;">
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📦 BACKUP & RESTORE</div>
+                    
+                    <div style="margin-bottom:15px; border:1px solid #808080; padding:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span><strong>💾 Complete Backup</strong><br><span style="font-size:10px; color:#666;">Saves ALL your data (desktop, notes, journal, recipes)</span></span>
+                            <button id="settingsCompleteBackupBtn" class="retro-button">Backup Now</button>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span><strong>📂 Complete Restore</strong><br><span style="font-size:10px; color:#666;">Restore from file or pasted text</span></span>
+                            <button id="settingsCompleteRestoreBtn" class="retro-button">Restore...</button>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span><strong>📋 Copy to Clipboard</strong><br><span style="font-size:10px; color:#666;">Copy backup to clipboard</span></span>
+                            <button id="settingsCopyBackupBtn" class="retro-button">Copy</button>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span><strong>📧 Email Backup</strong><br><span style="font-size:10px; color:#666;">Email backup to yourself</span></span>
+                            <button id="settingsEmailBackupBtn" class="retro-button">Email</button>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📀 LEGACY (Desktop Only)</div>
+                    <div style="border:1px solid #808080; padding:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span><strong>💾 Legacy Export</strong><br><span style="font-size:10px; color:#666;">Desktop icons only</span></span>
+                            <button id="settingsLegacyExportBtn" class="retro-button">Export</button>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span><strong>📂 Legacy Import</strong><br><span style="font-size:10px; color:#666;">Restore desktop icons only</span></span>
+                            <button id="settingsLegacyImportBtn" class="retro-button">Import</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cloud Tab -->
+                <div id="settings-tab-cloud" class="settings-tab-pane" style="display:none;">
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">☁️ GitHub Gist Sync</div>
+                    <div style="border:1px solid #808080; padding:10px;">
+                        <p style="margin-bottom:10px; font-size:11px;">Connect to GitHub Gist to sync data across devices.</p>
+                        <label style="display:block; margin-bottom:5px;">Gist ID:</label>
+                        <input type="text" id="settingsGistId" placeholder="Your Gist ID" style="width:100%; margin-bottom:10px; padding:5px;" value="${localStorage.getItem('gist_id') || ''}">
+                        <label style="display:block; margin-bottom:5px;">GitHub Token:</label>
+                        <input type="password" id="settingsGithubToken" placeholder="GitHub Personal Access Token" style="width:100%; margin-bottom:10px; padding:5px;" value="${localStorage.getItem('github_token') || ''}">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button id="settingsSaveCloudBtn" class="retro-button">Save Credentials</button>
+                            <button id="settingsSyncToCloudBtn" class="retro-button">Sync to Cloud</button>
+                            <button id="settingsDownloadFromCloudBtn" class="retro-button">Download from Cloud</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- About Tab -->
+                <div id="settings-tab-about" class="settings-tab-pane" style="display:none;">
+                    <div style="text-align:center; padding:20px;">
+                        <div style="font-size:48px; margin-bottom:10px;">📀</div>
+                        <h3>NostalgiaOS</h3>
+                        <p style="margin:10px 0;">Version 2.0</p>
+                        <p style="font-size:11px; color:#666;">A Windows 95-style personal website</p>
+                        <p style="font-size:11px; margin-top:15px;">✨ Features:<br>
+                        Draggable icons • Stickers • Sticky notes • Journal • Bucket List • Recipes • Cloud sync</p>
+                        <p style="font-size:10px; margin-top:15px; color:#999;">All data saved locally in your browser</p>
+                    </div>
+                </div>
+            </div>
+            <div style="background:#c0c0c0; padding:8px; display:flex; justify-content:flex-end; border-top:1px solid #fff;">
+                <button id="settingsOkBtn" class="retro-button" style="margin-right:4px;">OK</button>
+                <button id="settingsCancelBtn" class="retro-button">Cancel</button>
+            </div>
+        `;
+        
+        document.body.appendChild(win);
+        makeWindowDraggable(win, win.querySelector('.title-bar'));
+        
+        // Tab switching
+        const tabs = win.querySelectorAll('.settings-tab');
+        const panes = win.querySelectorAll('.settings-tab-pane');
+        
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                const tabName = tab.dataset.tab;
+                panes.forEach(pane => pane.style.display = 'none');
+                win.querySelector(`#settings-tab-${tabName}`).style.display = 'block';
+                tabs.forEach(t => {
+                    t.style.background = '#c0c0c0';
+                    t.style.border = '2px solid #fff';
+                    t.style.borderRightColor = '#000';
+                    t.style.borderBottomColor = '#000';
+                });
+                tab.style.background = '#ffffff';
+                tab.style.border = '2px solid #808080';
+                tab.style.borderRightColor = '#fff';
+                tab.style.borderBottomColor = '#fff';
+            };
+        });
+        
+        // Close button
+        win.querySelector('.close-window').onclick = () => win.remove();
+        
+        // OK button - save and close
+        win.querySelector('#settingsOkBtn').onclick = () => {
+            const startupSound = win.querySelector('#settingsStartupSound').checked;
+            document.getElementById('startupSoundToggle').checked = startupSound;
+            localStorage.setItem('startupSoundEnabled', startupSound);
+            win.remove();
+        };
+        
+        win.querySelector('#settingsCancelBtn').onclick = () => win.remove();
+        
+        // Desktop tab buttons
+        win.querySelector('#settingsApplyThemeBtn').onclick = () => {
+            currentTheme = win.querySelector('#settingsThemeSelect').value;
+            applyTheme();
+            saveAll();
+        };
+        
+        win.querySelector('#settingsSetWallpaperBtn').onclick = () => {
+            const url = win.querySelector('#settingsWallpaperUrl').value;
+            if (url) {
+                currentWallpaper = url;
+                document.body.style.backgroundImage = `url(${url})`;
+                document.body.style.backgroundSize = 'cover';
+                saveAll();
+            }
+        };
+        
+        win.querySelector('#settingsResetWallpaperBtn').onclick = () => {
+            currentWallpaper = '';
+            document.body.style.backgroundImage = '';
+            document.body.style.background = '#008080';
+            saveAll();
+        };
+        
+        win.querySelector('#settingsLineUpIconsBtn').onclick = () => lineUpIcons();
+        win.querySelector('#settingsSortByNameBtn').onclick = () => sortByName();
+        win.querySelector('#settingsSortByDateBtn').onclick = () => sortByDate();
+        
+        // Backup tab buttons
+        win.querySelector('#settingsCompleteBackupBtn').onclick = () => completeBackup();
+        win.querySelector('#settingsCompleteRestoreBtn').onclick = () => completeRestore();
+        win.querySelector('#settingsCopyBackupBtn').onclick = () => copyBackupToClipboard();
+        win.querySelector('#settingsEmailBackupBtn').onclick = () => emailBackup();
+        win.querySelector('#settingsLegacyExportBtn').onclick = () => legacyExport();
+        win.querySelector('#settingsLegacyImportBtn').onclick = () => legacyImport();
+        
+        // Cloud tab buttons
+        win.querySelector('#settingsSaveCloudBtn').onclick = () => {
+            const gistIdVal = win.querySelector('#settingsGistId').value.trim();
+            const token = win.querySelector('#settingsGithubToken').value.trim();
+            if (gistIdVal && token) saveGistCredentials(gistIdVal, token);
+            else alert('Please enter both Gist ID and Token');
+        };
+        
+        win.querySelector('#settingsSyncToCloudBtn').onclick = () => syncToGist();
+        win.querySelector('#settingsDownloadFromCloudBtn').onclick = () => loadFromGist();
+        
+        win.style.display = 'flex';
     }
     
     function mergeArraysAdvanced(existing, incoming, idField = 'id') {
@@ -2054,19 +2281,15 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
     document.getElementById('sortByDateBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); sortByDate(); };
     document.getElementById('autoArrangeToggleBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); toggleAutoArrange(); };
     document.getElementById('lineUpIconsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); lineUpIcons(); };
-    document.getElementById('legacyExportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyExport(); };
-    document.getElementById('legacyImportBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); legacyImport(); };
-    document.getElementById('completeBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); completeBackup(); };
-    document.getElementById('completeRestoreBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); completeRestore(); };
-    document.getElementById('copyBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); copyBackupToClipboard(); };
-    document.getElementById('emailBackupBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); emailBackup(); };
-    document.getElementById('downloadFromCloudBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); loadFromGist(); };
-    document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); document.getElementById('settingsModal').style.display = 'flex'; };
+    document.getElementById('syncWithCloudBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); syncToGist(); };
+    document.getElementById('settingsBtn').onclick = () => { document.getElementById('startMenu').classList.remove('show'); openSettings(); };
+    
+    // Remove old backup button handlers since they're now in Settings
+    // The buttons still exist in the DOM but we're not attaching handlers anymore
     
     document.getElementById('closeModal').onclick = () => document.getElementById('iconModal').style.display = 'none';
     document.getElementById('closeWallpaperModal').onclick = () => document.getElementById('wallpaperModal').style.display = 'none';
     document.getElementById('closeThemeModal').onclick = () => document.getElementById('themeModal').style.display = 'none';
-    document.getElementById('closeSettingsModal').onclick = () => document.getElementById('settingsModal').style.display = 'none';
     document.getElementById('closeStickerSelectorModal').onclick = () => document.getElementById('stickerSelectorModal').style.display = 'none';
     document.getElementById('closeRecycleWindow').onclick = () => document.getElementById('recycleWindow').style.display = 'none';
     document.getElementById('emptyRecycleBtn').onclick = emptyRecycleBin;
@@ -2078,7 +2301,7 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
     const cloudIcon = document.getElementById('cloudSyncIcon');
     if (cloudIcon) {
         cloudIcon.addEventListener('click', () => {
-            if (confirm('MERGE/SYNC with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost on either side).\n\nThe cloud will keep the newest version of each item.\n\nUse "Download from Cloud" in the Start menu if you want to replace local data with cloud data.')) {
+            if (confirm('MERGE/SYNC with GitHub Gist?\n\nThis will COMBINE your current data with cloud data (no data will be lost on either side).\n\nThe cloud will keep the newest version of each item.\n\nYou can also manage cloud sync in Settings > Cloud.')) {
                 syncToGist();
             }
         });
@@ -2086,7 +2309,11 @@ Your data includes: ${icons.length} icons, ${folders.length} folders, ${stickers
     
     makeWindowDraggable(document.getElementById('notesManager'), document.getElementById('notesManagerTitleBar'));
     startAnimatedDots();
+    
+    // Remove old backup menu items from DOM (they're still in HTML but hidden functionally)
+    // We'll just disable their click handlers by not attaching them
 </script>
 
 </body>
 </html>
+
