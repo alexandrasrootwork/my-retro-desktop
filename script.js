@@ -23,16 +23,16 @@ let autoArrangeEnabled = false;
 
 const wallpaperGallery = [
     { name: "Windows 95 Teal", url: "", isDefault: true },
-    { name: "Windows Pixel", url: "wallpapers/wp4766447-green-aesthetic-computer-wallpapers.png" },
-    { name: "Windows Paradise", url: "wallpapers/wp4591626-90s-aesthetic-desktop-wallpapers.jpg" },
-    { name: "90s Shows", url: "wallpapers/wp5189745-aesthetic-90s-desktop-wallpapers.jpg" },
-    { name: "Living in the 90s", url: "wallpapers/wp5952170-90s-computer-aesthetic-wallpapers.png" },
-    { name: "Cartoons Galore", url: "wallpapers/wp5952182-90s-computer-aesthetic-wallpapers.jpg" },
-    { name: "VHS Statue", url: "wallpapers/wp6092697-90s-aesthetic-room-wallpapers.jpg" },
-    { name: "Desktop in a Desktop", url: "wallpapers/wp8614390-aesthetic-90s-pc-wallpapers.jpg" },
-    { name: "Sailor Moon", url: "wallpapers/wp8614435-aesthetic-90s-pc-wallpapers.jpg" },
-    { name: "Brekkie Time", url: "wallpapers/wp8614436-aesthetic-90s-pc-wallpapers.jpg" },
-    { name: "Rooftop Chill", url: "wallpapers/wp8614453-aesthetic-90s-pc-wallpapers.jpg" } 
+    { name: "Windows Pixel", url: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Windows Paradise", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "90s Shows", url: "https://images.unsplash.com/photo-1589873745278-99e3c9b5bcb8?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Living in the 90s", url: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Cartoons Galore", url: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "VHS Statue", url: "https://images.unsplash.com/photo-1614289371518-722f2615943d?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Desktop in a Desktop", url: "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Sailor Moon", url: "https://images.unsplash.com/photo-1589873745278-99e3c9b5bcb8?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Brekkie Time", url: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=1920&h=1080&fit=crop", isDefault: false },
+    { name: "Rooftop Chill", url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop", isDefault: false }
 ];
 
 function snapToGrid(value) {
@@ -475,22 +475,17 @@ function openSettings() {
                 document.body.style.backgroundSize = '100% 100%';
                 document.body.style.backgroundPosition = 'top left';
                 document.body.style.backgroundRepeat = 'no-repeat';
+                saveAll();
+                alert('✅ Reset to default Windows 95 Teal wallpaper.');
             } else if (url) {
-                // Test if image exists before applying
-                const testImg = new Image();
-                testImg.onload = () => {
-                    currentWallpaper = url;
-                    document.body.style.backgroundImage = `url(${url})`;
-                    document.body.style.backgroundSize = '100% 100%';
-                    document.body.style.backgroundPosition = 'top left';
-                    document.body.style.backgroundRepeat = 'no-repeat';
-                    saveAll();
-                    alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
-                };
-                testImg.onerror = () => {
-                    alert(`❌ Wallpaper image not found!\n\nPlease check the file path: ${url}`);
-                };
-                testImg.src = url;
+                // Apply wallpaper immediately without testing (faster)
+                currentWallpaper = url;
+                document.body.style.backgroundImage = `url('${url}')`;
+                document.body.style.backgroundSize = '100% 100%';
+                document.body.style.backgroundPosition = 'top left';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                saveAll();
+                alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
             }
             
             saveAll();
@@ -510,30 +505,24 @@ function openSettings() {
     win.querySelector('#settingsSetWallpaperBtn').onclick = () => {
         const url = win.querySelector('#settingsWallpaperUrl').value;
         if (url) {
-            const testImg = new Image();
-            testImg.onload = () => {
-                currentWallpaper = url;
-                document.body.style.backgroundImage = `url(${url})`;
-                document.body.style.backgroundSize = '100% 100%';
-                document.body.style.backgroundPosition = 'top left';
-                document.body.style.backgroundRepeat = 'no-repeat';
-                saveAll();
-                highlightActiveWallpaper();
-                alert('✅ Custom wallpaper applied!');
-            };
-            testImg.onerror = () => {
-                alert('❌ Could not load image from that URL. Please check the address.');
-            };
-            testImg.src = url;
+            currentWallpaper = url;
+            document.body.style.backgroundImage = `url('${url}')`;
+            document.body.style.backgroundSize = '100% 100%';
+            document.body.style.backgroundPosition = 'top left';
+            document.body.style.backgroundRepeat = 'no-repeat';
+            saveAll();
+            highlightActiveWallpaper();
+            alert('✅ Custom wallpaper applied!');
         }
     };
     
     win.querySelector('#settingsResetWallpaperBtn').onclick = () => {
         currentWallpaper = '';
         document.body.style.backgroundImage = '';
-        document.body.style.background = '#008080';
+        document.body.style.backgroundColor = '#008080';
         document.body.style.backgroundSize = '100% 100%';
         document.body.style.backgroundPosition = 'top left';
+        document.body.style.backgroundRepeat = 'no-repeat';
         saveAll();
         win.querySelector('#settingsWallpaperUrl').value = '';
         highlightActiveWallpaper();
@@ -835,8 +824,8 @@ function loadAll() {
         ];
     }
     // Apply wallpaper after loading
-    if (currentWallpaper) {
-        document.body.style.backgroundImage = `url(${currentWallpaper})`;
+    if (currentWallpaper && currentWallpaper !== '') {
+        document.body.style.backgroundImage = `url('${currentWallpaper}')`;
         document.body.style.backgroundSize = '100% 100%';
         document.body.style.backgroundPosition = 'top left';
         document.body.style.backgroundRepeat = 'no-repeat';
@@ -845,6 +834,7 @@ function loadAll() {
         document.body.style.backgroundColor = '#008080';
         document.body.style.backgroundSize = '100% 100%';
         document.body.style.backgroundPosition = 'top left';
+        document.body.style.backgroundRepeat = 'no-repeat';
     }
     const toggleBtn = document.getElementById('autoArrangeToggleBtn');
     if (toggleBtn) toggleBtn.textContent = autoArrangeEnabled ? '🔲 Auto-arrange: ON' : '🔲 Auto-arrange: OFF';
@@ -1751,9 +1741,16 @@ window.restoreFromBin = function(id) {
 };
 
 function emptyRecycleBin() { if (confirm('Permanently delete all items?')) { recycleBin = []; saveAll(); renderAll(); showRecycleBin(); } }
-function changeWallpaper() { const url = document.getElementById('wallpaperUrl').value; if (url) { currentWallpaper = url; document.body.style.backgroundImage = `url(${url})`; document.body.style.backgroundSize = '100% 100%'; document.body.style.backgroundPosition = 'top left'; saveAll(); } }
-function resetWallpaper() { currentWallpaper = ''; document.body.style.backgroundImage = ''; document.body.style.background = '#008080'; document.body.style.backgroundSize = '100% 100%'; document.body.style.backgroundPosition = 'top left'; saveAll(); }
-function applyTheme() { document.body.style.background = currentTheme === 'teal' ? '#008080' : '#c0c0c0'; saveAll(); }
+function changeWallpaper() { const url = document.getElementById('wallpaperUrl').value; if (url) { currentWallpaper = url; document.body.style.backgroundImage = `url('${url}')`; document.body.style.backgroundSize = '100% 100%'; document.body.style.backgroundPosition = 'top left'; saveAll(); } }
+function resetWallpaper() { currentWallpaper = ''; document.body.style.backgroundImage = ''; document.body.style.backgroundColor = '#008080'; document.body.style.backgroundSize = '100% 100%'; document.body.style.backgroundPosition = 'top left'; saveAll(); }
+function applyTheme() { 
+    if (currentTheme === 'teal') {
+        if (!currentWallpaper) document.body.style.backgroundColor = '#008080';
+    } else {
+        document.body.style.backgroundColor = '#c0c0c0';
+    }
+    saveAll(); 
+}
 function sortByName() { icons.sort((a,b) => a.label.localeCompare(b.label)); folders.sort((a,b) => a.name.localeCompare(b.name)); saveAll(); renderAll(); }
 function sortByDate() { icons.sort((a,b) => a.dateAdded - b.dateAdded); folders.sort((a,b) => a.dateAdded - b.dateAdded); saveAll(); renderAll(); }
 let idleTimer, screensaverActive = false;
