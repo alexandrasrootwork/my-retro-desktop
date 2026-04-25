@@ -23,7 +23,7 @@ let autoArrangeEnabled = false;
 
 const wallpaperGallery = [
     { name: "Windows 95 Teal", url: "", isDefault: true },
-    { name: "Windows Pixel", url: "wp4766447-green-aesthetic-computer-wallpapers" },
+    { name: "Windows Pixel", url: "wp4766447-green-aesthetic-computer-wallpapers.png" },
     { name: "Windows Paradise", url: "wp4591626-90s-aesthetic-desktop-wallpapers.jpg" },
     { name: "90s Shows", url: "wp5189745-aesthetic-90s-desktop-wallpapers.jpg" },
     { name: "Living in the 90s", url: "wp5952170-90s-computer-aesthetic-wallpapers.png" },
