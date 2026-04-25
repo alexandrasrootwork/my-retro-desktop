@@ -23,16 +23,16 @@ let autoArrangeEnabled = false;
 
 const wallpaperGallery = [
     { name: "Windows 95 Teal", url: "", isDefault: true },
-    { name: "Windows Pixel", url: "wp4766447-green-aesthetic-computer-wallpapers.png" },
-    { name: "Windows Paradise", url: "wp4591626-90s-aesthetic-desktop-wallpapers.jpg" },
-    { name: "90s Shows", url: "wp5189745-aesthetic-90s-desktop-wallpapers.jpg" },
-    { name: "Living in the 90s", url: "wp5952170-90s-computer-aesthetic-wallpapers.png" },
-    { name: "Cartoons Galore", url: "wp5952182-90s-computer-aesthetic-wallpapers.jpg" },
-    { name: "VHS Statue", url: "wp6092697-90s-aesthetic-room-wallpapers.jpg" },
-    { name: "Desktop in a Desktop", url: "wp8614390-aesthetic-90s-pc-wallpapers.jpg" },
-    { name: "Sailor Moon", url: "wp8614435-aesthetic-90s-pc-wallpapers.jpg" },
-    { name: "Brekkie Time", url: "wp8614436-aesthetic-90s-pc-wallpapers.jpg" },
-    { name: "Rooftop Chill", url: "wp8614453-aesthetic-90s-pc-wallpapers.jpg" } 
+    { name: "Windows Pixel", url: "wallpaper/wp4766447-green-aesthetic-computer-wallpapers.png" },
+    { name: "Windows Paradise", url: "wallpaper/wp4591626-90s-aesthetic-desktop-wallpapers.jpg" },
+    { name: "90s Shows", url: "wallpaper/wp5189745-aesthetic-90s-desktop-wallpapers.jpg" },
+    { name: "Living in the 90s", url: "wallpaper/wp5952170-90s-computer-aesthetic-wallpapers.png" },
+    { name: "Cartoons Galore", url: "wallpaper/wp5952182-90s-computer-aesthetic-wallpapers.jpg" },
+    { name: "VHS Statue", url: "wallpaper/wp6092697-90s-aesthetic-room-wallpapers.jpg" },
+    { name: "Desktop in a Desktop", url: "wallpaper/wp8614390-aesthetic-90s-pc-wallpapers.jpg" },
+    { name: "Sailor Moon", url: "wallpaper/wp8614435-aesthetic-90s-pc-wallpapers.jpg" },
+    { name: "Brekkie Time", url: "wallpaper/wp8614436-aesthetic-90s-pc-wallpapers.jpg" },
+    { name: "Rooftop Chill", url: "wallpaper/wp8614453-aesthetic-90s-pc-wallpapers.jpg" } 
 ];
 
 function snapToGrid(value) {
