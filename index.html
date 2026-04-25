@@ -1296,28 +1296,31 @@ function loadAll() {
         }
     }
     
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const silentBuffer = audioCtx.createBuffer(1, 1, 22050);
-        const source = audioCtx.createBufferSource();
-        source.buffer = silentBuffer;
-        source.connect(audioCtx.destination);
-        source.start();
-        audioCtx.close();
-        audioUnlocked = true;
-        playStartupSound();
-    }
-    
-    function playStartupSound() { 
-        if (!audioUnlocked || startupSoundPlayed) return;
-        if (document.getElementById('startupSoundToggle')?.checked) { 
-            startupSoundPlayed = true;
-            const audio = new Audio('sounds/winxp.mp3'); 
-            audio.volume = 0.3; 
-            audio.play().catch(e=>console.log('Sound error:', e)); 
-        } 
-    }
+function unlockAudio() {
+    if (audioUnlocked) return;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const silentBuffer = audioCtx.createBuffer(1, 1, 22050);
+    const source = audioCtx.createBufferSource();
+    source.buffer = silentBuffer;
+    source.connect(audioCtx.destination);
+    source.start();
+    audioCtx.close();
+    audioUnlocked = true;
+    // Play sound AFTER unlocking
+    playStartupSound();
+}
+
+function playStartupSound() { 
+    if (!audioUnlocked || startupSoundPlayed) return;
+    // Check if sound is enabled
+    const soundEnabled = localStorage.getItem('startupSoundEnabled') !== 'false';
+    if (soundEnabled) { 
+        startupSoundPlayed = true;
+        const audio = new Audio('sounds/winxp.mp3'); 
+        audio.volume = 0.3; 
+        audio.play().catch(e => console.log('Sound error:', e)); 
+    } 
+}
     
     function addTaskbarButton(windowId, title, windowElement) {
         const container = document.getElementById('taskbarWindowsContainer');
