@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        body { font-family: "MS Sans Serif", Tahoma, sans-serif; overflow: hidden; position: fixed; top: 0; left: 0; right: 0; bottom: 0; transition: background-image 0.3s ease; }
+        body { font-family: "MS Sans Serif", Tahoma, sans-serif; overflow: hidden; position: fixed; top: 0; left: 0; right: 0; bottom: 0; transition: background-image 0.3s ease; background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed; }
         .desktop { position: absolute; top: 0; left: 0; right: 0; bottom: 40px; overflow: auto; padding: 20px; z-index: 1; }
         .icons-container { position: relative; min-height: 100%; }
         
@@ -715,242 +715,288 @@ Keep this email safe! You can use it to restore your NostalgiaOS data on any dev
     
     let settingsWindow = null;
     
-    function openSettings() {
-        if (settingsWindow && document.getElementById(settingsWindow)) {
-            document.getElementById(settingsWindow).style.display = 'flex';
-            document.getElementById(settingsWindow).style.zIndex = nextWindowZ++;
-            return;
-        }
-        
-        const winId = 'settingsWindow_' + Date.now();
-        settingsWindow = winId;
-        
-        const win = document.createElement('div');
-        win.className = 'desktop-window';
-        win.id = winId;
-        win.style.left = '100px';
-        win.style.top = '80px';
-        win.style.width = '550px';
-        win.style.height = '520px';
-        win.style.zIndex = nextWindowZ++;
-        
-        win.innerHTML = `
-            <div class="title-bar">
-                <span>⚙️ Settings</span>
-                <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
+function openSettings() {
+    if (settingsWindow && document.getElementById(settingsWindow)) {
+        document.getElementById(settingsWindow).style.display = 'flex';
+        document.getElementById(settingsWindow).style.zIndex = nextWindowZ++;
+        return;
+    }
+    
+    const winId = 'settingsWindow_' + Date.now();
+    settingsWindow = winId;
+    
+    const win = document.createElement('div');
+    win.className = 'desktop-window';
+    win.id = winId;
+    win.style.left = '100px';
+    win.style.top = '80px';
+    win.style.width = '550px';
+    win.style.height = '520px';
+    win.style.zIndex = nextWindowZ++;
+    
+    win.innerHTML = `
+        <div class="title-bar">
+            <span>⚙️ Settings</span>
+            <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
+        </div>
+        <div style="background:#c0c0c0; padding:2px 0 0 2px; display:flex; gap:2px;">
+            <button class="settings-tab" data-tab="system" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">🖥️ System</button>
+            <button class="settings-tab" data-tab="desktop" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">🖼️ Desktop</button>
+            <button class="settings-tab" data-tab="backup" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">💾 Backup</button>
+            <button class="settings-tab" data-tab="cloud" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">☁️ Cloud</button>
+            <button class="settings-tab" data-tab="about" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">ℹ️ About</button>
+        </div>
+        <div class="settings-content" style="background:#fff; flex:1; padding:15px; overflow:auto;">
+            <div id="settings-tab-system" class="settings-tab-pane" style="display:block;">
+                <div style="margin-bottom:15px;">
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">💡 General</div>
+                    <label style="display:block; margin-bottom:10px;">
+                        <input type="checkbox" id="settingsStartupSound" ${document.getElementById('startupSoundToggle')?.checked ? 'checked' : ''}> Play startup sound
+                    </label>
+                    <label style="display:block; margin-bottom:10px;">
+                        <input type="checkbox" id="settingsAutoSave" checked disabled> Auto-save changes
+                    </label>
+                </div>
             </div>
-            <div style="background:#c0c0c0; padding:2px 0 0 2px; display:flex; gap:2px;">
-                <button class="settings-tab" data-tab="system" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">🖥️ System</button>
-                <button class="settings-tab" data-tab="desktop" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">🖼️ Desktop</button>
-                <button class="settings-tab" data-tab="backup" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">💾 Backup</button>
-                <button class="settings-tab" data-tab="cloud" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">☁️ Cloud</button>
-                <button class="settings-tab" data-tab="about" style="background:#c0c0c0; border:2px solid #fff; border-right-color:#000; border-bottom-color:#000; padding:6px 12px; cursor:pointer;">ℹ️ About</button>
+            
+            <div id="settings-tab-desktop" class="settings-tab-pane" style="display:none;">
+                <div style="margin-bottom:15px;">
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🎨 Theme</div>
+                    <select id="settingsThemeSelect" style="width:100%; margin-bottom:10px; padding:5px;">
+                        <option value="teal" ${currentTheme === 'teal' ? 'selected' : ''}>Windows 95 Teal</option>
+                        <option value="silver" ${currentTheme === 'silver' ? 'selected' : ''}>Classic Silver</option>
+                    </select>
+                    <button id="settingsApplyThemeBtn" class="retro-button">Apply Theme</button>
+                </div>
+                <div>
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🖼️ Wallpaper Gallery</div>
+                    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:10px; max-height:200px; overflow-y:auto; border:1px solid #808080; padding:8px;">
+                        ${wallpaperGallery.map(wp => `
+                            <div style="text-align:center; cursor:pointer; padding:5px; border:1px solid #808080; background:#fff; border-radius:2px;" class="wallpaper-option" data-url="${wp.url}" data-default="${wp.isDefault}" data-name="${wp.name}">
+                                <div style="width:100%; height:60px; background:${wp.isDefault ? '#008080' : `url(${wp.url})`}; background-size:cover; background-position:center; border:1px solid #808080; margin-bottom:5px;"></div>
+                                <span style="font-size:10px;">${wp.name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div id="customUrlSection" style="margin-top:10px; border-top:1px solid #808080; padding-top:10px;">
+                        <p style="font-size:11px; margin-bottom:5px;">📷 Custom Image URL:</p>
+                        <input type="text" id="settingsWallpaperUrl" placeholder="https://example.com/wallpaper.jpg" style="width:100%; margin-bottom:8px; padding:5px;" value="${currentWallpaper}">
+                        <button id="settingsSetWallpaperBtn" class="retro-button">Apply Custom</button>
+                        <button id="settingsResetWallpaperBtn" class="retro-button" style="margin-left:5px;">Reset to Default</button>
+                    </div>
+                </div>
+                <div style="margin-top:15px;">
+                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📐 Icon Layout</div>
+                    <button id="settingsLineUpIconsBtn" class="retro-button">📏 Line Up Icons</button>
+                    <button id="settingsSortByNameBtn" class="retro-button" style="margin-left:5px;">🔤 Sort by Name</button>
+                    <button id="settingsSortByDateBtn" class="retro-button" style="margin-left:5px;">📅 Sort by Date</button>
+                </div>
             </div>
-            <div class="settings-content" style="background:#fff; flex:1; padding:15px; overflow:auto;">
-                <div id="settings-tab-system" class="settings-tab-pane" style="display:block;">
-                    <div style="margin-bottom:15px;">
-                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">💡 General</div>
-                        <label style="display:block; margin-bottom:10px;">
-                            <input type="checkbox" id="settingsStartupSound" ${document.getElementById('startupSoundToggle')?.checked ? 'checked' : ''}> Play startup sound
-                        </label>
-                        <label style="display:block; margin-bottom:10px;">
-                            <input type="checkbox" id="settingsAutoSave" checked disabled> Auto-save changes
-                        </label>
+            
+            <div id="settings-tab-backup" class="settings-tab-pane" style="display:none;">
+                <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📦 BACKUP & RESTORE</div>
+                <div style="border:1px solid #808080; padding:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span><strong>💾 Complete Backup</strong><br><span style="font-size:10px; color:#666;">Saves ALL your data</span></span>
+                        <button id="settingsCompleteBackupBtn" class="retro-button">Backup Now</button>
                     </div>
-                </div>
-                
-                <div id="settings-tab-desktop" class="settings-tab-pane" style="display:none;">
-                    <div style="margin-bottom:15px;">
-                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🎨 Theme</div>
-                        <select id="settingsThemeSelect" style="width:100%; margin-bottom:10px; padding:5px;">
-                            <option value="teal" ${currentTheme === 'teal' ? 'selected' : ''}>Windows 95 Teal</option>
-                            <option value="silver" ${currentTheme === 'silver' ? 'selected' : ''}>Classic Silver</option>
-                        </select>
-                        <button id="settingsApplyThemeBtn" class="retro-button">Apply Theme</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span><strong>📂 Complete Restore</strong><br><span style="font-size:10px; color:#666;">Restore from file or pasted text</span></span>
+                        <button id="settingsCompleteRestoreBtn" class="retro-button">Restore...</button>
                     </div>
-                    <div>
-                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">🖼️ Wallpaper Gallery</div>
-                        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:10px; max-height:200px; overflow-y:auto; border:1px solid #808080; padding:8px;">
-                            ${wallpaperGallery.map(wp => `
-                                <div style="text-align:center; cursor:pointer; padding:5px; border:1px solid #808080; background:#fff; border-radius:2px;" class="wallpaper-option" data-url="${wp.url}" data-default="${wp.isDefault}">
-                                    <div style="width:100%; height:60px; background:${wp.isDefault ? '#008080' : `url(${wp.url})`}; background-size:cover; background-position:center; border:1px solid #808080; margin-bottom:5px;"></div>
-                                    <span style="font-size:10px;">${wp.name}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div id="customUrlSection" style="margin-top:10px; border-top:1px solid #808080; padding-top:10px;">
-                            <p style="font-size:11px; margin-bottom:5px;">📷 Custom Image URL:</p>
-                            <input type="text" id="settingsWallpaperUrl" placeholder="https://example.com/wallpaper.jpg" style="width:100%; margin-bottom:8px; padding:5px;" value="${currentWallpaper}">
-                            <button id="settingsSetWallpaperBtn" class="retro-button">Apply Custom</button>
-                            <button id="settingsResetWallpaperBtn" class="retro-button" style="margin-left:5px;">Reset to Default</button>
-                        </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span><strong>📋 Copy to Clipboard</strong><br><span style="font-size:10px; color:#666;">Copy backup to clipboard</span></span>
+                        <button id="settingsCopyBackupBtn" class="retro-button">Copy</button>
                     </div>
-                    <div style="margin-top:15px;">
-                        <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📐 Icon Layout</div>
-                        <button id="settingsLineUpIconsBtn" class="retro-button">📏 Line Up Icons</button>
-                        <button id="settingsSortByNameBtn" class="retro-button" style="margin-left:5px;">🔤 Sort by Name</button>
-                        <button id="settingsSortByDateBtn" class="retro-button" style="margin-left:5px;">📅 Sort by Date</button>
-                    </div>
-                </div>
-                
-                <div id="settings-tab-backup" class="settings-tab-pane" style="display:none;">
-                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">📦 BACKUP & RESTORE</div>
-                    <div style="border:1px solid #808080; padding:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span><strong>💾 Complete Backup</strong><br><span style="font-size:10px; color:#666;">Saves ALL your data</span></span>
-                            <button id="settingsCompleteBackupBtn" class="retro-button">Backup Now</button>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span><strong>📂 Complete Restore</strong><br><span style="font-size:10px; color:#666;">Restore from file or pasted text</span></span>
-                            <button id="settingsCompleteRestoreBtn" class="retro-button">Restore...</button>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                            <span><strong>📋 Copy to Clipboard</strong><br><span style="font-size:10px; color:#666;">Copy backup to clipboard</span></span>
-                            <button id="settingsCopyBackupBtn" class="retro-button">Copy</button>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span><strong>📧 Email Backup</strong><br><span style="font-size:10px; color:#666;">Email backup to yourself</span></span>
-                            <button id="settingsEmailBackupBtn" class="retro-button">Email</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="settings-tab-cloud" class="settings-tab-pane" style="display:none;">
-                    <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">☁️ GitHub Gist Sync</div>
-                    <div style="border:1px solid #808080; padding:10px;">
-                        <p style="margin-bottom:10px; font-size:11px;">Connect to GitHub Gist to sync data across devices.</p>
-                        <label style="display:block; margin-bottom:5px;">Gist ID:</label>
-                        <input type="text" id="settingsGistId" placeholder="Your Gist ID" style="width:100%; margin-bottom:10px; padding:5px;" value="${localStorage.getItem('gist_id') || ''}">
-                        <label style="display:block; margin-bottom:5px;">GitHub Token:</label>
-                        <input type="password" id="settingsGithubToken" placeholder="GitHub Personal Access Token" style="width:100%; margin-bottom:10px; padding:5px;" value="${localStorage.getItem('github_token') || ''}">
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <button id="settingsSaveCloudBtn" class="retro-button">Save Credentials</button>
-                            <button id="settingsSyncToCloudBtn" class="retro-button">Sync to Cloud</button>
-                            <button id="settingsDownloadFromCloudBtn" class="retro-button">Download from Cloud</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="settings-tab-about" class="settings-tab-pane" style="display:none;">
-                    <div style="text-align:center; padding:20px;">
-                        <div style="font-size:48px; margin-bottom:10px;">📀</div>
-                        <h3>NostalgiaOS</h3>
-                        <p style="margin:10px 0;">Version 2.0</p>
-                        <p style="font-size:11px; color:#666;">A Windows 95-style personal website</p>
-                        <p style="font-size:11px; margin-top:15px;">✨ Features: Draggable icons • Stickers • Sticky notes • Journal • Bucket List • Recipes • Cloud sync</p>
-                        <p style="font-size:10px; margin-top:15px; color:#999;">All data saved locally in your browser</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span><strong>📧 Email Backup</strong><br><span style="font-size:10px; color:#666;">Email backup to yourself</span></span>
+                        <button id="settingsEmailBackupBtn" class="retro-button">Email</button>
                     </div>
                 </div>
             </div>
-            <div style="background:#c0c0c0; padding:8px; display:flex; justify-content:flex-end; border-top:1px solid #fff;">
-                <button id="settingsOkBtn" class="retro-button" style="margin-right:4px;">OK</button>
-                <button id="settingsCancelBtn" class="retro-button">Cancel</button>
+            
+            <div id="settings-tab-cloud" class="settings-tab-pane" style="display:none;">
+                <div style="background:#c0c0c0; padding:5px; margin-bottom:10px; font-weight:bold;">☁️ GitHub Gist Sync</div>
+                <div style="border:1px solid #808080; padding:10px;">
+                    <p style="margin-bottom:10px; font-size:11px;">Connect to GitHub Gist to sync data across devices.</p>
+                    <label style="display:block; margin-bottom:5px;">Gist ID:</label>
+                    <input type="text" id="settingsGistId" placeholder="Your Gist ID" style="width:100%; margin-bottom:10px; padding:5px;" value="${localStorage.getItem('gist_id') || ''}">
+                    <label style="display:block; margin-bottom:5px;">GitHub Token:</label>
+                    <input type="password" id="settingsGithubToken" placeholder="GitHub Personal Access Token" style="width:100%; margin-bottom:10px; padding:5px;" value="${localStorage.getItem('github_token') || ''}">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <button id="settingsSaveCloudBtn" class="retro-button">Save Credentials</button>
+                        <button id="settingsSyncToCloudBtn" class="retro-button">Sync to Cloud</button>
+                        <button id="settingsDownloadFromCloudBtn" class="retro-button">Download from Cloud</button>
+                    </div>
+                </div>
             </div>
-        `;
-        
-        document.body.appendChild(win);
-        makeWindowDraggable(win, win.querySelector('.title-bar'));
-        
-        const tabs = win.querySelectorAll('.settings-tab');
-        const panes = win.querySelectorAll('.settings-tab-pane');
-        
-        tabs.forEach(tab => {
-            tab.onclick = () => {
-                const tabName = tab.dataset.tab;
-                panes.forEach(pane => pane.style.display = 'none');
-                win.querySelector(`#settings-tab-${tabName}`).style.display = 'block';
-                tabs.forEach(t => {
-                    t.style.background = '#c0c0c0';
-                    t.style.border = '2px solid #fff';
-                    t.style.borderRightColor = '#000';
-                    t.style.borderBottomColor = '#000';
-                });
-                tab.style.background = '#ffffff';
-                tab.style.border = '2px solid #808080';
-                tab.style.borderRightColor = '#fff';
-                tab.style.borderBottomColor = '#fff';
-            };
+            
+            <div id="settings-tab-about" class="settings-tab-pane" style="display:none;">
+                <div style="text-align:center; padding:20px;">
+                    <div style="font-size:48px; margin-bottom:10px;">📀</div>
+                    <h3>NostalgiaOS</h3>
+                    <p style="margin:10px 0;">Version 2.0</p>
+                    <p style="font-size:11px; color:#666;">A Windows 95-style personal website</p>
+                    <p style="font-size:11px; margin-top:15px;">✨ Features: Draggable icons • Stickers • Sticky notes • Journal • Bucket List • Recipes • Cloud sync</p>
+                    <p style="font-size:10px; margin-top:15px; color:#999;">All data saved locally in your browser</p>
+                </div>
+            </div>
+        </div>
+        <div style="background:#c0c0c0; padding:8px; display:flex; justify-content:flex-end; border-top:1px solid #fff;">
+            <button id="settingsOkBtn" class="retro-button" style="margin-right:4px;">OK</button>
+            <button id="settingsCancelBtn" class="retro-button">Cancel</button>
+        </div>
+    `;
+    
+    document.body.appendChild(win);
+    makeWindowDraggable(win, win.querySelector('.title-bar'));
+    
+    const tabs = win.querySelectorAll('.settings-tab');
+    const panes = win.querySelectorAll('.settings-tab-pane');
+    
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            const tabName = tab.dataset.tab;
+            panes.forEach(pane => pane.style.display = 'none');
+            win.querySelector(`#settings-tab-${tabName}`).style.display = 'block';
+            tabs.forEach(t => {
+                t.style.background = '#c0c0c0';
+                t.style.border = '2px solid #fff';
+                t.style.borderRightColor = '#000';
+                t.style.borderBottomColor = '#000';
+            });
+            tab.style.background = '#ffffff';
+            tab.style.border = '2px solid #808080';
+            tab.style.borderRightColor = '#fff';
+            tab.style.borderBottomColor = '#fff';
+        };
+    });
+    
+    win.querySelector('.close-window').onclick = () => win.remove();
+    
+    win.querySelector('#settingsOkBtn').onclick = () => {
+        const startupSound = win.querySelector('#settingsStartupSound').checked;
+        document.getElementById('startupSoundToggle').checked = startupSound;
+        localStorage.setItem('startupSoundEnabled', startupSound);
+        win.remove();
+    };
+    
+    win.querySelector('#settingsCancelBtn').onclick = () => win.remove();
+    
+    win.querySelector('#settingsApplyThemeBtn').onclick = () => {
+        currentTheme = win.querySelector('#settingsThemeSelect').value;
+        applyTheme();
+        saveAll();
+    };
+    
+    function highlightActiveWallpaper() {
+        const currentWallpaperUrl = currentWallpaper;
+        win.querySelectorAll('.wallpaper-option').forEach(opt => {
+            const optUrl = opt.dataset.url;
+            const isDefault = opt.dataset.default === 'true';
+            
+            if ((isDefault && !currentWallpaperUrl) || (optUrl && optUrl === currentWallpaperUrl)) {
+                opt.style.outline = '2px solid #000080';
+                opt.style.backgroundColor = '#e0e0e0';
+            } else {
+                opt.style.outline = 'none';
+                opt.style.backgroundColor = '#fff';
+            }
         });
-        
-        win.querySelector('.close-window').onclick = () => win.remove();
-        
-        win.querySelector('#settingsOkBtn').onclick = () => {
-            const startupSound = win.querySelector('#settingsStartupSound').checked;
-            document.getElementById('startupSoundToggle').checked = startupSound;
-            localStorage.setItem('startupSoundEnabled', startupSound);
-            win.remove();
-        };
-        
-        win.querySelector('#settingsCancelBtn').onclick = () => win.remove();
-        
-        win.querySelector('#settingsApplyThemeBtn').onclick = () => {
-            currentTheme = win.querySelector('#settingsThemeSelect').value;
-            applyTheme();
-            saveAll();
-        };
-        
-        win.querySelectorAll('.wallpaper-option').forEach(option => {
-            option.onclick = () => {
-                const url = option.dataset.url;
-                const isDefault = option.dataset.default === 'true';
-                
-                if (isDefault) {
-                    currentWallpaper = '';
-                    document.body.style.backgroundImage = '';
-                    document.body.style.background = '#008080';
-                } else if (url) {
+    }
+    
+    win.querySelectorAll('.wallpaper-option').forEach(option => {
+        option.onclick = () => {
+            const url = option.dataset.url;
+            const isDefault = option.dataset.default === 'true';
+            const imgPreview = option.querySelector('div:first-child');
+            
+            if (isDefault) {
+                currentWallpaper = '';
+                document.body.style.backgroundImage = '';
+                document.body.style.background = '#008080';
+                if (imgPreview) imgPreview.style.background = '#008080';
+                saveAll();
+                highlightActiveWallpaper();
+                alert('✅ Reset to Windows 95 Teal wallpaper!');
+            } else if (url) {
+                const testImg = new Image();
+                testImg.onload = () => {
                     currentWallpaper = url;
                     document.body.style.backgroundImage = `url(${url})`;
                     document.body.style.backgroundSize = 'cover';
-                }
-                saveAll();
-                const customUrlInput = win.querySelector('#settingsWallpaperUrl');
-                if (customUrlInput) customUrlInput.value = currentWallpaper;
-                win.querySelectorAll('.wallpaper-option').forEach(opt => opt.style.outline = 'none');
-                option.style.outline = '2px solid #000080';
-            };
-        });
-        
-        win.querySelector('#settingsSetWallpaperBtn').onclick = () => {
-            const url = win.querySelector('#settingsWallpaperUrl').value;
-            if (url) {
+                    document.body.style.backgroundPosition = 'center';
+                    document.body.style.backgroundRepeat = 'no-repeat';
+                    if (imgPreview) imgPreview.style.backgroundImage = `url(${url})`;
+                    saveAll();
+                    highlightActiveWallpaper();
+                    alert(`✅ Wallpaper "${option.dataset.name}" applied!`);
+                };
+                testImg.onerror = () => {
+                    alert(`❌ Wallpaper image not found!\n\nPlease upload "${url}" to your wallpapers folder.\n\nMake sure the filename matches exactly.`);
+                };
+                testImg.src = url;
+            }
+            
+            const customUrlInput = win.querySelector('#settingsWallpaperUrl');
+            if (customUrlInput) customUrlInput.value = currentWallpaper;
+        };
+    });
+    
+    win.querySelector('#settingsSetWallpaperBtn').onclick = () => {
+        const url = win.querySelector('#settingsWallpaperUrl').value;
+        if (url) {
+            const testImg = new Image();
+            testImg.onload = () => {
                 currentWallpaper = url;
                 document.body.style.backgroundImage = `url(${url})`;
                 document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                document.body.style.backgroundRepeat = 'no-repeat';
                 saveAll();
-            }
-        };
-        
-        win.querySelector('#settingsResetWallpaperBtn').onclick = () => {
-            currentWallpaper = '';
-            document.body.style.backgroundImage = '';
-            document.body.style.background = '#008080';
-            saveAll();
-            win.querySelector('#settingsWallpaperUrl').value = '';
-            win.querySelectorAll('.wallpaper-option').forEach(opt => opt.style.outline = 'none');
-        };
-        
-        win.querySelector('#settingsLineUpIconsBtn').onclick = () => lineUpIcons();
-        win.querySelector('#settingsSortByNameBtn').onclick = () => sortByName();
-        win.querySelector('#settingsSortByDateBtn').onclick = () => sortByDate();
-        
-        win.querySelector('#settingsCompleteBackupBtn').onclick = () => completeBackup();
-        win.querySelector('#settingsCompleteRestoreBtn').onclick = () => completeRestore();
-        win.querySelector('#settingsCopyBackupBtn').onclick = () => copyBackupToClipboard();
-        win.querySelector('#settingsEmailBackupBtn').onclick = () => emailBackup();
-        
-        win.querySelector('#settingsSaveCloudBtn').onclick = () => {
-            const gistIdVal = win.querySelector('#settingsGistId').value.trim();
-            const token = win.querySelector('#settingsGithubToken').value.trim();
-            if (gistIdVal && token) saveGistCredentials(gistIdVal, token);
-            else alert('Please enter both Gist ID and Token');
-        };
-        
-        win.querySelector('#settingsSyncToCloudBtn').onclick = () => syncToGist();
-        win.querySelector('#settingsDownloadFromCloudBtn').onclick = () => loadFromGist();
-        
-        win.style.display = 'flex';
-    }
+                highlightActiveWallpaper();
+                alert('✅ Custom wallpaper applied!');
+            };
+            testImg.onerror = () => {
+                alert('❌ Could not load image from that URL. Please check the address.');
+            };
+            testImg.src = url;
+        }
+    };
+    
+    win.querySelector('#settingsResetWallpaperBtn').onclick = () => {
+        currentWallpaper = '';
+        document.body.style.backgroundImage = '';
+        document.body.style.background = '#008080';
+        saveAll();
+        win.querySelector('#settingsWallpaperUrl').value = '';
+        highlightActiveWallpaper();
+        alert('✅ Reset to default Windows 95 Teal wallpaper.');
+    };
+    
+    win.querySelector('#settingsLineUpIconsBtn').onclick = () => lineUpIcons();
+    win.querySelector('#settingsSortByNameBtn').onclick = () => sortByName();
+    win.querySelector('#settingsSortByDateBtn').onclick = () => sortByDate();
+    
+    win.querySelector('#settingsCompleteBackupBtn').onclick = () => completeBackup();
+    win.querySelector('#settingsCompleteRestoreBtn').onclick = () => completeRestore();
+    win.querySelector('#settingsCopyBackupBtn').onclick = () => copyBackupToClipboard();
+    win.querySelector('#settingsEmailBackupBtn').onclick = () => emailBackup();
+    
+    win.querySelector('#settingsSaveCloudBtn').onclick = () => {
+        const gistIdVal = win.querySelector('#settingsGistId').value.trim();
+        const token = win.querySelector('#settingsGithubToken').value.trim();
+        if (gistIdVal && token) saveGistCredentials(gistIdVal, token);
+        else alert('Please enter both Gist ID and Token');
+    };
+    
+    win.querySelector('#settingsSyncToCloudBtn').onclick = () => syncToGist();
+    win.querySelector('#settingsDownloadFromCloudBtn').onclick = () => loadFromGist();
+    
+    highlightActiveWallpaper();
+    
+    win.style.display = 'flex';
+}
     
     function mergeArraysAdvanced(existing, incoming, idField = 'id') {
         const mergedMap = new Map();
