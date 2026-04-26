@@ -3,308 +3,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💣 Minesweeper</title>
+    <title>💣 Minesweeper - NostalgiaOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        * { user-select: none; }
+        * {
+            user-select: none;
+        }
+        
         body {
-            background: #c0c0c0;
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            width: 100%;
+            height: 100%;
+            padding: 0;
             margin: 0;
-            padding: 20px;
+            margin-top: 5px;
+            text-align: center;
+            background: #333;
+            font-family: 'Press Start 2P', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-        .game-container {
-            background: #c0c0c0;
-            border: 3px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            padding: 15px;
+        
+        .game {
             display: inline-block;
+            background: #c0c0c3;
+            padding: 4px;
         }
-        .game-header {
-            background: #c0c0c0;
-            padding: 10px;
-            margin-bottom: 10px;
+        
+        .difficulty-bar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid #808080;
+            gap: 5px;
+            margin-bottom: 10px;
+            justify-content: center;
         }
-        .mine-counter, .smiley {
-            background: #000;
-            color: #f00;
-            font-family: monospace;
-            font-size: 24px;
-            padding: 5px 10px;
-            letter-spacing: 2px;
-        }
-        .smiley {
-            background: #c0c0c0;
-            color: #000;
-            font-size: 28px;
+        
+        .difficulty-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            padding: 6px 8px;
+            background: #c0c0c3;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
             cursor: pointer;
-            padding: 0 10px;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
         }
-        .smiley:active {
-            border: 2px solid #000;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+        
+        .difficulty-btn:active {
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
         }
-        .board {
-            display: grid;
-            gap: 1px;
-            background: #808080;
+        
+        .difficulty-btn.active {
+            background: #000080;
+            color: white;
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        .nav {
+            display: flex;
+            margin-bottom: 5px;
             padding: 2px;
+            justify-content: space-between;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
         }
-        .cell {
-            width: 32px;
-            height: 32px;
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            text-align: center;
-            line-height: 32px;
+        
+        #mines-left,
+        #timer {
+            display: flex;
+            align-items: center;
+            color: #ea3323;
+            background: #000;
+            padding: 3px;
+            font-size: 18px;
+            font-family: monospace;
+        }
+        
+        #smiley {
+            display: block;
+            padding: 0;
+            width: 34px;
+            height: 34px;
+            font-size: 23px;
+            background: inherit;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
         }
-        .cell.revealed {
-            background: #fff;
+        
+        #smiley:active {
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        #smiley::after {
+            content: '🙂';
+        }
+        
+        #smiley.lost::after {
+            content: '😵‍💫';
+        }
+        
+        #smiley.won::after {
+            content: '😎';
+        }
+        
+        #grid {
+            display: inline-grid;
+            user-select: none;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        #grid button {
+            display: block;
+            padding: 0;
+            width: 26px;
+            height: 26px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            background: inherit;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+            cursor: pointer;
+        }
+        
+        #grid button:active {
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        #grid button:disabled {
+            background: #c0c0c3;
             border: 1px solid #808080;
-            line-height: 30px;
+            border-bottom: none;
+            border-right: none;
+            color: inherit;
+            cursor: default;
         }
-        .cell.flagged::before {
-            content: "🚩";
+        
+        #grid button:disabled.exploded {
+            background: #ea3323;
         }
-        .retro-button {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-family: inherit;
-            margin-top: 10px;
-            width: 100%;
+        
+        #grid button.flagged::after {
+            content: '🚩';
         }
-        .retro-button:active {
-            border: 2px solid #000;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+        
+        #grid button.mine::after {
+            content: '💣';
+            font-size: 12px;
+        }
+        
+        #grid button.value-1 {
+            color: #0100f3;
+        }
+        #grid button.value-2 {
+            color: #367c21;
+        }
+        #grid button.value-3 {
+            color: #e93323;
+        }
+        #grid button.value-4 {
+            color: #020079;
+        }
+        #grid button.value-5 {
+            color: #78150e;
+        }
+        #grid button.value-6 {
+            color: #387e7e;
+        }
+        #grid button.value-7 {
+            color: #000000;
+        }
+        #grid button.value-8 {
+            color: #808080;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="game-header">
-        <div class="mine-counter" id="mineCounter">000</div>
-        <div class="smiley" id="smiley">🙂</div>
-        <div class="mine-counter" id="timer">000</div>
+    <div class="game">
+        <div class="difficulty-bar">
+            <button class="difficulty-btn" data-difficulty="easy">EASY</button>
+            <button class="difficulty-btn" data-difficulty="medium">MEDIUM</button>
+            <button class="difficulty-btn" data-difficulty="hard">HARD</button>
+            <button class="difficulty-btn" data-difficulty="extreme">EXTREME</button>
+        </div>
+        <div class="nav">
+            <div id="mines-left">000</div>
+            <button id="smiley"></button>
+            <div id="timer">000</div>
+        </div>
+        <div id="grid"></div>
     </div>
-    <div id="board" class="board"></div>
-    <button class="retro-button" onclick="initGame()">🔄 New Game</button>
-</div>
 
-<script>
-    const size = 9;
-    const totalMines = 10;
-    let board = [];
-    let gameActive = true;
-    let firstMove = true;
-    let flagsPlaced = 0;
-    let timer = 0;
-    let timerInterval = null;
-
-    function initGame() {
-        if (timerInterval) clearInterval(timerInterval);
-        timer = 0;
-        updateTimer();
-        gameActive = true;
-        firstMove = true;
-        flagsPlaced = 0;
-        updateMineCounter();
-        document.getElementById('smiley').textContent = '🙂';
-        board = Array(size).fill().map(() => Array(size).fill().map(() => ({
-            revealed: false,
-            mine: false,
-            flagged: false,
-            neighbor: 0
-        })));
-        render();
-    }
-
-    function placeMines(firstX, firstY) {
-        let placed = 0;
-        while (placed < totalMines) {
-            const x = Math.floor(Math.random() * size);
-            const y = Math.floor(Math.random() * size);
-            if (!board[x][y].mine && (Math.abs(x - firstX) > 1 || Math.abs(y - firstY) > 1)) {
-                board[x][y].mine = true;
-                placed++;
-            }
-        }
-        calculateNeighbors();
-    }
-
-    function calculateNeighbors() {
-        for (let i = 0; i < size; i++) {
-            for (let j = 0; j < size; j++) {
-                if (!board[i][j].mine) {
-                    board[i][j].neighbor = getNeighborMines(i, j);
-                }
-            }
-        }
-    }
-
-    function getNeighborMines(x, y) {
-        let count = 0;
-        for (let i = -1; i <= 1; i++) {
-            for (let j = -1; j <= 1; j++) {
-                if (x + i >= 0 && x + i < size && y + j >= 0 && y + j < size && board[x + i][y + j].mine) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    function reveal(x, y) {
-        if (!gameActive || board[x][y].revealed || board[x][y].flagged) return;
-
-        if (firstMove) {
-            firstMove = false;
-            placeMines(x, y);
-            startTimer();
-        }
-
-        board[x][y].revealed = true;
-
-        if (board[x][y].mine) {
-            gameActive = false;
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('smiley').textContent = '💀';
-            revealAllMines();
-            render();
-            alert('💥 Game Over! You hit a mine!');
-            return;
-        }
-
-        if (board[x][y].neighbor === 0) {
-            for (let i = -1; i <= 1; i++) {
-                for (let j = -1; j <= 1; j++) {
-                    if (x + i >= 0 && x + i < size && y + j >= 0 && y + j < size) {
-                        reveal(x + i, y + j);
-                    }
-                }
-            }
-        }
-
-        render();
-        checkWin();
-    }
-
-    function revealAllMines() {
-        for (let i = 0; i < size; i++) {
-            for (let j = 0; j < size; j++) {
-                if (board[i][j].mine) {
-                    board[i][j].revealed = true;
-                }
-            }
-        }
-    }
-
-    function toggleFlag(x, y) {
-        if (!gameActive || board[x][y].revealed) return;
-
-        if (!board[x][y].flagged && flagsPlaced < totalMines) {
-            board[x][y].flagged = true;
-            flagsPlaced++;
-        } else if (board[x][y].flagged) {
-            board[x][y].flagged = false;
-            flagsPlaced--;
-        }
-        updateMineCounter();
-        render();
-        checkWin();
-    }
-
-    function checkWin() {
-        let revealedCount = 0;
-        for (let i = 0; i < size; i++) {
-            for (let j = 0; j < size; j++) {
-                if (board[i][j].revealed && !board[i][j].mine) revealedCount++;
-            }
-        }
-        if (revealedCount === size * size - totalMines) {
-            gameActive = false;
-            if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('smiley').textContent = '😎';
-            alert('🎉 YOU WIN! 🎉');
-        }
-    }
-
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (gameActive) {
-                timer++;
-                updateTimer();
-            }
-        }, 1000);
-    }
-
-    function updateMineCounter() {
-        const remaining = totalMines - flagsPlaced;
-        document.getElementById('mineCounter').textContent = String(remaining).padStart(3, '0');
-    }
-
-    function updateTimer() {
-        document.getElementById('timer').textContent = String(timer).padStart(3, '0');
-    }
-
-    function render() {
-        const container = document.getElementById('board');
-        container.style.gridTemplateColumns = `repeat(${size}, 32px)`;
-        container.innerHTML = '';
+    <script>
+        // Difficulty configurations
+        const DIFFICULTIES = {
+            easy: { width: 9, height: 9, mines: 10, name: 'Easy' },
+            medium: { width: 16, height: 16, mines: 40, name: 'Medium' },
+            hard: { width: 16, height: 30, mines: 99, name: 'Hard' },
+            extreme: { width: 20, height: 30, mines: 160, name: 'Extreme' }
+        };
         
-        for (let i = 0; i < size; i++) {
-            for (let j = 0; j < size; j++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                
-                if (board[i][j].revealed) {
-                    cell.classList.add('revealed');
-                    if (board[i][j].mine) {
-                        cell.textContent = '💣';
-                    } else if (board[i][j].neighbor > 0) {
-                        cell.textContent = board[i][j].neighbor;
-                        // Color code numbers
-                        const colors = ['', '#0000ff', '#008000', '#ff0000', '#000080', '#800000', '#008080', '#000000', '#808080'];
-                        cell.style.color = colors[board[i][j].neighbor] || '#000';
+        let currentDifficulty = 'easy';
+        let gameState = null;
+        let gameView = null;
+        
+        function initGameState({ width, height, minesCount }) {
+            const state = {
+                minesCount,
+                minesLeft: minesCount,
+                isGameOver: false,
+                fieldsLeft: width * height,
+                fields: Array.from({ length: height }, () =>
+                    Array(width).fill(0)
+                ),
+                timerStart: undefined,
+                timerInterval: undefined,
+            };
+            
+            insertMines(state, minesCount);
+            return state;
+        }
+        
+        function insertMines(state, minesCount) {
+            const size = state.fieldsLeft;
+            const indices = new Set();
+            
+            while (indices.size < minesCount) {
+                const index = Math.floor(Math.random() * size);
+                indices.add(index);
+            }
+            
+            const width = state.fields[0].length;
+            for (const index of indices) {
+                const y = Math.floor(index / width);
+                const x = index % width;
+                state.fields[y][x] = -1;
+                updateMineNeighbours(state, x, y);
+            }
+            
+            state.fieldsLeft -= minesCount;
+        }
+        
+        function updateMineNeighbours(state, mineX, mineY) {
+            const { fields } = state;
+            const height = fields.length;
+            const width = fields[0].length;
+            
+            const startX = Math.max(0, mineX - 1);
+            const startY = Math.max(0, mineY - 1);
+            const endX = Math.min(width - 1, mineX + 1);
+            const endY = Math.min(height - 1, mineY + 1);
+            
+            for (let y = startY; y <= endY; y++) {
+                for (let x = startX; x <= endX; x++) {
+                    if (fields[y][x] !== -1) {
+                        fields[y][x]++;
                     }
-                } else if (board[i][j].flagged) {
-                    cell.textContent = '🚩';
                 }
-                
-                cell.onclick = () => reveal(i, j);
-                cell.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    toggleFlag(i, j);
-                    return false;
-                };
-                container.appendChild(cell);
             }
         }
-    }
-
-    initGame();
-</script>
+        
+        function createFieldButtons(view, state) {
+            const fragment = new DocumentFragment();
+            const height = state.fields.length;
+            const width = state.fields[0].length;
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const button = document.createElement('button');
+                    button.dataset.x = x;
+                    button.dataset.y = y;
+                    fragment.append(button);
+                }
+            }
+            
+            view.grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
+            view.grid.style.gridTemplateRows = `repeat(${height}, 1fr)`;
+            view.grid.append(fragment);
+        }
+        
+        function getButtonPosition(button) {
+            return {
+                x: Number(button.dataset.x),
+                y: Number(button.dataset.y),
+            };
+        }
+        
+        function initView(view, state) {
+            view.smiley.removeAttribute('class');
+            view.minesLeft.innerText = `${state.minesLeft}`.padStart(3, '0');
+            view.timer.innerText = '000';
+            
+            for (const button of view.grid.children) {
+                button.innerText = '';
+                button.disabled = false;
+                button.removeAttribute('class');
+            }
+        }
+        
+        function restartGame(view, state) {
+            clearInterval(state.timerInterval);
+            
+            const config = DIFFICULTIES[currentDifficulty];
+            const newState = initGameState({
+                width: config.width,
+                height: config.height,
+                minesCount: config.mines,
+            });
+            
+            Object.assign(state, newState);
+            
+            // Recreate grid if dimensions changed
+            if (view.grid.children.length !== state.fields.length * state.fields[0].length) {
+                view.grid.innerHTML = '';
+                createFieldButtons(view, state);
+            }
+            
+            initView(view, state);
+        }
+        
+        function ensureTimerStarted(view, state) {
+            if (state.timerInterval) {
+                return;
+            }
+            
+            state.timerStart = new Date();
+            state.timerInterval = setInterval(() => {
+                if (!state.isGameOver) {
+                    const secondsElapsed = Math.floor((new Date() - state.timerStart) / 1000);
+                    view.timer.innerText = `${secondsElapsed}`.padStart(3, '0');
+                }
+            }, 1000);
+        }
+        
+        function handleGameEvents(view, state) {
+            view.smiley.addEventListener('click', () => restartGame(view, state));
+            
+            view.grid.addEventListener('contextmenu', (event) => event.preventDefault());
+            
+            view.grid.addEventListener('mousedown', (event) => {
+                if (state.isGameOver) {
+                    return;
+                }
+                
+                const button = event.target;
+                if (button.tagName !== 'BUTTON') {
+                    return;
+                }
+                
+                ensureTimerStarted(view, state);
+                if (event.button === 2) {
+                    handleFieldFlag(view, state, button);
+                } else {
+                    handleFieldReveal(view, state, button);
+                }
+            });
+        }
+        
+        function handleFieldFlag(view, state, button) {
+            if (button.disabled) {
+                return;
+            }
+            
+            const isFlagged = button.classList.toggle('flagged');
+            state.minesLeft += isFlagged ? -1 : 1;
+            view.minesLeft.innerText = `${state.minesLeft}`.padStart(3, '0');
+        }
+        
+        function handleFieldReveal(view, state, button) {
+            const { x, y } = getButtonPosition(button);
+            
+            if (button.classList.contains('flagged')) {
+                return;
+            }
+            
+            switch (state.fields[y][x]) {
+                case -1:
+                    if (revealField(state, button)) {
+                        button.classList.add('exploded');
+                        view.smiley.className = 'lost';
+                        gameOver(view, state);
+                    }
+                    break;
+                    
+                case 0:
+                    revealEmptyArea(view.grid, state, x, y);
+                    break;
+                    
+                default:
+                    revealField(state, button);
+            }
+            
+            if (state.fieldsLeft === 0) {
+                view.smiley.className = 'won';
+                gameOver(view, state);
+            }
+        }
+        
+        function revealField(state, button) {
+            if (button.disabled) {
+                return false;
+            }
+            
+            button.disabled = true;
+            button.classList.remove('flagged');
+            
+            const { x, y } = getButtonPosition(button);
+            const value = state.fields[y][x];
+            
+            switch (value) {
+                case -1:
+                    button.className = 'mine';
+                    break;
+                    
+                case 0:
+                    state.fieldsLeft--;
+                    break;
+                    
+                default:
+                    button.className = `value-${value}`;
+                    button.innerText = value;
+                    state.fieldsLeft--;
+            }
+            
+            return value === -1;
+        }
+        
+        function gameOver(view, state) {
+            clearInterval(state.timerInterval);
+            state.isGameOver = true;
+            
+            for (const button of view.grid.children) {
+                const { x, y } = getButtonPosition(button);
+                if (state.fields[y][x] === -1) {
+                    revealField(state, button);
+                }
+            }
+        }
+        
+        function revealEmptyArea(grid, state, x, y) {
+            const height = state.fields.length;
+            const width = state.fields[0].length;
+            const visited = new Set();
+            
+            function visit(i, j) {
+                if (i < 0 || i >= width || j < 0 || j >= height) {
+                    return;
+                }
+                
+                const index = j * width + i;
+                if (visited.has(index)) {
+                    return;
+                }
+                visited.add(index);
+                
+                revealField(state, grid.children[index]);
+                
+                if (state.fields[j][i] !== 0) {
+                    return;
+                }
+                
+                visit(i - 1, j);
+                visit(i + 1, j);
+                visit(i, j - 1);
+                visit(i, j + 1);
+            }
+            
+            visit(x, y);
+        }
+        
+        function changeDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            
+            // Update active button styling
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                if (btn.dataset.difficulty === difficulty) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Restart game with new difficulty
+            const config = DIFFICULTIES[difficulty];
+            const newState = initGameState({
+                width: config.width,
+                height: config.height,
+                minesCount: config.mines,
+            });
+            
+            Object.assign(gameState, newState);
+            
+            // Recreate grid if dimensions changed
+            if (gameView.grid.children.length !== gameState.fields.length * gameState.fields[0].length) {
+                gameView.grid.innerHTML = '';
+                createFieldButtons(gameView, gameState);
+            }
+            
+            initView(gameView, gameState);
+        }
+        
+        function main() {
+            const config = DIFFICULTIES[currentDifficulty];
+            gameState = initGameState({
+                width: config.width,
+                height: config.height,
+                minesCount: config.mines,
+            });
+            
+            gameView = {
+                minesLeft: document.getElementById('mines-left'),
+                smiley: document.getElementById('smiley'),
+                timer: document.getElementById('timer'),
+                grid: document.getElementById('grid'),
+            };
+            
+            createFieldButtons(gameView, gameState);
+            initView(gameView, gameState);
+            handleGameEvents(gameView, gameState);
+            
+            // Setup difficulty buttons
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    changeDifficulty(btn.dataset.difficulty);
+                });
+            });
+            
+            // Set active initial button
+            document.querySelector('.difficulty-btn[data-difficulty="easy"]').classList.add('active');
+        }
+        
+        main();
+    </script>
 </body>
 </html>
