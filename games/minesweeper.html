@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>💣 Minesweeper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
             user-select: none;
@@ -14,41 +15,108 @@
         }
         
         body {
-            background: transparent;
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
-            margin: 0;
+            width: 100%;
+            height: 100%;
             padding: 0;
+            margin: 0;
+            text-align: center;
+            background: #c0c0c0;
+            font-family: 'Press Start 2P', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 100%;
         }
         
-        .game-container {
-            background: transparent;
+        /* Windows 95 style window frame */
+        .window-frame {
+            background: #c0c0c0;
+            border: 3px solid;
+            border-color: #fff #808080 #808080 #fff;
             display: inline-block;
-            padding: 0;
-            margin: 0;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        /* Custom title bar */
+        .title-bar-custom {
+            background: #000080;
+            color: white;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            border-bottom: 1px solid #808080;
+        }
+        
+        .title-bar-custom:active {
+            cursor: grabbing;
+        }
+        
+        .close-btn-custom {
+            background: #c0c0c0;
+            border: 1px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            width: 20px;
+            height: 18px;
+            text-align: center;
+            line-height: 16px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: normal;
+            color: #000;
+        }
+        
+        .close-btn-custom:active {
+            border: 1px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        
+        .game-content {
+            padding: 6px;
+        }
+        
+        .game {
+            display: inline-block;
+            background: #c0c0c3;
+            padding: 4px;
+        }
+        
+        /* Outset border */
+        .game,
+        #grid button,
+        #smiley {
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+        }
+        
+        /* Inset border */
+        .nav,
+        #grid,
+        #smiley:active {
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
         }
         
         /* Mobile Controls Bar */
         .mobile-controls {
             display: none;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
             justify-content: center;
             gap: 6px;
         }
         
         .mode-btn {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            padding: 3px 8px;
+            background: #c0c0c3;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+            padding: 4px 8px;
             cursor: pointer;
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
-            font-size: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
             font-weight: bold;
             display: flex;
             align-items: center;
@@ -58,15 +126,11 @@
         .mode-btn.active {
             background: #000080;
             color: white;
-            border: 2px solid #808080;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+            border-color: #808080 #fff #fff #808080;
         }
         
         .mode-btn:active {
-            border: 2px solid #000;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+            border-color: #808080 #fff #fff #808080;
         }
         
         @media (max-width: 768px), (pointer: coarse) {
@@ -78,169 +142,149 @@
         .difficulty-bar {
             display: flex;
             gap: 4px;
-            margin-bottom: 2px;
+            margin-bottom: 5px;
             justify-content: center;
-            background: #c0c0c0;
+            background: #c0c0c3;
             padding: 2px;
-            border: 1px solid #808080;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
         }
         
         .difficulty-btn {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            padding: 2px 6px;
+            background: #c0c0c3;
+            border: 2px solid;
+            border-color: #fff #808080 #808080 #fff;
+            padding: 3px 6px;
             cursor: pointer;
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
-            font-size: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
             font-weight: bold;
         }
         
         .difficulty-btn:active {
-            border: 2px solid #000;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+            border-color: #808080 #fff #fff #808080;
         }
         
         .difficulty-btn.active {
             background: #000080;
             color: white;
-            border: 2px solid #808080;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+            border-color: #808080 #fff #fff #808080;
         }
         
-        .game-header {
-            background: #c0c0c0;
-            padding: 2px;
-            margin-bottom: 2px;
+        .nav {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 2px solid #808080;
-        }
-        
-        .mine-counter, .timer {
-            background: #000;
-            color: #f00;
-            font-family: 'Courier New', monospace;
-            font-size: 18px;
-            font-weight: bold;
-            padding: 2px 4px;
-            letter-spacing: 2px;
-            min-width: 55px;
-            text-align: center;
-        }
-        
-        .smiley {
-            background: #c0c0c0;
-            font-size: 22px;
-            cursor: pointer;
-            padding: 0 6px;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            line-height: 1;
-        }
-        
-        .smiley:active {
-            border: 2px solid #000;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
-        }
-        
-        .board {
-            display: grid;
-            gap: 1px;
-            background: #808080;
+            margin-bottom: 5px;
             padding: 2px;
-            border: 2px solid #808080;
+            justify-content: space-between;
+            gap: 8px;
         }
         
-        .cell {
-            width: 28px;
-            height: 28px;
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            text-align: center;
-            line-height: 24px;
+        #mines-left,
+        #timer {
+            display: flex;
+            align-items: center;
+            color: #ea3323;
+            background: #000;
+            padding: 3px 6px;
+            font-size: 16px;
+            font-family: monospace;
+        }
+        
+        #smiley {
+            display: block;
+            padding: 0;
+            width: 34px;
+            height: 34px;
+            font-size: 20px;
+            background: inherit;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            -webkit-tap-highlight-color: transparent;
+            line-height: 30px;
         }
         
-        .cell.revealed {
-            background: #fff;
-            border: 1px solid #808080;
-            line-height: 26px;
+        #smiley::after {
+            content: '🙂';
         }
         
-        .cell.flagged {
-            position: relative;
+        #smiley.lost::after {
+            content: '😵‍💫';
         }
         
-        .cell.flagged::before {
-            content: "🚩";
+        #smiley.won::after {
+            content: '😎';
+        }
+        
+        #grid {
+            display: inline-grid;
+            user-select: none;
+        }
+        
+        #grid button {
+            display: block;
+            padding: 0;
+            width: 26px;
+            height: 26px;
+            font-family: inherit;
             font-size: 14px;
+            background: inherit;
+            cursor: pointer;
         }
         
-        .cell.value-1 { color: #0100f3; }
-        .cell.value-2 { color: #367c21; }
-        .cell.value-3 { color: #e93323; }
-        .cell.value-4 { color: #020079; }
-        .cell.value-5 { color: #78150e; }
-        .cell.value-6 { color: #387e7e; }
-        .cell.value-7 { color: #000000; }
-        .cell.value-8 { color: #808080; }
+        #grid button:active {
+            border-color: #808080 #fff #fff #808080;
+        }
+        
+        #grid button:disabled {
+            background: #c0c0c3;
+            border: 1px solid #808080;
+            border-bottom: none;
+            border-right: none;
+            color: inherit;
+        }
+        
+        #grid button:disabled.exploded {
+            background: #ea3323;
+        }
+        
+        #grid button.flagged::after {
+            content: '🚩';
+            font-size: 12px;
+        }
+        
+        #grid button.mine::after {
+            content: '💣';
+            font-size: 12px;
+        }
+        
+        #grid button.value-1 { color: #0100f3; }
+        #grid button.value-2 { color: #367c21; }
+        #grid button.value-3 { color: #e93323; }
+        #grid button.value-4 { color: #020079; }
+        #grid button.value-5 { color: #78150e; }
+        #grid button.value-6 { color: #387e7e; }
+        #grid button.value-7 { color: #000000; }
+        #grid button.value-8 { color: #808080; }
         
         .directions-panel {
-            background: #c0c0c0;
-            border: 1px solid #808080;
-            padding: 2px 4px;
-            margin-top: 2px;
-            font-size: 8px;
+            background: #c0c0c3;
+            border: 2px solid;
+            border-color: #808080 #fff #fff #808080;
+            padding: 3px 4px;
+            margin-top: 5px;
+            font-size: 7px;
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 8px;
             justify-content: center;
+            font-family: 'Press Start 2P', monospace;
         }
         
         .direction-item {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
         }
         
-        .status-bar {
-            background: #c0c0c0;
-            border-top: 1px solid #fff;
-            padding: 2px 4px;
-            font-size: 9px;
-            margin-top: 2px;
-            display: flex;
-            gap: 8px;
-            justify-content: space-between;
-        }
-        
-        .mobile-hint {
-            display: none;
-            font-size: 9px;
-        }
-        
-        @media (max-width: 768px), (pointer: coarse) {
-            .mobile-hint {
-                display: block;
-            }
-            .desktop-hint {
-                display: none;
-            }
-        }
-        
-        /* Windows 95 Modal Dialog */
+        /* Modal Dialog */
         .game-overlay {
             position: fixed;
             top: 0;
@@ -262,13 +306,14 @@
             min-width: 220px;
             text-align: center;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            font-family: 'Press Start 2P', monospace;
         }
         
         .game-message .title-bar {
             background: #000080;
             color: white;
             padding: 6px 8px;
-            font-size: 12px;
+            font-size: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -286,7 +331,7 @@
             text-align: center;
             line-height: 16px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: normal;
         }
         
@@ -299,7 +344,7 @@
         .game-message .message-content {
             padding: 20px 30px;
             text-align: center;
-            font-size: 14px;
+            font-size: 11px;
             font-weight: bold;
         }
         
@@ -311,9 +356,8 @@
             border-bottom-color: #000;
             padding: 5px 15px;
             cursor: pointer;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: bold;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
         }
         
         .game-message .message-content button:active {
@@ -324,38 +368,42 @@
     </style>
 </head>
 <body>
-<div class="game-container">
-    <!-- Mobile Controls -->
-    <div class="mobile-controls">
-        <button class="mode-btn" id="revealModeBtn">🔍 Reveal</button>
-        <button class="mode-btn" id="flagModeBtn">🚩 Flag</button>
+<div class="window-frame">
+    <div class="title-bar-custom" id="titleBar">
+        <span>💣 MINESWEEPER</span>
+        <div><span class="close-btn-custom" id="closeBtnPopup">✗</span></div>
     </div>
-    
-    <div class="difficulty-bar">
-        <button class="difficulty-btn" data-difficulty="easy">☺ Easy</button>
-        <button class="difficulty-btn" data-difficulty="medium">😐 Medium</button>
-        <button class="difficulty-btn" data-difficulty="hard">😮 Hard</button>
-        <button class="difficulty-btn" data-difficulty="extreme">💀 Extreme</button>
-    </div>
-    
-    <div class="game-header">
-        <div class="mine-counter" id="mineCounter">000</div>
-        <div class="smiley" id="smiley">🙂</div>
-        <div class="timer" id="timer">000</div>
-    </div>
-    
-    <div id="board" class="board"></div>
-    
-    <!-- Directions Panel -->
-    <div class="directions-panel">
-        <div class="direction-item"><span>💣</span><span>Reveal: Left-click / Tap</span></div>
-        <div class="direction-item"><span>🚩</span><span>Flag: Right-click / Tap (Flag mode)</span></div>
-        <div class="direction-item"><span>🔄</span><span>Reset: Click Smiley 😊</span></div>
-    </div>
-    
-    <div class="status-bar">
-        <span class="desktop-hint">💣 Left-click: Reveal | 🚩 Right-click: Flag</span>
-        <span class="mobile-hint" id="mobileHint">🔍 Reveal Mode (tap to reveal)</span>
+    <div class="game-content">
+        <div class="game">
+            <!-- Mobile Controls -->
+            <div class="mobile-controls">
+                <button class="mode-btn" id="revealModeBtn">🔍 REVEAL</button>
+                <button class="mode-btn" id="flagModeBtn">🚩 FLAG</button>
+            </div>
+            
+            <div class="difficulty-bar">
+                <button class="difficulty-btn" data-difficulty="easy">EASY</button>
+                <button class="difficulty-btn" data-difficulty="medium">MED</button>
+                <button class="difficulty-btn" data-difficulty="hard">HARD</button>
+                <button class="difficulty-btn" data-difficulty="extreme">EXT</button>
+            </div>
+            
+            <div class="nav">
+                <div id="mines-left">000</div>
+                <button id="smiley"></button>
+                <div id="timer">000</div>
+            </div>
+            
+            <div id="grid"></div>
+            
+            <!-- Directions Panel -->
+            <div class="directions-panel">
+                <div class="direction-item"><span>💣</span><span>REVEAL</span></div>
+                <div class="direction-item"><span>🚩</span><span>FLAG</span></div>
+                <div class="direction-item"><span>🔄</span><span>SMILEY</span></div>
+                <div class="direction-item"><span>📱</span><span>REVEAL/FLAG MODES</span></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -380,16 +428,18 @@
     let mobileMode = 'reveal';
     let currentOverlay = null;
     
-    function resizeParentWindow() {
+    function resizeWindow() {
         const config = DIFFICULTIES[currentDifficulty];
-        const boardWidth = config.width * 28 + 6;
-        const boardHeight = config.height * 28 + 6;
-        const totalWidth = boardWidth + 8;
-        const totalHeight = boardHeight + 90;
+        const boardWidth = config.width * 26;
+        const boardHeight = config.height * 26;
+        const contentWidth = boardWidth + 18;
+        const contentHeight = boardHeight + 130;
         
-        if (window.parent && window.parent.resizeGameWindow) {
-            window.parent.resizeGameWindow(totalWidth, totalHeight);
-        }
+        window.resizeTo(contentWidth, contentHeight);
+        window.moveTo(
+            (screen.width - contentWidth) / 2,
+            (screen.height - contentHeight) / 2
+        );
     }
     
     function closeOverlay() {
@@ -406,12 +456,12 @@
         overlay.innerHTML = `
             <div class="game-message">
                 <div class="title-bar">
-                    <span>💀 Game Over</span>
+                    <span>💀 GAME OVER</span>
                     <div><span class="close-btn" id="closeMessageBtn">✗</span></div>
                 </div>
                 <div class="message-content">
                     ${msg}<br>
-                    <button id="newGameBtn">🔄 New Game</button>
+                    <button id="newGameBtn">🔄 NEW GAME</button>
                 </div>
             </div>
         `;
@@ -432,12 +482,12 @@
         overlay.innerHTML = `
             <div class="game-message">
                 <div class="title-bar">
-                    <span>🎉 Victory!</span>
+                    <span>🎉 VICTORY!</span>
                     <div><span class="close-btn" id="closeMessageBtn">✗</span></div>
                 </div>
                 <div class="message-content">
                     ${msg}<br>
-                    <button id="newGameBtn">🔄 New Game</button>
+                    <button id="newGameBtn">🔄 NEW GAME</button>
                 </div>
             </div>
         `;
@@ -466,7 +516,7 @@
         currentHeight = config.height;
         
         updateMineCounter();
-        document.getElementById('smiley').textContent = '🙂';
+        document.getElementById('smiley').className = '';
         
         board = Array(currentHeight).fill().map(() => Array(currentWidth).fill().map(() => ({
             revealed: false,
@@ -476,7 +526,7 @@
         })));
         
         render();
-        resizeParentWindow();
+        resizeWindow();
     }
     
     function placeMines(firstX, firstY) {
@@ -532,7 +582,7 @@
         if (board[y][x].mine) {
             gameActive = false;
             if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('smiley').textContent = '💀';
+            document.getElementById('smiley').className = 'lost';
             revealAllMines();
             render();
             showGameOverMessage('💥 GAME OVER! 💥');
@@ -592,7 +642,7 @@
         if (correctlyRevealed === totalSafeCells) {
             gameActive = false;
             if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('smiley').textContent = '😎';
+            document.getElementById('smiley').className = 'won';
             showWinMessage('🎉 YOU WIN! 🎉');
         }
     }
@@ -609,7 +659,7 @@
     
     function updateMineCounter() {
         const remaining = currentMines - flagsPlaced;
-        document.getElementById('mineCounter').textContent = String(remaining).padStart(3, '0');
+        document.getElementById('mines-left').textContent = String(remaining).padStart(3, '0');
     }
     
     function updateTimer() {
@@ -625,39 +675,38 @@
     }
     
     function render() {
-        const container = document.getElementById('board');
-        container.style.gridTemplateColumns = `repeat(${currentWidth}, 28px)`;
+        const container = document.getElementById('grid');
+        container.style.gridTemplateColumns = `repeat(${currentWidth}, 26px)`;
         container.innerHTML = '';
         
         for (let y = 0; y < currentHeight; y++) {
             for (let x = 0; x < currentWidth; x++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
+                const button = document.createElement('button');
                 
                 if (board[y][x].revealed) {
-                    cell.classList.add('revealed');
+                    button.disabled = true;
                     if (board[y][x].mine) {
-                        cell.textContent = '💣';
+                        button.className = 'mine';
                     } else if (board[y][x].neighbor > 0) {
-                        cell.textContent = board[y][x].neighbor;
-                        cell.classList.add(`value-${board[y][x].neighbor}`);
+                        button.className = `value-${board[y][x].neighbor}`;
+                        button.textContent = board[y][x].neighbor;
                     }
                 } else if (board[y][x].flagged) {
-                    cell.classList.add('flagged');
+                    button.className = 'flagged';
                 }
                 
-                cell.onclick = (e) => {
+                button.onclick = (e) => {
                     e.preventDefault();
                     handleCellInteraction(x, y);
                 };
                 
-                cell.oncontextmenu = (e) => {
+                button.oncontextmenu = (e) => {
                     e.preventDefault();
                     toggleFlag(x, y);
                     return false;
                 };
                 
-                container.appendChild(cell);
+                container.appendChild(button);
             }
         }
     }
@@ -681,17 +730,40 @@
         mobileMode = mode;
         const revealBtn = document.getElementById('revealModeBtn');
         const flagBtn = document.getElementById('flagModeBtn');
-        const mobileHint = document.getElementById('mobileHint');
         
         if (mode === 'reveal') {
             revealBtn.classList.add('active');
             flagBtn.classList.remove('active');
-            mobileHint.textContent = '🔍 Reveal Mode (tap to reveal)';
         } else {
             revealBtn.classList.remove('active');
             flagBtn.classList.add('active');
-            mobileHint.textContent = '🚩 Flag Mode (tap to place/remove flag)';
         }
+    }
+    
+    // Make title bar draggable
+    function makeDraggable() {
+        const titleBar = document.getElementById('titleBar');
+        let isDragging = false;
+        let offsetX, offsetY;
+        
+        titleBar.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('close-btn-custom')) return;
+            isDragging = true;
+            offsetX = e.clientX - window.screenX;
+            offsetY = e.clientY - window.screenY;
+            titleBar.style.cursor = 'grabbing';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                window.moveTo(e.clientX - offsetX, e.clientY - offsetY);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            titleBar.style.cursor = '';
+        });
     }
     
     document.querySelectorAll('.difficulty-btn').forEach(btn => {
@@ -714,8 +786,13 @@
         initGame();
     };
     
+    document.getElementById('closeBtnPopup').onclick = () => {
+        window.close();
+    };
+    
     document.querySelector('.difficulty-btn[data-difficulty="easy"]').classList.add('active');
     
+    makeDraggable();
     initGame();
 </script>
 </body>
