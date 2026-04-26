@@ -19,7 +19,6 @@
             height: 100%;
             padding: 0;
             margin: 0;
-            margin-top: 5px;
             text-align: center;
             background: #333;
             font-family: 'Press Start 2P', monospace;
@@ -31,7 +30,7 @@
         .game {
             display: inline-block;
             background: #c0c0c3;
-            padding: 4px;
+            padding: 2px;
             border: 2px solid;
             border-color: #fff #808080 #808080 #fff;
         }
@@ -39,23 +38,23 @@
         /* Mobile Controls Bar */
         .mobile-controls {
             display: none;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             justify-content: center;
-            gap: 6px;
+            gap: 4px;
         }
         
         .mode-btn {
             background: #c0c0c3;
             border: 2px solid;
             border-color: #fff #808080 #808080 #fff;
-            padding: 4px 8px;
+            padding: 2px 6px;
             cursor: pointer;
             font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
+            font-size: 6px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
         }
         
         .mode-btn.active {
@@ -76,11 +75,11 @@
         
         .difficulty-bar {
             display: flex;
-            gap: 4px;
-            margin-bottom: 5px;
+            gap: 2px;
+            margin-bottom: 2px;
             justify-content: center;
             background: #c0c0c3;
-            padding: 2px;
+            padding: 1px;
             border: 2px solid;
             border-color: #808080 #fff #fff #808080;
         }
@@ -89,10 +88,10 @@
             background: #c0c0c3;
             border: 2px solid;
             border-color: #fff #808080 #808080 #fff;
-            padding: 3px 6px;
+            padding: 2px 4px;
             cursor: pointer;
             font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
+            font-size: 6px;
             font-weight: bold;
         }
         
@@ -108,7 +107,7 @@
         
         .nav {
             display: flex;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             padding: 2px;
             justify-content: space-between;
             border: 2px solid;
@@ -121,22 +120,22 @@
             align-items: center;
             color: #ea3323;
             background: #000;
-            padding: 3px;
-            font-size: 14px;
+            padding: 2px 4px;
+            font-size: 10px;
             font-family: monospace;
         }
         
         #smiley {
             display: block;
             padding: 0;
-            width: 34px;
-            height: 34px;
-            font-size: 20px;
+            width: 28px;
+            height: 28px;
+            font-size: 16px;
             background: inherit;
             border: 2px solid;
             border-color: #fff #808080 #808080 #fff;
             cursor: pointer;
-            line-height: 30px;
+            line-height: 24px;
         }
         
         #smiley:active {
@@ -165,10 +164,10 @@
         #grid button {
             display: block;
             padding: 0;
-            width: 26px;
-            height: 26px;
+            width: 22px;
+            height: 22px;
             font-family: 'Press Start 2P', monospace;
-            font-size: 11px;
+            font-size: 9px;
             background: inherit;
             border: 2px solid;
             border-color: #fff #808080 #808080 #fff;
@@ -193,11 +192,12 @@
         
         #grid button.flagged::after {
             content: '🚩';
+            font-size: 9px;
         }
         
         #grid button.mine::after {
             content: '💣';
-            font-size: 10px;
+            font-size: 9px;
         }
         
         #grid button.value-1 { color: #0100f3; }
@@ -210,26 +210,6 @@
         #grid button.value-8 { color: #808080; }
         
         .directions-panel {
-            background: #c0c0c3;
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-            padding: 3px 4px;
-            margin-top: 5px;
-            font-size: 7px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            font-family: 'Press Start 2P', monospace;
-        }
-        
-        .direction-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .status-bar {
             display: none;
         }
         
@@ -252,7 +232,7 @@
             border: 3px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            min-width: 220px;
+            min-width: 180px;
             text-align: center;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
             font-family: 'Press Start 2P', monospace;
@@ -261,8 +241,8 @@
         .game-message .title-bar {
             background: #000080;
             color: white;
-            padding: 6px 8px;
-            font-size: 10px;
+            padding: 4px 6px;
+            font-size: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -275,12 +255,12 @@
             border: 1px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            width: 20px;
-            height: 18px;
+            width: 16px;
+            height: 14px;
             text-align: center;
-            line-height: 16px;
+            line-height: 12px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: normal;
         }
         
@@ -291,22 +271,22 @@
         }
         
         .game-message .message-content {
-            padding: 20px 30px;
+            padding: 12px 20px;
             text-align: center;
-            font-size: 11px;
+            font-size: 8px;
             font-weight: bold;
         }
         
         .game-message .message-content button {
-            margin-top: 15px;
+            margin-top: 10px;
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 5px 15px;
+            padding: 3px 10px;
             cursor: pointer;
             font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
+            font-size: 7px;
         }
         
         .game-message .message-content button:active {
@@ -320,15 +300,15 @@
 <div class="game">
     <!-- Mobile Controls -->
     <div class="mobile-controls">
-        <button class="mode-btn" id="revealModeBtn">🔍 REVEAL</button>
-        <button class="mode-btn" id="flagModeBtn">🚩 FLAG</button>
+        <button class="mode-btn" id="revealModeBtn">🔍R</button>
+        <button class="mode-btn" id="flagModeBtn">🚩F</button>
     </div>
     
     <div class="difficulty-bar">
-        <button class="difficulty-btn" data-difficulty="easy">EASY</button>
-        <button class="difficulty-btn" data-difficulty="medium">MED</button>
-        <button class="difficulty-btn" data-difficulty="hard">HARD</button>
-        <button class="difficulty-btn" data-difficulty="extreme">EXT</button>
+        <button class="difficulty-btn" data-difficulty="easy">EZ</button>
+        <button class="difficulty-btn" data-difficulty="medium">MD</button>
+        <button class="difficulty-btn" data-difficulty="hard">HR</button>
+        <button class="difficulty-btn" data-difficulty="extreme">XT</button>
     </div>
     
     <div class="nav">
@@ -338,14 +318,6 @@
     </div>
     
     <div id="grid"></div>
-    
-    <!-- Directions Panel -->
-    <div class="directions-panel">
-        <div class="direction-item"><span>💣</span><span>REVEAL</span></div>
-        <div class="direction-item"><span>🚩</span><span>FLAG</span></div>
-        <div class="direction-item"><span>🔄</span><span>SMILEY</span></div>
-        <div class="direction-item"><span>📱</span><span>REVEAL/FLAG MODES</span></div>
-    </div>
 </div>
 
 <script>
@@ -371,10 +343,11 @@
     
     function resizeParentWindow() {
         const config = DIFFICULTIES[currentDifficulty];
-        const boardWidth = config.width * 26 + 12;
-        const boardHeight = config.height * 26 + 12;
-        const totalWidth = boardWidth + 16;
-        const totalHeight = boardHeight + 110;
+        // Minimal calculation - just the grid + minimal UI
+        const boardWidth = config.width * 22 + 8;
+        const boardHeight = config.height * 22 + 8;
+        const totalWidth = boardWidth + 8;
+        const totalHeight = boardHeight + 52;
         
         if (window.parent && window.parent.resizeGameWindow) {
             window.parent.resizeGameWindow(totalWidth, totalHeight);
@@ -400,7 +373,7 @@
                 </div>
                 <div class="message-content">
                     ${msg}<br>
-                    <button id="newGameBtn">🔄 NEW GAME</button>
+                    <button id="newGameBtn">🔄 NEW</button>
                 </div>
             </div>
         `;
@@ -426,7 +399,7 @@
                 </div>
                 <div class="message-content">
                     ${msg}<br>
-                    <button id="newGameBtn">🔄 NEW GAME</button>
+                    <button id="newGameBtn">🔄 NEW</button>
                 </div>
             </div>
         `;
@@ -615,7 +588,7 @@
     
     function render() {
         const container = document.getElementById('grid');
-        container.style.gridTemplateColumns = `repeat(${currentWidth}, 26px)`;
+        container.style.gridTemplateColumns = `repeat(${currentWidth}, 22px)`;
         container.innerHTML = '';
         
         for (let y = 0; y < currentHeight; y++) {
