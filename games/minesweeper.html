@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💣 Minesweeper</title>
+    <title>💣 Minesweeper - NostalgiaOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
             user-select: none;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
@@ -15,14 +18,56 @@
             height: 100%;
             padding: 0;
             margin: 0;
-            margin-top: 5px;
-            text-align: center;
-            background: #333;
+            background: #c0c0c0;
             font-family: 'Press Start 2P', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+        }
+        
+        /* Desktop Window Style */
+        .desktop-window {
+            position: fixed;
+            background: #c0c0c0;
+            border: 3px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+        }
+        
+        .title-bar {
+            background: #000080;
+            color: white;
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            cursor: move;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            font-size: 12px;
+        }
+        
+        .title-bar:active {
+            cursor: grabbing;
+        }
+        
+        .close-btn {
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        
+        .close-btn:hover {
+            background: #ff0000;
+        }
+        
+        .window-content {
+            flex: 1;
+            padding: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
         .game {
@@ -182,19 +227,27 @@
     </style>
 </head>
 <body>
-    <div class="game">
-        <div class="difficulty-bar">
-            <button class="difficulty-btn" data-difficulty="easy">EASY</button>
-            <button class="difficulty-btn" data-difficulty="medium">MEDIUM</button>
-            <button class="difficulty-btn" data-difficulty="hard">HARD</button>
-            <button class="difficulty-btn" data-difficulty="extreme">EXTREME</button>
+    <div class="desktop-window" id="gameWindow">
+        <div class="title-bar">
+            <span>💣 Minesweeper</span>
+            <div><span class="close-btn" id="closeBtn">✗</span></div>
         </div>
-        <div class="nav">
-            <div id="mines-left">000</div>
-            <button id="smiley"></button>
-            <div id="timer">000</div>
+        <div class="window-content">
+            <div class="game">
+                <div class="difficulty-bar">
+                    <button class="difficulty-btn" data-difficulty="easy">EASY</button>
+                    <button class="difficulty-btn" data-difficulty="medium">MEDIUM</button>
+                    <button class="difficulty-btn" data-difficulty="hard">HARD</button>
+                    <button class="difficulty-btn" data-difficulty="extreme">EXTREME</button>
+                </div>
+                <div class="nav">
+                    <div id="mines-left">000</div>
+                    <button id="smiley"></button>
+                    <div id="timer">000</div>
+                </div>
+                <div id="grid"></div>
+            </div>
         </div>
-        <div id="grid"></div>
     </div>
 
     <script>
@@ -209,6 +262,30 @@
         let currentDifficulty = 'easy';
         let gameState = null;
         let gameView = null;
+        
+        function resizeWindow() {
+            const config = DIFFICULTIES[currentDifficulty];
+            const windowElem = document.getElementById('gameWindow');
+            const gridElem = document.getElementById('grid');
+            
+            // Calculate window size based on grid dimensions
+            const buttonWidth = 26;
+            const buttonHeight = 26;
+            const gridWidth = config.width * buttonWidth;
+            const gridHeight = config.height * buttonHeight;
+            
+            // Add padding for borders, nav bar, difficulty bar, margins
+            const padding = 40;
+            const navHeight = 50;
+            const difficultyHeight = 50;
+            
+            windowElem.style.width = (gridWidth + padding) + 'px';
+            windowElem.style.height = (gridHeight + navHeight + difficultyHeight + padding) + 'px';
+            
+            // Center the window on screen
+            windowElem.style.left = (window.innerWidth / 2 - parseInt(windowElem.style.width) / 2) + 'px';
+            windowElem.style.top = (window.innerHeight / 2 - parseInt(windowElem.style.height) / 2) + 'px';
+        }
         
         function initGameState({ width, height, minesCount }) {
             const state = {
@@ -320,6 +397,7 @@
             if (view.grid.children.length !== state.fields.length * state.fields[0].length) {
                 view.grid.innerHTML = '';
                 createFieldButtons(view, state);
+                resizeWindow();
             }
             
             initView(view, state);
@@ -501,10 +579,46 @@
             if (gameView.grid.children.length !== gameState.fields.length * gameState.fields[0].length) {
                 gameView.grid.innerHTML = '';
                 createFieldButtons(gameView, gameState);
+                resizeWindow();
             }
             
             initView(gameView, gameState);
         }
+        
+        // Make window draggable
+        function makeDraggable() {
+            const windowElem = document.getElementById('gameWindow');
+            const titleBar = document.querySelector('.title-bar');
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            titleBar.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('close-btn')) return;
+                isDragging = true;
+                offsetX = e.clientX - windowElem.offsetLeft;
+                offsetY = e.clientY - windowElem.offsetTop;
+                titleBar.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    windowElem.style.left = (e.clientX - offsetX) + 'px';
+                    windowElem.style.top = (e.clientY - offsetY) + 'px';
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                titleBar.style.cursor = '';
+            });
+        }
+        
+        // Close window
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            window.close();
+            // Fallback if window.close doesn't work
+            document.body.innerHTML = '<div style="text-align:center; padding:50px; font-family: monospace;">Window closed. You can close this tab now.</div>';
+        });
         
         function main() {
             const config = DIFFICULTIES[currentDifficulty];
@@ -524,6 +638,8 @@
             createFieldButtons(gameView, gameState);
             initView(gameView, gameState);
             handleGameEvents(gameView, gameState);
+            resizeWindow();
+            makeDraggable();
             
             // Setup difficulty buttons
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
