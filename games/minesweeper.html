@@ -10,33 +10,79 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
             background: #c0c0c0;
             font-family: "MS Sans Serif", Tahoma, sans-serif;
             margin: 0;
-            padding: 8px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            width: 100%;
+            height: 100%;
         }
         
-        /* Game Container - No extra window frame */
         .game-container {
             background: #c0c0c0;
             display: inline-block;
+            padding: 0;
+            margin: 0;
         }
         
-        /* Difficulty Bar */
+        /* Mobile Controls Bar */
+        .mobile-controls {
+            display: none;
+            margin-bottom: 2px;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .mode-btn {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 3px 8px;
+            cursor: pointer;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .mode-btn.active {
+            background: #000080;
+            color: white;
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        
+        .mode-btn:active {
+            border: 2px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        
+        @media (max-width: 768px), (pointer: coarse) {
+            .mobile-controls {
+                display: flex;
+            }
+        }
+        
         .difficulty-bar {
             display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
+            gap: 4px;
+            margin-bottom: 2px;
             justify-content: center;
             background: #c0c0c0;
-            padding: 4px;
+            padding: 2px;
             border: 1px solid #808080;
         }
         
@@ -45,10 +91,10 @@
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 4px 10px;
+            padding: 2px 6px;
             cursor: pointer;
             font-family: "MS Sans Serif", Tahoma, sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
         }
         
@@ -66,11 +112,10 @@
             border-bottom-color: #fff;
         }
         
-        /* Game Header */
         .game-header {
             background: #c0c0c0;
-            padding: 6px;
-            margin-bottom: 6px;
+            padding: 2px;
+            margin-bottom: 2px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -81,19 +126,19 @@
             background: #000;
             color: #f00;
             font-family: 'Courier New', monospace;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
-            padding: 2px 6px;
+            padding: 2px 4px;
             letter-spacing: 2px;
-            min-width: 70px;
+            min-width: 55px;
             text-align: center;
         }
         
         .smiley {
             background: #c0c0c0;
-            font-size: 28px;
+            font-size: 22px;
             cursor: pointer;
-            padding: 0 10px;
+            padding: 0 6px;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
@@ -106,7 +151,6 @@
             border-bottom-color: #fff;
         }
         
-        /* Game Board */
         .board {
             display: grid;
             gap: 1px;
@@ -116,23 +160,24 @@
         }
         
         .cell {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
             text-align: center;
-            line-height: 26px;
+            line-height: 24px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .cell.revealed {
             background: #fff;
             border: 1px solid #808080;
-            line-height: 28px;
+            line-height: 26px;
         }
         
         .cell.flagged {
@@ -141,10 +186,9 @@
         
         .cell.flagged::before {
             content: "🚩";
-            font-size: 16px;
+            font-size: 14px;
         }
         
-        /* Number colors */
         .cell.value-1 { color: #0100f3; }
         .cell.value-2 { color: #367c21; }
         .cell.value-3 { color: #e93323; }
@@ -154,18 +198,49 @@
         .cell.value-7 { color: #000000; }
         .cell.value-8 { color: #808080; }
         
-        /* Status Bar */
+        .directions-panel {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+            padding: 3px 4px;
+            margin-top: 2px;
+            font-size: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        
+        .direction-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
         .status-bar {
             background: #c0c0c0;
             border-top: 1px solid #fff;
-            padding: 3px 6px;
-            font-size: 10px;
-            margin-top: 6px;
+            padding: 2px 4px;
+            font-size: 9px;
+            margin-top: 2px;
             display: flex;
-            gap: 15px;
+            gap: 8px;
+            justify-content: space-between;
         }
         
-        /* Game Overlay */
+        .mobile-hint {
+            display: none;
+            font-size: 9px;
+        }
+        
+        @media (max-width: 768px), (pointer: coarse) {
+            .mobile-hint {
+                display: block;
+            }
+            .desktop-hint {
+                display: none;
+            }
+        }
+        
         .game-overlay {
             position: fixed;
             top: 0;
@@ -184,22 +259,59 @@
             border: 3px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 20px 30px;
+            min-width: 200px;
             text-align: center;
-            font-size: 16px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .game-message .title-bar {
+            background: #000080;
+            color: white;
+            padding: 5px 8px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            margin: 0;
+            cursor: move;
+        }
+        
+        .game-message .close-btn {
+            background: #c0c0c0;
+            border: 1px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            width: 18px;
+            height: 16px;
+            text-align: center;
+            line-height: 14px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .game-message .close-btn:active {
+            border: 1px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        
+        .game-message .message-content {
+            padding: 15px 25px;
+            text-align: center;
+            font-size: 13px;
             font-weight: bold;
         }
         
         .game-message button {
-            margin-top: 15px;
+            margin-top: 12px;
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 5px 15px;
+            padding: 4px 12px;
             cursor: pointer;
             font-family: inherit;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: bold;
         }
         
         .game-message button:active {
@@ -211,6 +323,12 @@
 </head>
 <body>
 <div class="game-container">
+    <!-- Mobile Controls -->
+    <div class="mobile-controls">
+        <button class="mode-btn" id="revealModeBtn">🔍 Reveal</button>
+        <button class="mode-btn" id="flagModeBtn">🚩 Flag</button>
+    </div>
+    
     <div class="difficulty-bar">
         <button class="difficulty-btn" data-difficulty="easy">☺ Easy</button>
         <button class="difficulty-btn" data-difficulty="medium">😐 Medium</button>
@@ -226,19 +344,25 @@
     
     <div id="board" class="board"></div>
     
+    <!-- Directions Panel -->
+    <div class="directions-panel">
+        <div class="direction-item"><span>💣</span><span>Reveal: Left-click / Tap</span></div>
+        <div class="direction-item"><span>🚩</span><span>Flag: Right-click / Tap (Flag mode)</span></div>
+        <div class="direction-item"><span>🔄</span><span>Reset: Click Smiley 😊</span></div>
+    </div>
+    
     <div class="status-bar">
-        <span>💣 Left-click: Reveal</span>
-        <span>🚩 Right-click: Flag</span>
+        <span class="desktop-hint">💣 Left-click: Reveal | 🚩 Right-click: Flag</span>
+        <span class="mobile-hint" id="mobileHint">🔍 Reveal Mode (tap to reveal)</span>
     </div>
 </div>
 
 <script>
-    // Difficulty configurations
     const DIFFICULTIES = {
-        easy: { width: 9, height: 9, mines: 10, name: 'Easy', cellSize: 30 },
-        medium: { width: 16, height: 16, mines: 40, name: 'Medium', cellSize: 30 },
-        hard: { width: 16, height: 30, mines: 99, name: 'Hard', cellSize: 30 },
-        extreme: { width: 20, height: 30, mines: 160, name: 'Extreme', cellSize: 30 }
+        easy: { width: 9, height: 9, mines: 10 },
+        medium: { width: 16, height: 16, mines: 40 },
+        hard: { width: 16, height: 30, mines: 99 },
+        extreme: { width: 20, height: 30, mines: 160 }
     };
     
     let currentDifficulty = 'easy';
@@ -251,25 +375,82 @@
     let currentMines = 10;
     let currentWidth = 9;
     let currentHeight = 9;
+    let mobileMode = 'reveal';
+    let currentOverlay = null;
     
-    // Resize the parent window to fit the game exactly
     function resizeParentWindow() {
         const config = DIFFICULTIES[currentDifficulty];
-        const boardWidth = config.width * 30 + 8; // 30px per cell + padding
-        const boardHeight = config.height * 30 + 8;
-        const headerHeight = 55;
-        const difficultyHeight = 45;
-        const statusHeight = 30;
-        const totalHeight = boardHeight + headerHeight + difficultyHeight + statusHeight + 20;
-        const totalWidth = boardWidth + 20;
+        const boardWidth = config.width * 28 + 6;
+        const boardHeight = config.height * 28 + 6;
+        const totalWidth = boardWidth + 8;
+        const totalHeight = boardHeight + 90;
         
-        // Tell the parent window (Games Archive) to resize
         if (window.parent && window.parent.resizeGameWindow) {
             window.parent.resizeGameWindow(totalWidth, totalHeight);
         }
     }
     
+    function closeOverlay() {
+        if (currentOverlay) {
+            currentOverlay.remove();
+            currentOverlay = null;
+        }
+    }
+    
+    function showGameOverMessage(msg) {
+        closeOverlay();
+        const overlay = document.createElement('div');
+        overlay.className = 'game-overlay';
+        overlay.innerHTML = `
+            <div class="game-message">
+                <div class="title-bar">
+                    <span>💀 Game Over</span>
+                    <div><span class="close-btn" id="closeMessageBtn">✗</span></div>
+                </div>
+                <div class="message-content">
+                    ${msg}<br>
+                    <button id="newGameBtn">🔄 New Game</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        currentOverlay = overlay;
+        
+        document.getElementById('closeMessageBtn').onclick = () => closeOverlay();
+        document.getElementById('newGameBtn').onclick = () => {
+            closeOverlay();
+            initGame();
+        };
+    }
+    
+    function showWinMessage(msg) {
+        closeOverlay();
+        const overlay = document.createElement('div');
+        overlay.className = 'game-overlay';
+        overlay.innerHTML = `
+            <div class="game-message">
+                <div class="title-bar">
+                    <span>🎉 Victory!</span>
+                    <div><span class="close-btn" id="closeMessageBtn">✗</span></div>
+                </div>
+                <div class="message-content">
+                    ${msg}<br>
+                    <button id="newGameBtn">🔄 New Game</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        currentOverlay = overlay;
+        
+        document.getElementById('closeMessageBtn').onclick = () => closeOverlay();
+        document.getElementById('newGameBtn').onclick = () => {
+            closeOverlay();
+            initGame();
+        };
+    }
+    
     function initGame() {
+        closeOverlay();
         if (timerInterval) clearInterval(timerInterval);
         timer = 0;
         updateTimer();
@@ -285,7 +466,6 @@
         updateMineCounter();
         document.getElementById('smiley').textContent = '🙂';
         
-        // Initialize board
         board = Array(currentHeight).fill().map(() => Array(currentWidth).fill().map(() => ({
             revealed: false,
             mine: false,
@@ -415,35 +595,6 @@
         }
     }
     
-    function removeOverlay() {
-        const overlay = document.querySelector('.game-overlay');
-        if (overlay) overlay.remove();
-    }
-    
-    function showGameOverMessage(msg) {
-        const overlay = document.createElement('div');
-        overlay.className = 'game-overlay';
-        overlay.innerHTML = `
-            <div class="game-message">
-                ${msg}<br>
-                <button onclick="location.reload()">New Game</button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-    }
-    
-    function showWinMessage(msg) {
-        const overlay = document.createElement('div');
-        overlay.className = 'game-overlay';
-        overlay.innerHTML = `
-            <div class="game-message">
-                ${msg}<br>
-                <button onclick="location.reload()">New Game</button>
-            </div>
-        `;
-        document.body.appendChild(overlay);
-    }
-    
     function startTimer() {
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
@@ -463,9 +614,17 @@
         document.getElementById('timer').textContent = String(timer).padStart(3, '0');
     }
     
+    function handleCellInteraction(x, y) {
+        if (mobileMode === 'reveal') {
+            reveal(x, y);
+        } else {
+            toggleFlag(x, y);
+        }
+    }
+    
     function render() {
         const container = document.getElementById('board');
-        container.style.gridTemplateColumns = `repeat(${currentWidth}, 30px)`;
+        container.style.gridTemplateColumns = `repeat(${currentWidth}, 28px)`;
         container.innerHTML = '';
         
         for (let y = 0; y < currentHeight; y++) {
@@ -485,21 +644,26 @@
                     cell.classList.add('flagged');
                 }
                 
-                cell.onclick = () => reveal(x, y);
+                cell.onclick = (e) => {
+                    e.preventDefault();
+                    handleCellInteraction(x, y);
+                };
+                
                 cell.oncontextmenu = (e) => {
                     e.preventDefault();
                     toggleFlag(x, y);
                     return false;
                 };
+                
                 container.appendChild(cell);
             }
         }
     }
     
     function changeDifficulty(difficulty) {
+        closeOverlay();
         currentDifficulty = difficulty;
         
-        // Update active button styling
         document.querySelectorAll('.difficulty-btn').forEach(btn => {
             if (btn.dataset.difficulty === difficulty) {
                 btn.classList.add('active');
@@ -511,22 +675,45 @@
         initGame();
     }
     
-    // Setup difficulty buttons
+    function setMobileMode(mode) {
+        mobileMode = mode;
+        const revealBtn = document.getElementById('revealModeBtn');
+        const flagBtn = document.getElementById('flagModeBtn');
+        const mobileHint = document.getElementById('mobileHint');
+        
+        if (mode === 'reveal') {
+            revealBtn.classList.add('active');
+            flagBtn.classList.remove('active');
+            mobileHint.textContent = '🔍 Reveal Mode (tap to reveal)';
+        } else {
+            revealBtn.classList.remove('active');
+            flagBtn.classList.add('active');
+            mobileHint.textContent = '🚩 Flag Mode (tap to place/remove flag)';
+        }
+    }
+    
     document.querySelectorAll('.difficulty-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             changeDifficulty(btn.dataset.difficulty);
         });
     });
     
-    // Smiley reset button
+    const revealModeBtn = document.getElementById('revealModeBtn');
+    const flagModeBtn = document.getElementById('flagModeBtn');
+    
+    if (revealModeBtn && flagModeBtn) {
+        revealModeBtn.addEventListener('click', () => setMobileMode('reveal'));
+        flagModeBtn.addEventListener('click', () => setMobileMode('flag'));
+        setMobileMode('reveal');
+    }
+    
     document.getElementById('smiley').onclick = () => {
+        closeOverlay();
         initGame();
     };
     
-    // Set active initial button
     document.querySelector('.difficulty-btn[data-difficulty="easy"]').classList.add('active');
     
-    // Start the game
     initGame();
 </script>
 </body>
