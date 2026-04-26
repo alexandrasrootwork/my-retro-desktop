@@ -2133,18 +2133,20 @@ function openGameInDesktopWindow(gameFile, gameName) {
     win.style.minWidth = '400px';
     win.style.minHeight = '300px';
     
-win.innerHTML = `
-    <div class="title-bar">
-        <span>${escapeHtml(gameName)}</span>
-        <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
-    </div>
-    <div class="window-content" style="padding:0; overflow:auto;">
-        <iframe src="${gameFile}" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
-`;
-
-// Add to taskbar
-const taskbarBtn = addTaskbarButton(windowId, `${gameName}`, win);
+    win.innerHTML = `
+        <div class="title-bar">
+            <span>🎮 ${escapeHtml(gameName)}</span>
+            <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
+        </div>
+        <div class="window-content" style="padding:0; overflow:auto;">
+            <iframe src="${gameFile}" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+    `;
+    
+    document.body.appendChild(win);
+    
+    // Add to taskbar
+    const taskbarBtn = addTaskbarButton(windowId, `🎮 ${gameName}`, win);
     
     // Store reference
     if (!openGameWindows) openGameWindows = {};
@@ -2411,4 +2413,4 @@ function applyTheme() {
 </script>
 
 </body>
-</html>  
+</html>    
