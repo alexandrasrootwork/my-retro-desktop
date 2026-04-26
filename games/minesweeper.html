@@ -3,656 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💣 Minesweeper - NostalgiaOS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>🎮 Games Archive - NostalgiaOS</title>
     <style>
         * {
-            user-select: none;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
         body {
-            width: 100%;
-            height: 100%;
-            padding: 0;
-            margin: 0;
             background: #c0c0c0;
-            font-family: 'Press Start 2P', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        /* Desktop Window Style */
-        .desktop-window {
-            position: fixed;
-            background: #c0c0c0;
-            border: 3px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
         }
         
         .title-bar {
             background: #000080;
             color: white;
-            padding: 6px 8px;
+            padding: 8px 12px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             cursor: move;
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
-            font-size: 12px;
+            flex-shrink: 0;
         }
         
-        .title-bar:active {
-            cursor: grabbing;
+        .window-controls {
+            display: flex;
+            gap: 6px;
         }
         
-        .close-btn {
+        .window-controls span {
             cursor: pointer;
             padding: 0 4px;
         }
         
-        .close-btn:hover {
+        .window-controls span:hover {
             background: #ff0000;
         }
         
-        .window-content {
-            flex: 1;
-            padding: 8px;
+        .toolbar {
+            background: #dcdcdc;
+            padding: 8px 12px;
+            border-bottom: 1px solid #808080;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
         
-        .game {
-            display: inline-block;
-            background: #c0c0c3;
-            padding: 4px;
-        }
-        
-        .difficulty-bar {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 10px;
-            justify-content: center;
-        }
-        
-        .difficulty-btn {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px;
-            padding: 6px 8px;
-            background: #c0c0c3;
-            border: 2px solid;
-            border-color: #fff #808080 #808080 #fff;
+        .toolbar button {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 5px 12px;
             cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
         }
         
-        .difficulty-btn:active {
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
+        .toolbar button:active {
+            border: 2px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
         }
         
-        .difficulty-btn.active {
+        .toolbar button.active {
             background: #000080;
             color: white;
-            border-color: #808080 #fff #fff #808080;
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
         }
         
-        .nav {
-            display: flex;
-            margin-bottom: 5px;
-            padding: 2px;
-            justify-content: space-between;
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-        }
-        
-        #mines-left,
-        #timer {
+        .search-box {
             display: flex;
             align-items: center;
-            color: #ea3323;
-            background: #000;
-            padding: 3px;
-            font-size: 18px;
-            font-family: monospace;
+            gap: 5px;
+            margin-left: auto;
         }
         
-        #smiley {
-            display: block;
-            padding: 0;
-            width: 34px;
-            height: 34px;
-            font-size: 23px;
-            background: inherit;
-            border: 2px solid;
-            border-color: #fff #808080 #808080 #fff;
-            cursor: pointer;
-        }
-        
-        #smiley:active {
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-        }
-        
-        #smiley::after {
-            content: '🙂';
-        }
-        
-        #smiley.lost::after {
-            content: '😵‍💫';
-        }
-        
-        #smiley.won::after {
-            content: '😎';
-        }
-        
-        #grid {
-            display: inline-grid;
-            user-select: none;
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-        }
-        
-        #grid button {
-            display: block;
-            padding: 0;
-            width: 26px;
-            height: 26px;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 12px;
-            background: inherit;
-            border: 2px solid;
-            border-color: #fff #808080 #808080 #fff;
-            cursor: pointer;
-        }
-        
-        #grid button:active {
-            border: 2px solid;
-            border-color: #808080 #fff #fff #808080;
-        }
-        
-        #grid button:disabled {
-            background: #c0c0c3;
+        .search-box input {
+            padding: 4px 8px;
             border: 1px solid #808080;
-            border-bottom: none;
-            border-right: none;
-            color: inherit;
-            cursor: default;
+            font-family: inherit;
         }
         
-        #grid button:disabled.exploded {
-            background: #ea3323;
+        .games-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
         }
         
-        #grid button.flagged::after {
-            content: '🚩';
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
         }
         
-        #grid button.mine::after {
-            content: '💣';
-            font-size: 12px;
+        .game-card {
+            background: #ffffff;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            text-align: center;
+            cursor: pointer;
+            padding: 15px 10px;
+            transition: all 0.05s ease;
         }
         
-        #grid button.value-1 {
-            color: #0100f3;
+        .game-card:hover {
+            background: #000080;
+            color: white;
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
         }
-        #grid button.value-2 {
-            color: #367c21;
+        
+        .game-card:active {
+            transform: translate(1px, 1px);
         }
-        #grid button.value-3 {
-            color: #e93323;
+        
+        .game-icon {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 10px;
         }
-        #grid button.value-4 {
-            color: #020079;
+        
+        .game-name {
+            font-size: 11px;
+            word-break: break-word;
         }
-        #grid button.value-5 {
-            color: #78150e;
+        
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+            font-size: 14px;
         }
-        #grid button.value-6 {
-            color: #387e7e;
+        
+        .status-bar {
+            background: #c0c0c0;
+            border-top: 1px solid #fff;
+            padding: 4px 8px;
+            font-size: 11px;
+            display: flex;
+            gap: 20px;
+            flex-shrink: 0;
         }
-        #grid button.value-7 {
-            color: #000000;
+        
+        ::-webkit-scrollbar {
+            width: 16px;
+            height: 16px;
         }
-        #grid button.value-8 {
-            color: #808080;
+        
+        ::-webkit-scrollbar-track {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
         }
     </style>
 </head>
 <body>
-    <div class="desktop-window" id="gameWindow">
-        <div class="title-bar">
-            <span>💣 Minesweeper</span>
-            <div><span class="close-btn" id="closeBtn">✗</span></div>
+    <div class="title-bar">
+        <span>🎮 Games Archive</span>
+        <div class="window-controls">
+            <span id="closeBtn" style="cursor:pointer;">✗</span>
         </div>
-        <div class="window-content">
-            <div class="game">
-                <div class="difficulty-bar">
-                    <button class="difficulty-btn" data-difficulty="easy">EASY</button>
-                    <button class="difficulty-btn" data-difficulty="medium">MEDIUM</button>
-                    <button class="difficulty-btn" data-difficulty="hard">HARD</button>
-                    <button class="difficulty-btn" data-difficulty="extreme">EXTREME</button>
-                </div>
-                <div class="nav">
-                    <div id="mines-left">000</div>
-                    <button id="smiley"></button>
-                    <div id="timer">000</div>
-                </div>
-                <div id="grid"></div>
-            </div>
+    </div>
+    
+    <div class="toolbar">
+        <button id="allGamesBtn" class="active">📋 All Games</button>
+        <button id="classicBtn">🃏 Classic</button>
+        <div class="search-box">
+            🔍 <input type="text" id="searchInput" placeholder="Search games...">
         </div>
+    </div>
+    
+    <div class="games-container">
+        <div class="games-grid" id="gamesGrid"></div>
+    </div>
+    
+    <div class="status-bar">
+        <span id="gameCount">0 games</span>
+        <span>🖱️ Click any game to play</span>
     </div>
 
     <script>
-        // Difficulty configurations
-        const DIFFICULTIES = {
-            easy: { width: 9, height: 9, mines: 10, name: 'Easy' },
-            medium: { width: 16, height: 16, mines: 40, name: 'Medium' },
-            hard: { width: 16, height: 30, mines: 99, name: 'Hard' },
-            extreme: { width: 20, height: 30, mines: 160, name: 'Extreme' }
+        const games = [
+            { name: "Minesweeper", icon: "💣", category: "classic", file: "games/minesweeper.html", description: "Classic Minesweeper puzzle" },
+            { name: "Snake", icon: "🐍", category: "classic", file: "games/snake.html", description: "Classic Snake game" },
+            { name: "Tetris", icon: "🧩", category: "classic", file: "games/tetris.html", description: "Classic block stacking puzzle" },
+            { name: "Solitaire", icon: "🃏", category: "classic", file: "games/solitaire.html", description: "Classic card game" },
+            { name: "Pac-Man", icon: "👻", category: "classic", file: "games/pacman.html", description: "Classic maze chase game" }
+        ];
+        
+        let currentCategory = "all";
+        let searchTerm = "";
+        
+        function openGameInDesktop(gameFile, gameName) {
+            // Check if we're in the NostalgiaOS desktop environment
+            if (window.opener && window.opener.openInDesktopWindow) {
+                // Use the parent window's function to create a desktop window
+                window.opener.openInDesktopWindow(gameFile, gameName);
+                // Close the games launcher (optional - comment out if you want to keep it open)
+                // window.close();
+            } else if (window.parent && window.parent.openInDesktopWindow) {
+                // Fallback for iframe context
+                window.parent.openInDesktopWindow(gameFile, gameName);
+            } else {
+                // Final fallback - open in new tab (shouldn't happen in NostalgiaOS)
+                window.open(gameFile, '_blank');
+            }
+        }
+        
+        function renderGames() {
+            const filtered = games.filter(game => {
+                const matchesCategory = currentCategory === "all" || game.category === currentCategory;
+                const matchesSearch = game.name.toLowerCase().includes(searchTerm) || 
+                                      game.description.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+            
+            const grid = document.getElementById('gamesGrid');
+            const gameCountSpan = document.getElementById('gameCount');
+            
+            gameCountSpan.textContent = `${filtered.length} games`;
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="no-results">🎮 No games found<br>Try a different category or search term</div>`;
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(game => `
+                <div class="game-card" data-file="${game.file}" data-name="${game.name}">
+                    <span class="game-icon">${game.icon}</span>
+                    <div class="game-name">${escapeHtml(game.name)}</div>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const file = card.dataset.file;
+                    const name = card.dataset.name;
+                    openGameInDesktop(file, name);
+                });
+            });
+        }
+        
+        function escapeHtml(str) {
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        document.getElementById('allGamesBtn').onclick = () => {
+            currentCategory = "all";
+            searchTerm = "";
+            document.getElementById('searchInput').value = "";
+            renderGames();
+            updateActiveButton('allGamesBtn');
         };
         
-        let currentDifficulty = 'easy';
-        let gameState = null;
-        let gameView = null;
+        document.getElementById('classicBtn').onclick = () => {
+            currentCategory = "classic";
+            searchTerm = "";
+            document.getElementById('searchInput').value = "";
+            renderGames();
+            updateActiveButton('classicBtn');
+        };
         
-        function resizeWindow() {
-            const config = DIFFICULTIES[currentDifficulty];
-            const windowElem = document.getElementById('gameWindow');
-            const gridElem = document.getElementById('grid');
-            
-            // Calculate window size based on grid dimensions
-            const buttonWidth = 26;
-            const buttonHeight = 26;
-            const gridWidth = config.width * buttonWidth;
-            const gridHeight = config.height * buttonHeight;
-            
-            // Add padding for borders, nav bar, difficulty bar, margins
-            const padding = 40;
-            const navHeight = 50;
-            const difficultyHeight = 50;
-            
-            windowElem.style.width = (gridWidth + padding) + 'px';
-            windowElem.style.height = (gridHeight + navHeight + difficultyHeight + padding) + 'px';
-            
-            // Center the window on screen
-            windowElem.style.left = (window.innerWidth / 2 - parseInt(windowElem.style.width) / 2) + 'px';
-            windowElem.style.top = (window.innerHeight / 2 - parseInt(windowElem.style.height) / 2) + 'px';
-        }
-        
-        function initGameState({ width, height, minesCount }) {
-            const state = {
-                minesCount,
-                minesLeft: minesCount,
-                isGameOver: false,
-                fieldsLeft: width * height,
-                fields: Array.from({ length: height }, () =>
-                    Array(width).fill(0)
-                ),
-                timerStart: undefined,
-                timerInterval: undefined,
-            };
-            
-            insertMines(state, minesCount);
-            return state;
-        }
-        
-        function insertMines(state, minesCount) {
-            const size = state.fieldsLeft;
-            const indices = new Set();
-            
-            while (indices.size < minesCount) {
-                const index = Math.floor(Math.random() * size);
-                indices.add(index);
-            }
-            
-            const width = state.fields[0].length;
-            for (const index of indices) {
-                const y = Math.floor(index / width);
-                const x = index % width;
-                state.fields[y][x] = -1;
-                updateMineNeighbours(state, x, y);
-            }
-            
-            state.fieldsLeft -= minesCount;
-        }
-        
-        function updateMineNeighbours(state, mineX, mineY) {
-            const { fields } = state;
-            const height = fields.length;
-            const width = fields[0].length;
-            
-            const startX = Math.max(0, mineX - 1);
-            const startY = Math.max(0, mineY - 1);
-            const endX = Math.min(width - 1, mineX + 1);
-            const endY = Math.min(height - 1, mineY + 1);
-            
-            for (let y = startY; y <= endY; y++) {
-                for (let x = startX; x <= endX; x++) {
-                    if (fields[y][x] !== -1) {
-                        fields[y][x]++;
-                    }
-                }
-            }
-        }
-        
-        function createFieldButtons(view, state) {
-            const fragment = new DocumentFragment();
-            const height = state.fields.length;
-            const width = state.fields[0].length;
-            
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const button = document.createElement('button');
-                    button.dataset.x = x;
-                    button.dataset.y = y;
-                    fragment.append(button);
-                }
-            }
-            
-            view.grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
-            view.grid.style.gridTemplateRows = `repeat(${height}, 1fr)`;
-            view.grid.append(fragment);
-        }
-        
-        function getButtonPosition(button) {
-            return {
-                x: Number(button.dataset.x),
-                y: Number(button.dataset.y),
-            };
-        }
-        
-        function initView(view, state) {
-            view.smiley.removeAttribute('class');
-            view.minesLeft.innerText = `${state.minesLeft}`.padStart(3, '0');
-            view.timer.innerText = '000';
-            
-            for (const button of view.grid.children) {
-                button.innerText = '';
-                button.disabled = false;
-                button.removeAttribute('class');
-            }
-        }
-        
-        function restartGame(view, state) {
-            clearInterval(state.timerInterval);
-            
-            const config = DIFFICULTIES[currentDifficulty];
-            const newState = initGameState({
-                width: config.width,
-                height: config.height,
-                minesCount: config.mines,
-            });
-            
-            Object.assign(state, newState);
-            
-            // Recreate grid if dimensions changed
-            if (view.grid.children.length !== state.fields.length * state.fields[0].length) {
-                view.grid.innerHTML = '';
-                createFieldButtons(view, state);
-                resizeWindow();
-            }
-            
-            initView(view, state);
-        }
-        
-        function ensureTimerStarted(view, state) {
-            if (state.timerInterval) {
-                return;
-            }
-            
-            state.timerStart = new Date();
-            state.timerInterval = setInterval(() => {
-                if (!state.isGameOver) {
-                    const secondsElapsed = Math.floor((new Date() - state.timerStart) / 1000);
-                    view.timer.innerText = `${secondsElapsed}`.padStart(3, '0');
-                }
-            }, 1000);
-        }
-        
-        function handleGameEvents(view, state) {
-            view.smiley.addEventListener('click', () => restartGame(view, state));
-            
-            view.grid.addEventListener('contextmenu', (event) => event.preventDefault());
-            
-            view.grid.addEventListener('mousedown', (event) => {
-                if (state.isGameOver) {
-                    return;
-                }
-                
-                const button = event.target;
-                if (button.tagName !== 'BUTTON') {
-                    return;
-                }
-                
-                ensureTimerStarted(view, state);
-                if (event.button === 2) {
-                    handleFieldFlag(view, state, button);
-                } else {
-                    handleFieldReveal(view, state, button);
-                }
-            });
-        }
-        
-        function handleFieldFlag(view, state, button) {
-            if (button.disabled) {
-                return;
-            }
-            
-            const isFlagged = button.classList.toggle('flagged');
-            state.minesLeft += isFlagged ? -1 : 1;
-            view.minesLeft.innerText = `${state.minesLeft}`.padStart(3, '0');
-        }
-        
-        function handleFieldReveal(view, state, button) {
-            const { x, y } = getButtonPosition(button);
-            
-            if (button.classList.contains('flagged')) {
-                return;
-            }
-            
-            switch (state.fields[y][x]) {
-                case -1:
-                    if (revealField(state, button)) {
-                        button.classList.add('exploded');
-                        view.smiley.className = 'lost';
-                        gameOver(view, state);
-                    }
-                    break;
-                    
-                case 0:
-                    revealEmptyArea(view.grid, state, x, y);
-                    break;
-                    
-                default:
-                    revealField(state, button);
-            }
-            
-            if (state.fieldsLeft === 0) {
-                view.smiley.className = 'won';
-                gameOver(view, state);
-            }
-        }
-        
-        function revealField(state, button) {
-            if (button.disabled) {
-                return false;
-            }
-            
-            button.disabled = true;
-            button.classList.remove('flagged');
-            
-            const { x, y } = getButtonPosition(button);
-            const value = state.fields[y][x];
-            
-            switch (value) {
-                case -1:
-                    button.className = 'mine';
-                    break;
-                    
-                case 0:
-                    state.fieldsLeft--;
-                    break;
-                    
-                default:
-                    button.className = `value-${value}`;
-                    button.innerText = value;
-                    state.fieldsLeft--;
-            }
-            
-            return value === -1;
-        }
-        
-        function gameOver(view, state) {
-            clearInterval(state.timerInterval);
-            state.isGameOver = true;
-            
-            for (const button of view.grid.children) {
-                const { x, y } = getButtonPosition(button);
-                if (state.fields[y][x] === -1) {
-                    revealField(state, button);
-                }
-            }
-        }
-        
-        function revealEmptyArea(grid, state, x, y) {
-            const height = state.fields.length;
-            const width = state.fields[0].length;
-            const visited = new Set();
-            
-            function visit(i, j) {
-                if (i < 0 || i >= width || j < 0 || j >= height) {
-                    return;
-                }
-                
-                const index = j * width + i;
-                if (visited.has(index)) {
-                    return;
-                }
-                visited.add(index);
-                
-                revealField(state, grid.children[index]);
-                
-                if (state.fields[j][i] !== 0) {
-                    return;
-                }
-                
-                visit(i - 1, j);
-                visit(i + 1, j);
-                visit(i, j - 1);
-                visit(i, j + 1);
-            }
-            
-            visit(x, y);
-        }
-        
-        function changeDifficulty(difficulty) {
-            currentDifficulty = difficulty;
-            
-            // Update active button styling
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                if (btn.dataset.difficulty === difficulty) {
+        function updateActiveButton(activeId) {
+            const buttons = ['allGamesBtn', 'classicBtn'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                if (id === activeId) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
                 }
             });
-            
-            // Restart game with new difficulty
-            const config = DIFFICULTIES[difficulty];
-            const newState = initGameState({
-                width: config.width,
-                height: config.height,
-                minesCount: config.mines,
-            });
-            
-            Object.assign(gameState, newState);
-            
-            // Recreate grid if dimensions changed
-            if (gameView.grid.children.length !== gameState.fields.length * gameState.fields[0].length) {
-                gameView.grid.innerHTML = '';
-                createFieldButtons(gameView, gameState);
-                resizeWindow();
-            }
-            
-            initView(gameView, gameState);
         }
         
-        // Make window draggable
-        function makeDraggable() {
-            const windowElem = document.getElementById('gameWindow');
-            const titleBar = document.querySelector('.title-bar');
-            let isDragging = false;
-            let offsetX, offsetY;
-            
-            titleBar.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('close-btn')) return;
-                isDragging = true;
-                offsetX = e.clientX - windowElem.offsetLeft;
-                offsetY = e.clientY - windowElem.offsetTop;
-                titleBar.style.cursor = 'grabbing';
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    windowElem.style.left = (e.clientX - offsetX) + 'px';
-                    windowElem.style.top = (e.clientY - offsetY) + 'px';
-                }
-            });
-            
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-                titleBar.style.cursor = '';
-            });
-        }
-        
-        // Close window
-        document.getElementById('closeBtn').addEventListener('click', () => {
-            window.close();
-            // Fallback if window.close doesn't work
-            document.body.innerHTML = '<div style="text-align:center; padding:50px; font-family: monospace;">Window closed. You can close this tab now.</div>';
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value.toLowerCase();
+            currentCategory = "all";
+            updateActiveButton('allGamesBtn');
+            renderGames();
         });
         
-        function main() {
-            const config = DIFFICULTIES[currentDifficulty];
-            gameState = initGameState({
-                width: config.width,
-                height: config.height,
-                minesCount: config.mines,
-            });
-            
-            gameView = {
-                minesLeft: document.getElementById('mines-left'),
-                smiley: document.getElementById('smiley'),
-                timer: document.getElementById('timer'),
-                grid: document.getElementById('grid'),
-            };
-            
-            createFieldButtons(gameView, gameState);
-            initView(gameView, gameState);
-            handleGameEvents(gameView, gameState);
-            resizeWindow();
-            makeDraggable();
-            
-            // Setup difficulty buttons
-            document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    changeDifficulty(btn.dataset.difficulty);
-                });
-            });
-            
-            // Set active initial button
-            document.querySelector('.difficulty-btn[data-difficulty="easy"]').classList.add('active');
-        }
+        document.getElementById('closeBtn').onclick = () => {
+            window.close();
+        };
         
-        main();
+        let isDraggingMain = false;
+        let offsetXMain, offsetYMain;
+        const titleBar = document.querySelector('.title-bar');
+        
+        titleBar.addEventListener('mousedown', (e) => {
+            if (e.target.id === 'closeBtn') return;
+            isDraggingMain = true;
+            offsetXMain = e.clientX - window.screenX;
+            offsetYMain = e.clientY - window.screenY;
+            titleBar.style.cursor = 'grabbing';
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingMain) {
+                window.moveTo(e.clientX - offsetXMain, e.clientY - offsetYMain);
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDraggingMain = false;
+            titleBar.style.cursor = '';
+        });
+        
+        renderGames();
     </script>
 </body>
 </html>
