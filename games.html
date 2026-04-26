@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎮 Games Archive - NostalgiaOS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -207,7 +206,7 @@
     </div>
 
     <script>
-        // Game database - all your classic games
+        // Game database with correct paths to your HTML files
         const games = [
             { name: "Minesweeper", icon: "💣", category: "classic", file: "games/minesweeper.html", description: "Classic Minesweeper puzzle" },
             { name: "Snake", icon: "🐍", category: "classic", file: "games/snake.html", description: "Classic Snake game" },
@@ -220,60 +219,12 @@
         let searchTerm = "";
         
         function openGame(gameFile, gameName) {
-            // Open the game in a new desktop window
-            const windowId = 'game_' + Date.now();
-            const win = document.createElement('div');
-            win.className = 'desktop-window';
-            win.id = windowId;
-            win.style.left = '100px';
-            win.style.top = '80px';
-            win.style.width = '700px';
-            win.style.height = '550px';
-            win.style.zIndex = '9999';
-            win.style.position = 'fixed';
-            win.style.background = '#c0c0c0';
-            win.style.border = '2px solid #fff';
-            win.style.borderRightColor = '#000';
-            win.style.borderBottomColor = '#000';
-            win.style.display = 'flex';
-            win.style.flexDirection = 'column';
+            // Open the game in a new window/tab
+            // This is the simplest and most reliable way
+            window.open(gameFile, '_blank');
             
-            win.innerHTML = `
-                <div class="title-bar" style="background:#000080; color:white; padding:6px 8px; display:flex; justify-content:space-between; cursor:move;">
-                    <span>🎮 ${gameName}</span>
-                    <div><span class="close-game" style="cursor:pointer; margin-left:6px;">✗</span></div>
-                </div>
-                <iframe src="${gameFile}" style="width:100%; height:100%; border:none; background:#fff;"></iframe>
-            `;
-            
-            document.body.appendChild(win);
-            
-            // Make draggable
-            const titleBar = win.querySelector('.title-bar');
-            let isDragging = false, offsetX, offsetY;
-            
-            titleBar.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('close-game')) return;
-                isDragging = true;
-                offsetX = e.clientX - win.offsetLeft;
-                offsetY = e.clientY - win.offsetTop;
-                titleBar.style.cursor = 'grabbing';
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    win.style.left = (e.clientX - offsetX) + 'px';
-                    win.style.top = (e.clientY - offsetY) + 'px';
-                }
-            });
-            
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-                titleBar.style.cursor = '';
-            });
-            
-            win.querySelector('.close-game').onclick = () => win.remove();
-            win.style.display = 'flex';
+            // Optional: Add a confirmation message
+            console.log(`Opening ${gameName} from ${gameFile}`);
         }
         
         function renderGames() {
@@ -301,13 +252,13 @@
                 </div>
             `).join('');
             
-            // Add click event listeners
+            // Add click event listeners to each game card
             document.querySelectorAll('.game-card').forEach(card => {
-                card.onclick = () => {
+                card.addEventListener('click', (e) => {
                     const file = card.dataset.file;
                     const name = card.dataset.name;
                     openGame(file, name);
-                };
+                });
             });
         }
         
