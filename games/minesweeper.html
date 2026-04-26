@@ -2,77 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 Games Archive - NostalgiaOS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>💣 Minesweeper</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
+            user-select: none;
             box-sizing: border-box;
         }
         
         body {
             background: #c0c0c0;
             font-family: "MS Sans Serif", Tahoma, sans-serif;
-            height: 100vh;
-            overflow: hidden;
+            margin: 0;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* Windows 95 Window Frame */
+        .window {
+            background: #c0c0c0;
+            border: 3px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 4px;
+            display: inline-block;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
         
         .title-bar {
             background: #000080;
             color: white;
-            padding: 8px 12px;
+            padding: 4px 6px;
+            font-size: 12px;
+            font-weight: bold;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            cursor: move;
-            flex-shrink: 0;
+            margin-bottom: 4px;
         }
         
-        .window-controls {
+        .title-bar-text {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .title-bar-controls {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .title-bar-controls button {
+            background: #c0c0c0;
+            border: 1px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            width: 16px;
+            height: 14px;
+            font-size: 10px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .title-bar-controls button:active {
+            border: 1px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        
+        /* Game Container */
+        .game-container {
+            background: #c0c0c0;
+            padding: 10px;
+            display: inline-block;
+        }
+        
+        /* Difficulty Bar */
+        .difficulty-bar {
             display: flex;
             gap: 6px;
+            margin-bottom: 10px;
+            justify-content: center;
+            background: #c0c0c0;
+            padding: 4px;
+            border: 1px solid #808080;
         }
         
-        .window-controls span {
-            cursor: pointer;
-            padding: 0 4px;
-        }
-        
-        .window-controls span:hover {
-            background: #ff0000;
-        }
-        
-        .toolbar {
-            background: #dcdcdc;
-            padding: 8px 12px;
-            border-bottom: 1px solid #808080;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex-shrink: 0;
-        }
-        
-        .toolbar button {
+        .difficulty-btn {
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            padding: 5px 12px;
+            padding: 4px 10px;
             cursor: pointer;
-            font-family: inherit;
-            font-size: 12px;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            font-size: 11px;
+            font-weight: bold;
         }
         
-        .toolbar button:active {
+        .difficulty-btn:active {
             border: 2px solid #000;
             border-right-color: #fff;
             border-bottom-color: #fff;
         }
         
-        .toolbar button.active {
+        .difficulty-btn.active {
             background: #000080;
             color: white;
             border: 2px solid #808080;
@@ -80,259 +119,450 @@
             border-bottom-color: #fff;
         }
         
-        .search-box {
+        /* Game Header */
+        .game-header {
+            background: #c0c0c0;
+            padding: 8px;
+            margin-bottom: 8px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 5px;
-            margin-left: auto;
+            border: 2px solid #808080;
         }
         
-        .search-box input {
+        .mine-counter, .timer {
+            background: #000;
+            color: #f00;
+            font-family: 'Courier New', monospace;
+            font-size: 28px;
+            font-weight: bold;
             padding: 4px 8px;
-            border: 1px solid #808080;
-            font-family: inherit;
+            letter-spacing: 2px;
+            min-width: 80px;
+            text-align: center;
         }
         
-        .games-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
+        .smiley {
+            background: #c0c0c0;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0 12px;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            line-height: 1;
         }
         
-        .games-grid {
+        .smiley:active {
+            border: 2px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        
+        /* Game Board */
+        .board {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 20px;
+            gap: 1px;
+            background: #808080;
+            padding: 2px;
+            border: 2px solid #808080;
         }
         
-        .game-card {
-            background: #ffffff;
+        .cell {
+            width: 32px;
+            height: 32px;
+            background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
             text-align: center;
+            line-height: 28px;
             cursor: pointer;
-            padding: 15px 10px;
-            transition: all 0.05s ease;
+            font-weight: bold;
+            font-size: 16px;
         }
         
-        .game-card:hover {
-            background: #000080;
-            color: white;
-            border: 2px solid #808080;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+        .cell.revealed {
+            background: #fff;
+            border: 1px solid #808080;
+            line-height: 30px;
         }
         
-        .game-card:active {
-            transform: translate(1px, 1px);
+        .cell.flagged {
+            position: relative;
         }
         
-        .game-icon {
-            font-size: 64px;
-            display: block;
-            margin-bottom: 10px;
+        .cell.flagged::before {
+            content: "🚩";
+            font-size: 18px;
         }
         
-        .game-name {
-            font-size: 11px;
-            word-break: break-word;
+        /* Number colors */
+        .cell.value-1 { color: #0100f3; }
+        .cell.value-2 { color: #367c21; }
+        .cell.value-3 { color: #e93323; }
+        .cell.value-4 { color: #020079; }
+        .cell.value-5 { color: #78150e; }
+        .cell.value-6 { color: #387e7e; }
+        .cell.value-7 { color: #000000; }
+        .cell.value-8 { color: #808080; }
+        
+        /* Game Over / Win overlay */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
         }
         
-        .no-results {
+        .game-message {
+            background: #c0c0c0;
+            border: 3px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 20px 30px;
             text-align: center;
-            padding: 60px;
-            color: #666;
-            font-size: 14px;
+            font-size: 18px;
+            font-weight: bold;
         }
         
+        .game-message button {
+            margin-top: 15px;
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+        }
+        
+        /* Status Bar */
         .status-bar {
             background: #c0c0c0;
             border-top: 1px solid #fff;
-            padding: 4px 8px;
+            padding: 3px 6px;
             font-size: 11px;
+            margin-top: 8px;
             display: flex;
-            gap: 20px;
-            flex-shrink: 0;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 16px;
-            height: 16px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #c0c0c0;
-            border: 1px solid #808080;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
+            gap: 15px;
         }
     </style>
 </head>
 <body>
+<div class="window">
     <div class="title-bar">
-        <span>🎮 Games Archive</span>
-        <div class="window-controls">
-            <span id="closeBtn" style="cursor:pointer;">✗</span>
+        <div class="title-bar-text">
+            <span>💣 Minesweeper</span>
+        </div>
+        <div class="title-bar-controls">
+            <button id="closeBtn">✗</button>
         </div>
     </div>
-    
-    <div class="toolbar">
-        <button id="allGamesBtn" class="active">📋 All Games</button>
-        <button id="classicBtn">🃏 Classic</button>
-        <div class="search-box">
-            🔍 <input type="text" id="searchInput" placeholder="Search games...">
+    <div class="game-container">
+        <div class="difficulty-bar">
+            <button class="difficulty-btn" data-difficulty="easy">☺ Easy</button>
+            <button class="difficulty-btn" data-difficulty="medium">😐 Medium</button>
+            <button class="difficulty-btn" data-difficulty="hard">😮 Hard</button>
+            <button class="difficulty-btn" data-difficulty="extreme">💀 Extreme</button>
+        </div>
+        
+        <div class="game-header">
+            <div class="mine-counter" id="mineCounter">000</div>
+            <div class="smiley" id="smiley">🙂</div>
+            <div class="timer" id="timer">000</div>
+        </div>
+        
+        <div id="board" class="board"></div>
+        
+        <div class="status-bar">
+            <span>💣 Left-click: Reveal</span>
+            <span>🚩 Right-click: Flag</span>
         </div>
     </div>
-    
-    <div class="games-container">
-        <div class="games-grid" id="gamesGrid"></div>
-    </div>
-    
-    <div class="status-bar">
-        <span id="gameCount">0 games</span>
-        <span>🖱️ Click any game to play</span>
-    </div>
+</div>
 
-    <script>
-        const games = [
-            { name: "Minesweeper", icon: "💣", category: "classic", file: "games/minesweeper.html", description: "Classic Minesweeper puzzle" },
-            { name: "Snake", icon: "🐍", category: "classic", file: "games/snake.html", description: "Classic Snake game" },
-            { name: "Tetris", icon: "🧩", category: "classic", file: "games/tetris.html", description: "Classic block stacking puzzle" },
-            { name: "Solitaire", icon: "🃏", category: "classic", file: "games/solitaire.html", description: "Classic card game" },
-            { name: "Pac-Man", icon: "👻", category: "classic", file: "games/pacman.html", description: "Classic maze chase game" }
-        ];
+<script>
+    // Difficulty configurations
+    const DIFFICULTIES = {
+        easy: { width: 9, height: 9, mines: 10, name: 'Easy' },
+        medium: { width: 16, height: 16, mines: 40, name: 'Medium' },
+        hard: { width: 16, height: 30, mines: 99, name: 'Hard' },
+        extreme: { width: 20, height: 30, mines: 160, name: 'Extreme' }
+    };
+    
+    let currentDifficulty = 'easy';
+    let board = [];
+    let gameActive = true;
+    let firstMove = true;
+    let flagsPlaced = 0;
+    let timer = 0;
+    let timerInterval = null;
+    let currentMines = 10;
+    let currentWidth = 9;
+    let currentHeight = 9;
+    
+    function initGame() {
+        if (timerInterval) clearInterval(timerInterval);
+        timer = 0;
+        updateTimer();
+        gameActive = true;
+        firstMove = true;
+        flagsPlaced = 0;
         
-        let currentCategory = "all";
-        let searchTerm = "";
+        const config = DIFFICULTIES[currentDifficulty];
+        currentMines = config.mines;
+        currentWidth = config.width;
+        currentHeight = config.height;
         
-        function openGameInDesktop(gameFile, gameName) {
-            // Check if we're in the NostalgiaOS desktop environment
-            if (window.opener && window.opener.openInDesktopWindow) {
-                // Use the parent window's function to create a desktop window
-                window.opener.openInDesktopWindow(gameFile, gameName);
-                // Close the games launcher (optional - comment out if you want to keep it open)
-                // window.close();
-            } else if (window.parent && window.parent.openInDesktopWindow) {
-                // Fallback for iframe context
-                window.parent.openInDesktopWindow(gameFile, gameName);
-            } else {
-                // Final fallback - open in new tab (shouldn't happen in NostalgiaOS)
-                window.open(gameFile, '_blank');
+        updateMineCounter();
+        document.getElementById('smiley').textContent = '🙂';
+        
+        // Initialize board
+        board = Array(currentHeight).fill().map(() => Array(currentWidth).fill().map(() => ({
+            revealed: false,
+            mine: false,
+            flagged: false,
+            neighbor: 0
+        })));
+        
+        render();
+    }
+    
+    function placeMines(firstX, firstY) {
+        let placed = 0;
+        while (placed < currentMines) {
+            const x = Math.floor(Math.random() * currentWidth);
+            const y = Math.floor(Math.random() * currentHeight);
+            // Don't place mine on the first clicked cell or its neighbors
+            const isFirstCell = (x === firstX && y === firstY);
+            const isAdjacent = Math.abs(x - firstX) <= 1 && Math.abs(y - firstY) <= 1;
+            if (!board[y][x].mine && !isFirstCell && !isAdjacent) {
+                board[y][x].mine = true;
+                placed++;
             }
         }
-        
-        function renderGames() {
-            const filtered = games.filter(game => {
-                const matchesCategory = currentCategory === "all" || game.category === currentCategory;
-                const matchesSearch = game.name.toLowerCase().includes(searchTerm) || 
-                                      game.description.toLowerCase().includes(searchTerm);
-                return matchesCategory && matchesSearch;
-            });
-            
-            const grid = document.getElementById('gamesGrid');
-            const gameCountSpan = document.getElementById('gameCount');
-            
-            gameCountSpan.textContent = `${filtered.length} games`;
-            
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="no-results">🎮 No games found<br>Try a different category or search term</div>`;
-                return;
-            }
-            
-            grid.innerHTML = filtered.map(game => `
-                <div class="game-card" data-file="${game.file}" data-name="${game.name}">
-                    <span class="game-icon">${game.icon}</span>
-                    <div class="game-name">${escapeHtml(game.name)}</div>
-                </div>
-            `).join('');
-            
-            document.querySelectorAll('.game-card').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    const file = card.dataset.file;
-                    const name = card.dataset.name;
-                    openGameInDesktop(file, name);
-                });
-            });
-        }
-        
-        function escapeHtml(str) {
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-        
-        document.getElementById('allGamesBtn').onclick = () => {
-            currentCategory = "all";
-            searchTerm = "";
-            document.getElementById('searchInput').value = "";
-            renderGames();
-            updateActiveButton('allGamesBtn');
-        };
-        
-        document.getElementById('classicBtn').onclick = () => {
-            currentCategory = "classic";
-            searchTerm = "";
-            document.getElementById('searchInput').value = "";
-            renderGames();
-            updateActiveButton('classicBtn');
-        };
-        
-        function updateActiveButton(activeId) {
-            const buttons = ['allGamesBtn', 'classicBtn'];
-            buttons.forEach(id => {
-                const btn = document.getElementById(id);
-                if (id === activeId) {
-                    btn.classList.add('active');
-                } else {
-                    btn.classList.remove('active');
+        calculateNeighbors();
+    }
+    
+    function calculateNeighbors() {
+        for (let y = 0; y < currentHeight; y++) {
+            for (let x = 0; x < currentWidth; x++) {
+                if (!board[y][x].mine) {
+                    board[y][x].neighbor = getNeighborMines(x, y);
                 }
-            });
+            }
+        }
+    }
+    
+    function getNeighborMines(x, y) {
+        let count = 0;
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                const newX = x + i;
+                const newY = y + j;
+                if (newX >= 0 && newX < currentWidth && newY >= 0 && newY < currentHeight && board[newY][newX].mine) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    
+    function reveal(x, y) {
+        if (!gameActive || board[y][x].revealed || board[y][x].flagged) return;
+        
+        if (firstMove) {
+            firstMove = false;
+            placeMines(x, y);
+            startTimer();
         }
         
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            searchTerm = e.target.value.toLowerCase();
-            currentCategory = "all";
-            updateActiveButton('allGamesBtn');
-            renderGames();
-        });
+        board[y][x].revealed = true;
         
-        document.getElementById('closeBtn').onclick = () => {
-            window.close();
-        };
+        if (board[y][x].mine) {
+            gameActive = false;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('smiley').textContent = '💀';
+            revealAllMines();
+            render();
+            showGameOverMessage('💥 GAME OVER! 💥');
+            return;
+        }
         
-        let isDraggingMain = false;
-        let offsetXMain, offsetYMain;
-        const titleBar = document.querySelector('.title-bar');
+        if (board[y][x].neighbor === 0) {
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    const newX = x + i;
+                    const newY = y + j;
+                    if (newX >= 0 && newX < currentWidth && newY >= 0 && newY < currentHeight) {
+                        reveal(newX, newY);
+                    }
+                }
+            }
+        }
         
-        titleBar.addEventListener('mousedown', (e) => {
-            if (e.target.id === 'closeBtn') return;
-            isDraggingMain = true;
-            offsetXMain = e.clientX - window.screenX;
-            offsetYMain = e.clientY - window.screenY;
-            titleBar.style.cursor = 'grabbing';
-        });
+        render();
+        checkWin();
+    }
+    
+    function revealAllMines() {
+        for (let y = 0; y < currentHeight; y++) {
+            for (let x = 0; x < currentWidth; x++) {
+                if (board[y][x].mine) {
+                    board[y][x].revealed = true;
+                }
+            }
+        }
+    }
+    
+    function toggleFlag(x, y) {
+        if (!gameActive || board[y][x].revealed) return;
         
-        document.addEventListener('mousemove', (e) => {
-            if (isDraggingMain) {
-                window.moveTo(e.clientX - offsetXMain, e.clientY - offsetYMain);
+        if (!board[y][x].flagged && flagsPlaced < currentMines) {
+            board[y][x].flagged = true;
+            flagsPlaced++;
+        } else if (board[y][x].flagged) {
+            board[y][x].flagged = false;
+            flagsPlaced--;
+        }
+        updateMineCounter();
+        render();
+        checkWin();
+    }
+    
+    function checkWin() {
+        let correctlyRevealed = 0;
+        for (let y = 0; y < currentHeight; y++) {
+            for (let x = 0; x < currentWidth; x++) {
+                if (board[y][x].revealed && !board[y][x].mine) correctlyRevealed++;
+            }
+        }
+        
+        const totalSafeCells = currentWidth * currentHeight - currentMines;
+        if (correctlyRevealed === totalSafeCells) {
+            gameActive = false;
+            if (timerInterval) clearInterval(timerInterval);
+            document.getElementById('smiley').textContent = '😎';
+            showWinMessage('🎉 YOU WIN! 🎉');
+        }
+    }
+    
+    function showGameOverMessage(msg) {
+        const overlay = document.createElement('div');
+        overlay.className = 'game-overlay';
+        overlay.innerHTML = `
+            <div class="game-message">
+                ${msg}<br>
+                <button onclick="location.reload()">New Game</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    
+    function showWinMessage(msg) {
+        const overlay = document.createElement('div');
+        overlay.className = 'game-overlay';
+        overlay.innerHTML = `
+            <div class="game-message">
+                ${msg}<br>
+                <button onclick="location.reload()">New Game</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (gameActive) {
+                timer++;
+                updateTimer();
+            }
+        }, 1000);
+    }
+    
+    function updateMineCounter() {
+        const remaining = currentMines - flagsPlaced;
+        document.getElementById('mineCounter').textContent = String(remaining).padStart(3, '0');
+    }
+    
+    function updateTimer() {
+        document.getElementById('timer').textContent = String(timer).padStart(3, '0');
+    }
+    
+    function render() {
+        const container = document.getElementById('board');
+        container.style.gridTemplateColumns = `repeat(${currentWidth}, 32px)`;
+        container.innerHTML = '';
+        
+        for (let y = 0; y < currentHeight; y++) {
+            for (let x = 0; x < currentWidth; x++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                
+                if (board[y][x].revealed) {
+                    cell.classList.add('revealed');
+                    if (board[y][x].mine) {
+                        cell.textContent = '💣';
+                    } else if (board[y][x].neighbor > 0) {
+                        cell.textContent = board[y][x].neighbor;
+                        cell.classList.add(`value-${board[y][x].neighbor}`);
+                    }
+                } else if (board[y][x].flagged) {
+                    cell.classList.add('flagged');
+                }
+                
+                cell.onclick = () => reveal(x, y);
+                cell.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    toggleFlag(x, y);
+                    return false;
+                };
+                container.appendChild(cell);
+            }
+        }
+    }
+    
+    function changeDifficulty(difficulty) {
+        currentDifficulty = difficulty;
+        
+        // Update active button styling
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            if (btn.dataset.difficulty === difficulty) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
             }
         });
         
-        document.addEventListener('mouseup', () => {
-            isDraggingMain = false;
-            titleBar.style.cursor = '';
+        initGame();
+    }
+    
+    // Close window
+    document.getElementById('closeBtn').onclick = () => {
+        window.close();
+    };
+    
+    // Setup difficulty buttons
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            changeDifficulty(btn.dataset.difficulty);
         });
-        
-        renderGames();
-    </script>
+    });
+    
+    // Set active initial button
+    document.querySelector('.difficulty-btn[data-difficulty="easy"]').classList.add('active');
+    
+    // Start the game
+    initGame();
+</script>
 </body>
 </html>
