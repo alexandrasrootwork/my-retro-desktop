@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -208,26 +207,26 @@
     </div>
 
     <script>
-        // Game list - Number Battle removed
+        // Game list - with separate display name and window title
         const games = [
-            { name: "💣 Minesweeper", icon: "💣", category: "classic", file: "games/minesweeper.html", description: "Classic Minesweeper puzzle" },
-            { name: "Snake", icon: "🐍", category: "classic", file: "games/snake.html", description: "Classic Snake game" },
-            { name: "Tetris", icon: "🧩", category: "classic", file: "games/tetris.html", description: "Classic block stacking puzzle" },
-            { name: "Solitaire", icon: "🃏", category: "classic", file: "games/solitaire.html", description: "Classic card game" },
-            { name: "Pac-Man", icon: "👻", category: "classic", file: "games/pacman.html", description: "Classic maze chase game" }
+            { displayName: "Minesweeper", windowTitle: "💣 Minesweeper", icon: "💣", category: "classic", file: "games/minesweeper.html", description: "Classic Minesweeper puzzle" },
+            { displayName: "Snake", windowTitle: "🐍 Snake", icon: "🐍", category: "classic", file: "games/snake.html", description: "Classic Snake game" },
+            { displayName: "Tetris", windowTitle: "🧩 Tetris", icon: "🧩", category: "classic", file: "games/tetris.html", description: "Classic block stacking puzzle" },
+            { displayName: "Solitaire", windowTitle: "🃏 Solitaire", icon: "🃏", category: "classic", file: "games/solitaire.html", description: "Classic card game" },
+            { displayName: "Pac-Man", windowTitle: "👻 Pac-Man", icon: "👻", category: "classic", file: "games/pacman.html", description: "Classic maze chase game" }
         ];
         
         let currentCategory = "all";
         let searchTerm = "";
         
-        function openGameInDesktop(gameFile, gameName) {
+        function openGameInDesktop(gameFile, windowTitle) {
             // Try to call the parent window's function (NostalgiaOS desktop)
             if (window.parent && typeof window.parent.openGameInDesktopWindow === 'function') {
-                console.log('Opening game:', gameName, 'from:', gameFile);
-                window.parent.openGameInDesktopWindow(gameFile, gameName);
+                console.log('Opening game:', windowTitle, 'from:', gameFile);
+                window.parent.openGameInDesktopWindow(gameFile, windowTitle);
             } 
             else if (window.opener && typeof window.opener.openGameInDesktopWindow === 'function') {
-                window.opener.openGameInDesktopWindow(gameFile, gameName);
+                window.opener.openGameInDesktopWindow(gameFile, windowTitle);
             }
             else {
                 // Fallback - open in new tab
@@ -248,7 +247,7 @@
         function renderGames() {
             const filtered = games.filter(game => {
                 const matchesCategory = currentCategory === "all" || game.category === currentCategory;
-                const matchesSearch = game.name.toLowerCase().includes(searchTerm) || 
+                const matchesSearch = game.displayName.toLowerCase().includes(searchTerm) || 
                                       game.description.toLowerCase().includes(searchTerm);
                 return matchesCategory && matchesSearch;
             });
@@ -264,17 +263,17 @@
             }
             
             grid.innerHTML = filtered.map(game => `
-                <div class="game-card" data-file="${game.file}" data-name="${game.name}">
+                <div class="game-card" data-file="${game.file}" data-windowtitle="${game.windowTitle}">
                     <span class="game-icon">${game.icon}</span>
-                    <div class="game-name">${escapeHtml(game.name)}</div>
+                    <div class="game-name">${escapeHtml(game.displayName)}</div>
                 </div>
             `).join('');
             
             document.querySelectorAll('.game-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     const file = card.dataset.file;
-                    const name = card.dataset.name;
-                    openGameInDesktop(file, name);
+                    const windowTitle = card.dataset.windowtitle;
+                    openGameInDesktop(file, windowTitle);
                 });
             });
         }
