@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👾 Games Archive - NostalgiaOS</title>
+    <title>🎮 Games Archive - NostalgiaOS</title>
     <style>
         * {
             margin: 0;
@@ -142,6 +142,49 @@
             word-break: break-word;
         }
         
+        /* Desktop Window Style for Games */
+        .desktop-window {
+            position: fixed;
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            min-width: 400px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            resize: both;
+            overflow: auto;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .desktop-window .title-bar {
+            background: #000080;
+            color: white;
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            cursor: grab;
+            flex-shrink: 0;
+        }
+        
+        .desktop-window .title-bar:active {
+            cursor: grabbing;
+        }
+        
+        .desktop-window .window-content {
+            flex: 1;
+            padding: 0;
+            overflow: auto;
+            background: white;
+        }
+        
+        .desktop-window iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
         /* No results */
         .no-results {
             text-align: center;
@@ -182,7 +225,7 @@
 </head>
 <body>
     <div class="title-bar">
-        <span>👾 Games Archive</span>
+        <span>🎮 Games Archive</span>
         <div class="window-controls">
             <span id="closeBtn" style="cursor:pointer;">✗</span>
         </div>
@@ -217,14 +260,80 @@
         
         let currentCategory = "all";
         let searchTerm = "";
+        let nextWindowZ = 2100;
         
-        function openGame(gameFile, gameName) {
-            // Open the game in a new window/tab
-            // This is the simplest and most reliable way
-            window.open(gameFile, '_blank');
+        function openGameInDesktop(gameFile, gameName) {
+            // Create a new desktop window for the game
+            const windowId = 'game_' + Date.now() + '_' + Math.random();
+            const zIndex = nextWindowZ++;
             
-            // Optional: Add a confirmation message
-            console.log(`Opening ${gameName} from ${gameFile}`);
+            const win = document.createElement('div');
+            win.className = 'desktop-window';
+            win.id = windowId;
+            win.style.left = '100px';
+            win.style.top = '80px';
+            win.style.width = '700px';
+            win.style.height = '550px';
+            win.style.zIndex = zIndex;
+            
+            win.innerHTML = `
+                <div class="title-bar">
+                    <span>🎮 ${gameName}</span>
+                    <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
+                </div>
+                <div class="window-content">
+                    <iframe src="${gameFile}"></iframe>
+                </div>
+            `;
+            
+            document.body.appendChild(win);
+            
+            // Make window draggable
+            const titleBar = win.querySelector('.title-bar');
+            let isDragging = false;
+            let offsetX, offsetY;
+            
+            titleBar.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('close-window')) return;
+                isDragging = true;
+                offsetX = e.clientX - win.offsetLeft;
+                offsetY = e.clientY - win.offsetTop;
+                titleBar.style.cursor = 'grabbing';
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    win.style.left = (e.clientX - offsetX) + 'px';
+                    win.style.top = (e.clientY - offsetY) + 'px';
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                titleBar.style.cursor = '';
+            });
+            
+            // Close button
+            win.querySelector('.close-window').onclick = () => {
+                win.remove();
+            };
+            
+            // Bring window to front when clicked
+            win.onclick = () => {
+                win.style.zIndex = nextWindowZ++;
+            };
+            
+            // Make window resizable
+            const resizeObserver = new ResizeObserver(() => {
+                const iframe = win.querySelector('iframe');
+                if (iframe) {
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                }
+            });
+            resizeObserver.observe(win);
+            
+            win.style.display = 'flex';
         }
         
         function renderGames() {
@@ -257,7 +366,7 @@
                 card.addEventListener('click', (e) => {
                     const file = card.dataset.file;
                     const name = card.dataset.name;
-                    openGame(file, name);
+                    openGameInDesktop(file, name);
                 });
             });
         }
