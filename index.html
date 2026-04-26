@@ -2067,34 +2067,37 @@ function playStartupSound() {
         else if (type === 'widget') { const item = widgets.find(w => w.id === id); if (item) { item.x = x; item.y = y; } }
     }
     
-    function openInDesktopWindow(url, title) {
-        const windowId = 'win_' + Date.now() + '_' + Math.random();
-        const zIndex = nextWindowZ++;
-        const win = document.createElement('div');
-        win.className = 'desktop-window';
-        win.id = windowId;
-        win.style.left = '100px';
-        win.style.top = '80px';
-        win.style.width = '700px';
-        win.style.height = '500px';
-        win.style.zIndex = zIndex;
-        win.innerHTML = `<div class="title-bar"><span>${escapeHtml(title || 'Window')}</span><div><span class="maximize-window">□</span><span class="close-window">✗</span></div></div><div class="window-content"><iframe src="${url}" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"></iframe></div>`;
-        document.body.appendChild(win);
-        const taskbarBtn = addTaskbarButton(windowId, title || 'Window', win);
-        openWindows.push({ id: windowId, url: url, title: title, windowElement: win, taskbarBtn: taskbarBtn });
-        makeWindowDraggable(win, win.querySelector('.title-bar'));
-        win.querySelector('.close-window').onclick = () => { win.remove(); removeTaskbarButton(windowId); openWindows = openWindows.filter(w => w.id !== windowId); };
-        win.querySelector('.maximize-window').onclick = () => {
-            if (win.style.width === '100%') {
-                win.style.width = '700px'; win.style.height = '500px';
-                win.style.left = '100px'; win.style.top = '80px';
-            } else {
-                win.style.width = '100%'; win.style.height = 'calc(100% - 50px)';
-                win.style.left = '0'; win.style.top = '0';
-            }
-        };
-        win.onclick = () => { win.style.zIndex = nextWindowZ++; };
-    }
+function openInDesktopWindow(url, title) {
+    const windowId = 'win_' + Date.now() + '_' + Math.random();
+    const zIndex = nextWindowZ++;
+    const win = document.createElement('div');
+    win.className = 'desktop-window';
+    win.id = windowId;
+    win.style.left = '100px';
+    win.style.top = '80px';
+    win.style.width = '700px';
+    win.style.height = '550px';
+    win.style.zIndex = zIndex;
+    
+    win.innerHTML = `<div class="title-bar"><span>${escapeHtml(title || 'Window')}</span><div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div></div><div class="window-content"><iframe src="${url}" sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals"></iframe></div>`;
+    
+    document.body.appendChild(win);
+    const taskbarBtn = addTaskbarButton(windowId, title || 'Window', win);
+    openWindows.push({ id: windowId, url: url, title: title, windowElement: win, taskbarBtn: taskbarBtn });
+    makeWindowDraggable(win, win.querySelector('.title-bar'));
+    
+    win.querySelector('.close-window').onclick = () => { 
+        win.remove(); 
+        removeTaskbarButton(windowId); 
+        openWindows = openWindows.filter(w => w.id !== windowId); 
+    };
+    
+    win.onclick = () => { 
+        win.style.zIndex = nextWindowZ++; 
+    };
+    
+    win.style.display = 'flex';
+}
 
     // Add this function to your main index.html
 function openGameInDesktopWindow(gameFile, gameName) {
