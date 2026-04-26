@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,7 +215,6 @@
         function openGameInDesktop(gameFile, gameName) {
             // Try to call the parent window's function
             if (window.parent && typeof window.parent.openGameInDesktopWindow === 'function') {
-                // Use the exact same path - it's relative to the parent (main index.html)
                 console.log('Calling parent.openGameInDesktopWindow with:', gameFile, gameName);
                 window.parent.openGameInDesktopWindow(gameFile, gameName);
             } 
@@ -226,6 +226,17 @@
                 console.error('No openGameInDesktopWindow function found!');
                 alert('Error: Could not open game. The parent window function is missing.');
             }
+        }
+        
+        // Resize function for when the game window needs to change size (called by the game)
+        function resizeGameWindow(width, height) {
+            // Resize the current window (the game window) to fit the game
+            window.resizeTo(width, height);
+            // Center the window
+            window.moveTo(
+                (screen.width - width) / 2,
+                (screen.height - height) / 2
+            );
         }
         
         function renderGames() {
@@ -337,6 +348,7 @@
         
         // Log for debugging
         console.log('Games.html loaded. Parent has openGameInDesktopWindow?', typeof window.parent.openGameInDesktopWindow);
+        console.log('resizeGameWindow function available?', typeof resizeGameWindow);
     </script>
 </body>
 </html>
