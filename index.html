@@ -2095,6 +2095,45 @@ function playStartupSound() {
         };
         win.onclick = () => { win.style.zIndex = nextWindowZ++; };
     }
+
+    // Add this function to your main index.html
+function openGameInDesktopWindow(gameFile, gameName) {
+    // This creates a NEW desktop window for the game
+    const windowId = 'game_' + Date.now() + '_' + Math.random();
+    const zIndex = nextWindowZ++;
+    
+    const win = document.createElement('div');
+    win.className = 'desktop-window';
+    win.id = windowId;
+    win.style.left = '150px';
+    win.style.top = '100px';
+    win.style.width = '700px';
+    win.style.height = '550px';
+    win.style.zIndex = zIndex;
+    
+    win.innerHTML = `
+        <div class="title-bar">
+            <span>🎮 ${gameName}</span>
+            <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
+        </div>
+        <div class="window-content">
+            <iframe src="${gameFile}" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+    `;
+    
+    document.body.appendChild(win);
+    makeWindowDraggable(win, win.querySelector('.title-bar'));
+    
+    win.querySelector('.close-window').onclick = () => {
+        win.remove();
+    };
+    
+    win.onclick = () => {
+        win.style.zIndex = nextWindowZ++;
+    };
+    
+    win.style.display = 'flex';
+}
     
     function deleteIcon(id) {
         if (confirm('Move to Recycle Bin?')) {
