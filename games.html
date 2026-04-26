@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,20 +213,18 @@
         
         function openGameInDesktop(gameFile, gameName) {
             // Try to call the parent window's function
-            if (window.opener && typeof window.opener.openGameInDesktopWindow === 'function') {
-                window.opener.openGameInDesktopWindow(gameFile, gameName);
-            } 
-            // If we're in an iframe, try parent
-            else if (window.parent && window.parent !== window && typeof window.parent.openGameInDesktopWindow === 'function') {
+            if (window.parent && typeof window.parent.openGameInDesktopWindow === 'function') {
+                // Use the exact same path - it's relative to the parent (main index.html)
+                console.log('Calling parent.openGameInDesktopWindow with:', gameFile, gameName);
                 window.parent.openGameInDesktopWindow(gameFile, gameName);
+            } 
+            else if (window.opener && typeof window.opener.openGameInDesktopWindow === 'function') {
+                console.log('Calling opener.openGameInDesktopWindow with:', gameFile, gameName);
+                window.opener.openGameInDesktopWindow(gameFile, gameName);
             }
-            // Fallback: open in new window using the desktop window function if available globally
-            else if (typeof window.openGameInDesktopWindow === 'function') {
-                window.openGameInDesktopWindow(gameFile, gameName);
-            }
-            // Last resort: open in new tab
             else {
-                window.open(gameFile, '_blank');
+                console.error('No openGameInDesktopWindow function found!');
+                alert('Error: Could not open game. The parent window function is missing.');
             }
         }
         
@@ -337,6 +334,9 @@
         });
         
         renderGames();
+        
+        // Log for debugging
+        console.log('Games.html loaded. Parent has openGameInDesktopWindow?', typeof window.parent.openGameInDesktopWindow);
     </script>
 </body>
 </html>
