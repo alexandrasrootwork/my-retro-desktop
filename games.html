@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,6 @@
             flex-direction: column;
         }
         
-        /* Windows 95 Title Bar */
         .title-bar {
             background: #000080;
             color: white;
@@ -46,7 +46,6 @@
             background: #ff0000;
         }
         
-        /* Toolbar */
         .toolbar {
             background: #dcdcdc;
             padding: 8px 12px;
@@ -95,7 +94,6 @@
             font-family: inherit;
         }
         
-        /* Games Grid */
         .games-container {
             flex: 1;
             overflow-y: auto;
@@ -142,7 +140,6 @@
             word-break: break-word;
         }
         
-        /* No results */
         .no-results {
             text-align: center;
             padding: 60px;
@@ -150,7 +147,6 @@
             font-size: 14px;
         }
         
-        /* Status Bar */
         .status-bar {
             background: #c0c0c0;
             border-top: 1px solid #fff;
@@ -161,7 +157,6 @@
             flex-shrink: 0;
         }
         
-        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 16px;
             height: 16px;
@@ -206,7 +201,6 @@
     </div>
 
     <script>
-        // Game database with correct paths to your HTML files
         const games = [
             { name: "Minesweeper", icon: "💣", category: "classic", file: "games/minesweeper.html", description: "Classic Minesweeper puzzle" },
             { name: "Snake", icon: "🐍", category: "classic", file: "games/snake.html", description: "Classic Snake game" },
@@ -218,14 +212,21 @@
         let currentCategory = "all";
         let searchTerm = "";
         
-        function openGameInNewWindow(gameFile, gameName) {
-            // This tells the parent window (your main index.html) to open a new desktop window
-            // We do this by calling a function on the parent window
-            if (window.opener && window.opener.openGameInDesktopWindow) {
-                // If opened from the main desktop, use its function
+        function openGameInDesktop(gameFile, gameName) {
+            // Try to call the parent window's function
+            if (window.opener && typeof window.opener.openGameInDesktopWindow === 'function') {
                 window.opener.openGameInDesktopWindow(gameFile, gameName);
-            } else {
-                // Fallback: open in new tab
+            } 
+            // If we're in an iframe, try parent
+            else if (window.parent && window.parent !== window && typeof window.parent.openGameInDesktopWindow === 'function') {
+                window.parent.openGameInDesktopWindow(gameFile, gameName);
+            }
+            // Fallback: open in new window using the desktop window function if available globally
+            else if (typeof window.openGameInDesktopWindow === 'function') {
+                window.openGameInDesktopWindow(gameFile, gameName);
+            }
+            // Last resort: open in new tab
+            else {
                 window.open(gameFile, '_blank');
             }
         }
@@ -255,12 +256,11 @@
                 </div>
             `).join('');
             
-            // Add click event listeners to each game card
             document.querySelectorAll('.game-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     const file = card.dataset.file;
                     const name = card.dataset.name;
-                    openGameInNewWindow(file, name);
+                    openGameInDesktop(file, name);
                 });
             });
         }
@@ -274,7 +274,6 @@
             });
         }
         
-        // Category buttons
         document.getElementById('allGamesBtn').onclick = () => {
             currentCategory = "all";
             searchTerm = "";
@@ -303,7 +302,6 @@
             });
         }
         
-        // Search functionality
         document.getElementById('searchInput').addEventListener('input', (e) => {
             searchTerm = e.target.value.toLowerCase();
             currentCategory = "all";
@@ -311,12 +309,10 @@
             renderGames();
         });
         
-        // Close button
         document.getElementById('closeBtn').onclick = () => {
             window.close();
         };
         
-        // Make title bar draggable for the main window
         let isDraggingMain = false;
         let offsetXMain, offsetYMain;
         const titleBar = document.querySelector('.title-bar');
@@ -340,7 +336,6 @@
             titleBar.style.cursor = '';
         });
         
-        // Initial render
         renderGames();
     </script>
 </body>
