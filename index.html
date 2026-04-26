@@ -2106,11 +2106,9 @@ function openInDesktopWindow(url, title) {
 function openGameInDesktopWindow(gameFile, gameName) {
     // Check if this game window is already open
     if (openGameWindows && openGameWindows[gameName]) {
-        // Bring existing window to front and focus it
         const existingWin = openGameWindows[gameName];
         existingWin.style.zIndex = nextWindowZ++;
         existingWin.style.display = 'flex';
-        // Flash the window to show user
         existingWin.style.outline = '2px solid #ffff00';
         setTimeout(() => {
             if (existingWin) existingWin.style.outline = '';
@@ -2118,7 +2116,6 @@ function openGameInDesktopWindow(gameFile, gameName) {
         return;
     }
     
-    // Create a new desktop window for the game
     const windowId = 'game_' + Date.now() + '_' + Math.random();
     const zIndex = nextWindowZ++;
     
@@ -2127,43 +2124,43 @@ function openGameInDesktopWindow(gameFile, gameName) {
     win.id = windowId;
     win.style.left = '150px';
     win.style.top = '100px';
-    win.style.width = '750px';
-    win.style.height = '600px';
     win.style.zIndex = zIndex;
-    win.style.minWidth = '400px';
-    win.style.minHeight = '300px';
+    win.style.minWidth = '300px';
+    win.style.minHeight = '200px';
     
+    // Remove any extra padding from window content
     win.innerHTML = `
         <div class="title-bar">
             <span>${escapeHtml(gameName)}</span>
             <div><span class="close-window" style="cursor:pointer; margin-left:6px;">✗</span></div>
         </div>
-        <div class="window-content" style="padding:0; overflow:auto;">
-            <iframe src="${gameFile}" style="width:100%; height:100%; border:none;"></iframe>
+        <div class="window-content" style="padding:0; margin:0; overflow:hidden; display:flex;">
+            <iframe src="${gameFile}" style="width:100%; height:100%; border:none; margin:0; padding:0; display:block;"></iframe>
         </div>
     `;
     
     document.body.appendChild(win);
     
-    // Add to taskbar
-    const taskbarBtn = addTaskbarButton(windowId, `🎮 ${gameName}`, win);
+    const taskbarBtn = addTaskbarButton(windowId, `${gameName}`, win);
     
-    // Store reference
     if (!openGameWindows) openGameWindows = {};
     openGameWindows[gameName] = win;
     openWindows.push({ id: windowId, url: gameFile, title: gameName, windowElement: win, taskbarBtn: taskbarBtn });
     
     makeWindowDraggable(win, win.querySelector('.title-bar'));
     
-    // Handle window resize for iframe
-    const resizeObserver = new ResizeObserver(() => {
-        const iframe = win.querySelector('iframe');
-        if (iframe) {
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-        }
-    });
-    resizeObserver.observe(win);
+    // Remove any default padding/margin from body and html inside the iframe
+    const iframe = win.querySelector('iframe');
+    iframe.onload = () => {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.body.style.margin = '0';
+            iframeDoc.body.style.padding = '0';
+            iframeDoc.body.style.background = 'transparent';
+            iframeDoc.documentElement.style.margin = '0';
+            iframeDoc.documentElement.style.padding = '0';
+        } catch(e) { console.log('Cannot modify iframe styles'); }
+    };
     
     win.querySelector('.close-window').onclick = () => {
         win.remove();
