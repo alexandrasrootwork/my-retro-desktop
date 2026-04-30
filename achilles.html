@@ -1,23 +1,23 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Achilles Routine</title>
+    <title>Achilles Daily Tracker + Rep Logging + Timer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: "MS Sans Serif", Tahoma, sans-serif;
             background: #c0c0c0;
-            padding: 8px;
+            padding: 10px;
         }
         .window {
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            width: 100%;
-            max-width: 500px;
+            max-width: 950px;
             margin: 0 auto;
         }
         .title-bar {
@@ -27,64 +27,166 @@
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            font-size: 12px;
         }
         .content {
             padding: 12px;
             background: #fffffa;
         }
-        .week-tabs {
+        .calendar-nav {
             display: flex;
-            gap: 2px;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        .week-tab {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 11px;
-            font-family: monospace;
+        .month-year {
+            font-size: 16px;
+            font-weight: bold;
         }
-        .week-tab.active {
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background: #c0c0c0;
+            border: 1px solid #808080;
+            margin-bottom: 15px;
+        }
+        .cal-day-header {
             background: #000080;
             color: white;
-            border: 2px solid #808080;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
+            text-align: center;
+            padding: 5px;
+            font-size: 10px;
         }
-        .checklist {
+        .cal-day {
+            background: #fff;
+            min-height: 70px;
+            padding: 5px;
+            cursor: pointer;
+            border: 1px solid #e0e0e0;
+            text-align: right;
+            font-size: 11px;
+        }
+        .cal-day.empty {
+            background: #e0e0e0;
+            cursor: default;
+        }
+        .cal-day.selected {
+            outline: 3px solid #000080;
+            background: #ffffcc;
+        }
+        .cal-day.complete {
+            background: #ccffcc;
+        }
+        .cal-day.partial {
+            background: #ffdd99;
+        }
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .daily-panel {
+            margin-top: 15px;
+            border-top: 2px solid #c0c0c0;
+            padding-top: 15px;
+        }
+        .daily-checklist {
             list-style: none;
-            margin: 15px 0;
-        }
-        .checklist li {
             margin: 10px 0;
+        }
+        .daily-checklist li {
+            margin: 12px 0;
             font-size: 11px;
             display: flex;
+            flex-wrap: wrap;
             align-items: flex-start;
             gap: 8px;
         }
-        .checklist li input {
-            margin-top: 2px;
-            width: 14px;
-            height: 14px;
-        }
-        .checklist li label {
-            flex: 1;
-            cursor: pointer;
-        }
-        .checklist li.checked label {
+        .daily-checklist li.checked label {
             text-decoration: line-through;
             color: #666;
+        }
+        .section-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #000080;
+            margin: 15px 0 8px 0;
+            border-left: 4px solid #000080;
+            padding-left: 8px;
+        }
+        .video-link {
+            font-size: 10px;
+            margin-left: 8px;
+            color: #0066cc;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .toggle-btn {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+            font-size: 9px;
+            cursor: pointer;
+            padding: 0 4px;
+            margin-left: 6px;
+            border-radius: 2px;
+        }
+        .toggle-btn.active {
+            background: #000080;
+            color: white;
+            border-color: white;
+        }
+        .rep-log-panel, .timer-panel {
+            width: 100%;
+            margin-top: 6px;
+            margin-left: 24px;
+            font-size: 10px;
+            background: #f0f0f0;
+            border-left: 3px solid #000080;
+            padding: 6px;
+            display: none;
+        }
+        .rep-log-panel.active, .timer-panel.active {
+            display: block;
+        }
+        .timestamp-list {
+            max-height: 100px;
+            overflow-y: auto;
+            font-family: monospace;
+            margin: 5px 0;
+        }
+        .timestamp-item {
+            font-size: 9px;
+            border-bottom: 1px dotted #ccc;
+            padding: 2px 0;
+        }
+        .timer-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .timer-display {
+            font-family: monospace;
+            font-weight: bold;
+            background: #000;
+            color: #0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .record-rep-btn {
+            background: #000080;
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 9px;
         }
         .button-bar {
             display: flex;
             gap: 8px;
-            margin: 15px 0;
             flex-wrap: wrap;
+            margin: 15px 0;
         }
         .retro-button {
             background: #c0c0c0;
@@ -93,13 +195,26 @@
             border-bottom-color: #000;
             padding: 5px 12px;
             cursor: pointer;
-            font-family: "MS Sans Serif", Tahoma, monospace;
+            font-family: monospace;
             font-size: 11px;
         }
         .retro-button:active {
             border: 2px solid #000;
             border-right-color: #fff;
             border-bottom-color: #fff;
+        }
+        .program-builder {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #c0c0c0;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            font-family: monospace;
+            font-size: 11px;
+            padding: 5px;
+            border: 1px solid #808080;
+            margin: 8px 0;
         }
         .status-bar {
             background: #c0c0c0;
@@ -109,32 +224,64 @@
             display: flex;
             justify-content: space-between;
         }
-        .progress-bar {
-            background: #fff;
-            border: 1px solid #808080;
-            height: 16px;
-            margin: 10px 0;
-        }
-        .progress-fill {
-            background: #000080;
-            width: 0%;
-            height: 100%;
-        }
-        .footnote {
-            font-size: 9px;
-            color: #666;
-            margin-top: 12px;
-            padding-top: 8px;
-            border-top: 1px solid #c0c0c0;
-        }
-        h3 {
+        h3, .section-head {
             font-size: 12px;
-            margin: 10px 0 5px;
             color: #000080;
+            margin: 10px 0 5px;
         }
-        hr {
-            border: 1px solid #c0c0c0;
+        .note {
+            background: #ffffcc;
+            padding: 6px;
+            font-size: 10px;
             margin: 10px 0;
+            border-left: 3px solid #000080;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            width: 500px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow: auto;
+        }
+        .modal-title-bar {
+            background: #000080;
+            color: white;
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            cursor: move;
+        }
+        .inventory-item {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #808080;
+        }
+        .help-text {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 8px;
+            border: 1px solid #c0c0c0;
+            font-size: 10px;
+            white-space: pre-wrap;
+        }
+        @media (max-width: 700px) {
+            .cal-day { min-height: 50px; font-size: 9px; }
+            .cal-day-header { font-size: 8px; }
         }
     </style>
 </head>
@@ -142,223 +289,543 @@
 
 <div class="window">
     <div class="title-bar">
-        <span>🦶 ACHILLES.CHK</span>
+        <span>🦵 ACHILLES DAILY v4.0 (Two Toggles)</span>
         <span>📅</span>
     </div>
     <div class="content">
-        <div class="week-tabs" id="weekTabs">
-            <div class="week-tab active" data-week="1">Week 1-2</div>
-            <div class="week-tab" data-week="2">Week 3-4</div>
-            <div class="week-tab" data-week="3">Week 5-6</div>
-            <div class="week-tab" data-week="4">Week 7-8</div>
+        <!-- Calendar Navigation -->
+        <div class="calendar-nav">
+            <button class="retro-button" id="prevMonthBtn">◀ Prev</button>
+            <div class="month-year" id="monthYearDisplay"></div>
+            <button class="retro-button" id="nextMonthBtn">Next ▶</button>
+            <button class="retro-button" id="todayBtn">Today</button>
         </div>
 
-        <div id="progressContainer">
-            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-            <div id="progressText" style="font-size: 10px; text-align: right;">0% complete</div>
+        <!-- Calendar Grid -->
+        <div id="calendarGrid" class="calendar-grid"></div>
+
+        <!-- Daily Checklist Panel -->
+        <div class="daily-panel" id="dailyPanel">
+            <div id="selectedDateTitle">📅 No date selected</div>
+            <div id="dailyChecklistContainer"></div>
+            <div class="button-bar">
+                <button class="retro-button" id="saveDayBtn">💾 Save Today</button>
+                <button class="retro-button" id="copyPrevDayBtn">📋 Copy from Yesterday</button>
+            </div>
         </div>
 
-        <div id="checklistContainer"></div>
-
-        <div class="button-bar">
-            <button class="retro-button" id="saveBtn">💾 Save</button>
-            <button class="retro-button" id="resetWeekBtn">⟳ Reset Week</button>
-            <button class="retro-button" id="resetAllBtn">🗑️ Reset All</button>
-        </div>
-
-        <div class="footnote">
-            💡 <strong>Tips:</strong><br>
-            • Do ankle wake-up BEFORE any standing/walking<br>
-            • Morning walk: 20 min (fixed)<br>
-            • Evening walk + floor routine after work<br>
-            • 3x/week strength on Mon/Wed/Fri
+        <!-- Smart Program Import -->
+        <div class="program-builder">
+            <h3>🏋️ Smart Bulk Import (creates exercises & checklists)</h3>
+            <div class="note">
+                💡 <strong>Format rules:</strong><br>
+                <code>## Section Title</code> = heading<br>
+                <code>- Description text [ ]</code> = checkbox task<br>
+                <code>- Exercise name [x] !video(URL)</code> = checked + video<br>
+                Unknown exercises are auto-added to inventory.
+            </div>
+            <textarea id="programText" rows="4" placeholder="Paste your workout routine here..."></textarea>
+            <div class="button-bar">
+                <button class="retro-button" id="importProgramBtn">📥 Import & Apply to Future Dates</button>
+                <button class="retro-button" id="showInventoryBtn">📚 Exercise Inventory</button>
+                <button class="retro-button" id="showHelpBtn">❓ Help & Formatting Guide</button>
+                <button class="retro-button" id="resetAllDataBtn" style="background:#800000; color:white;">⚠️ Reset All Data</button>
+            </div>
+            <div id="importStatus" style="font-size:10px; margin-top:5px;"></div>
         </div>
     </div>
     <div class="status-bar">
-        <span>🦵 Remember: No cold stretching</span>
-        <span id="lastSaved">Ready</span>
+        <span>✅ Click any date to log daily tasks</span>
+        <span id="syncStatus">Local only</span>
+    </div>
+</div>
+
+<!-- Inventory Modal -->
+<div id="inventoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-title-bar">📚 Exercise Inventory <span style="cursor:pointer" id="closeInventoryBtn">✗</span></div>
+        <div class="modal-body" id="inventoryList" style="padding:10px; max-height:400px; overflow:auto;"></div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div id="helpModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-title-bar">❓ Help & Import Format <span style="cursor:pointer" id="closeHelpBtn">✗</span></div>
+        <div class="modal-body" style="padding:12px;">
+            <h3>📝 How to format your workout routines for import</h3>
+            <div class="help-text">
+## Week 1 – Foundation
+- Morning walk 20 min [ ]
+- Evening walk 6-8 min [ ]
+- Ankle pumps 50 [ ] !video(https://youtu.be/abc123)
+- Heel slides 20 [x]
+- Strength: squats 8, bridges 15 [ ]
+            </div>
+            <p><strong>Rules:</strong></p>
+            <ul style="font-size:11px; margin-left:20px;">
+                <li><code>## Title</code> = creates a section heading</li>
+                <li><code>- task [ ]</code> = creates a checkbox item (empty)</li>
+                <li><code>- task [x]</code> = creates a checkbox item (pre‑checked)</li>
+                <li><code>!video(URL)</code> = adds a clickable video link</li>
+                <li>Any exercise name not in your inventory is automatically added</li>
+            </ul>
+            <p><strong>💬 For AI / ChatGPT prompts:</strong><br>
+            When asking me to create a workout, tell me: "Use the format with ## sections, - items, [ ] checkboxes, and !video(URL)."</p>
+            <button class="retro-button" id="closeHelpModalBtn" style="margin-top:12px;">Got it</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Checklists for each 2-week block
-    const checklists = {
-        1: [  // Weeks 1-2
-            "☀️ Morning: 20 min walk (after bus)",
-            "🌙 Evening: 6-8 min walk home",
-            "🦶 Ankle pumps: 50 reps (lying down)",
-            "🦶 Heel slides (toes on floor): 20 reps",
-            "🧣 Towel stretch: 20 sec x2 per leg",
-            "🧱 Wall calf stretch: 3x15 sec per leg",
-            "💪 Strength (3x/week): 8 squats, 15 bridges, 15 heel raises, 10 push-ups, 12 leg lifts, 10 sec plank",
-            "🪑 Floor sitting: Change leg position every 15 min",
-            "👣 Point & flex feet every 30 min while sitting"
-        ],
-        2: [  // Weeks 3-4
-            "☀️ Morning: 20 min walk",
-            "🌙 Evening: 8-10 min walk home",
-            "🦶 Ankle pumps: 50 reps",
-            "🦶 Heel slides: 20 reps",
-            "🧣 Towel stretch: 20 sec x2 per leg",
-            "🧱 Wall calf stretch: 3x15 sec per leg",
-            "💪 Strength (3x/week): 10 squats, 18 bridges, 18 heel raises, 12 push-ups, 15 leg lifts, 12 sec plank",
-            "🪑 Floor sitting: Change position every 15 min",
-            "👣 Point & flex feet every 30 min"
-        ],
-        3: [  // Weeks 5-6
-            "☀️ Morning: 20 min walk",
-            "🌙 Evening: 10-12 min walk home",
-            "🦶 Ankle pumps: 50 reps",
-            "🦶 Heel slides: 20 reps",
-            "🧣 Towel stretch: 20 sec x2 per leg (two sets now)",
-            "🧱 Wall calf stretch: 3x15 sec per leg",
-            "💪 Strength (3x/week): 12 squats, 20 bridges, 20 heel raises, 15 push-ups, 18 leg lifts, 15 sec plank",
-            "🪑 Floor sitting: Change position often",
-            "👣 Point & flex feet regularly"
-        ],
-        4: [  // Weeks 7-8
-            "☀️ Morning: 20 min walk",
-            "🌙 Evening: 12-15 min walk home",
-            "🦶 Ankle pumps: 50 reps",
-            "🦶 Heel slides: 20 reps",
-            "🧣 Towel stretch: 20 sec x2 per leg",
-            "🧱 Wall calf stretch: 3x15 sec per leg",
-            "💪 Strength (3x/week): Maintain Week 5-6 numbers",
-            "🪑 Floor sitting: Keep moving positions",
-            "👣 Daily mobility becoming habit"
-        ]
-    };
+    // ---------- DATA ----------
+    let dailyLogs = {};   // key: YYYY-MM-DD -> { completed: { taskId: bool }, rawSections: [...], repSettings: { taskId: { repLoggingEnabled, timerEnabled, repLogs: [] } } }
+    let exerciseInventory = {};
+    let currentProgram = null;
+    let currentDate = new Date();
+    let selectedDateStr = null;
+    let activeTimers = {};
 
-    let currentWeek = 1;
-    let checks = { 1: [], 2: [], 3: [], 4: [] };
+    // ---------- HELPERS ----------
+    function formatDate(date) {
+        let y = date.getFullYear();
+        let m = String(date.getMonth() + 1).padStart(2, '0');
+        let d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+    function getTodayStr() { return formatDate(new Date()); }
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
 
-    function loadSavedData() {
-        const saved = localStorage.getItem('achilles_routine');
+    // Inventory
+    function loadInventory() {
+        let saved = localStorage.getItem('exercise_inventory_v2');
+        if (saved) exerciseInventory = JSON.parse(saved);
+        else {
+            exerciseInventory = {
+                "ankle pumps": { videoUrl: "", description: "Point and flex toes", defaultReps: 50 },
+                "heel slides": { videoUrl: "", description: "Slide heel toward glutes", defaultReps: 20 },
+                "towel stretch": { videoUrl: "", description: "Loop towel around toes", defaultReps: "20 sec x2" },
+                "wall calf stretch": { videoUrl: "", description: "Hands on wall", defaultReps: "3x15 sec" },
+                "squats": { videoUrl: "", description: "Use wall for balance", defaultReps: 10 },
+                "glute bridges": { videoUrl: "", description: "Lift hips", defaultReps: 15 },
+                "standing heel raises": { videoUrl: "", description: "Hold wall", defaultReps: 15 },
+                "wall push-ups": { videoUrl: "", description: "Hands on wall", defaultReps: 10 },
+                "lying leg lifts": { videoUrl: "", description: "Legs straight", defaultReps: 12 },
+                "knee plank": { videoUrl: "", description: "Elbows on floor", defaultReps: "10 sec" }
+            };
+        }
+    }
+    function saveInventory() { localStorage.setItem('exercise_inventory_v2', JSON.stringify(exerciseInventory)); }
+
+    // Daily logs
+    function loadData() {
+        let saved = localStorage.getItem('achilles_daily_v4');
         if (saved) {
             try {
-                const data = JSON.parse(saved);
-                if (data.checks) checks = data.checks;
-                if (data.currentWeek) currentWeek = data.currentWeek;
+                let data = JSON.parse(saved);
+                dailyLogs = data.dailyLogs || {};
+                currentProgram = data.currentProgram || null;
             } catch(e) {}
         }
-        // Initialize empty arrays for any missing weeks
-        for (let i = 1; i <= 4; i++) {
-            if (!checks[i] || checks[i].length !== checklists[i].length) {
-                checks[i] = new Array(checklists[i].length).fill(false);
-            }
+        let today = getTodayStr();
+        if (!dailyLogs[today]) dailyLogs[today] = { completed: {}, rawSections: [], repSettings: {} };
+        for (let date in dailyLogs) {
+            if (!dailyLogs[date].repSettings) dailyLogs[date].repSettings = {};
         }
     }
-
-    function saveToLocal() {
-        localStorage.setItem('achilles_routine', JSON.stringify({
-            checks: checks,
-            currentWeek: currentWeek,
-            lastSaved: new Date().toISOString()
+    function saveData() {
+        localStorage.setItem('achilles_daily_v4', JSON.stringify({
+            dailyLogs: dailyLogs,
+            currentProgram: currentProgram
         }));
-        document.getElementById('lastSaved').innerText = 'Saved ' + new Date().toLocaleTimeString();
+        document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
     }
 
-    function renderChecklist() {
-        const container = document.getElementById('checklistContainer');
-        const items = checklists[currentWeek];
-        const weekChecks = checks[currentWeek];
+    // Smart import parser (same as before)
+    function parseSmartImport(text) {
+        let lines = text.split(/\r?\n/);
+        let sections = [];
+        let currentSection = { title: "General", items: [] };
+        for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith("##")) {
+                if (currentSection.items.length) sections.push(currentSection);
+                currentSection = { title: line.replace(/^##\s*/, ""), items: [] };
+            } else if (line.startsWith("-")) {
+                let raw = line.substring(1).trim();
+                let hasCheckbox = raw.includes("[ ]") || raw.includes("[x]");
+                let isChecked = raw.includes("[x]");
+                let cleanText = raw.replace(/\[[ x]\]/g, "").trim();
+                let videoMatch = cleanText.match(/!video\(([^)]+)\)/);
+                let videoUrl = videoMatch ? videoMatch[1] : null;
+                cleanText = cleanText.replace(/!video\([^)]+\)/, "").trim();
+                let words = cleanText.split(/\s+/);
+                let exerciseName = words.slice(0, 3).join(" ").toLowerCase().replace(/[^a-z0-9 ]/g, '');
+                if (!exerciseInventory[exerciseName] && exerciseName.length > 3 && !hasCheckbox) {
+                    exerciseInventory[exerciseName] = { videoUrl: videoUrl || "", description: cleanText, defaultReps: "TBD" };
+                    saveInventory();
+                }
+                currentSection.items.push({
+                    text: cleanText,
+                    hasCheckbox: hasCheckbox,
+                    isChecked: isChecked,
+                    videoUrl: videoUrl,
+                    exerciseName: exerciseName,
+                    raw: raw
+                });
+            } else if (line.length > 0 && !line.startsWith("#") && !line.startsWith("-")) {
+                currentSection.items.push({ text: line, isPlain: true });
+            }
+        }
+        if (currentSection.items.length) sections.push(currentSection);
+        return sections;
+    }
 
-        let html = '<ul class="checklist">';
-        items.forEach((item, idx) => {
-            const checked = weekChecks[idx] ? 'checked' : '';
-            const checkedClass = weekChecks[idx] ? 'checked' : '';
-            html += `
-                <li class="${checkedClass}">
-                    <input type="checkbox" data-idx="${idx}" ${checked}>
-                    <label>${item}</label>
-                </li>
-            `;
-        });
-        html += '</ul>';
+    function applySectionsToDate(dateStr, sections) {
+        dailyLogs[dateStr] = dailyLogs[dateStr] || { completed: {}, rawSections: [], repSettings: {} };
+        dailyLogs[dateStr].rawSections = sections;
+        let newCompleted = {};
+        let taskIdCounter = 0;
+        for (let section of sections) {
+            for (let item of section.items) {
+                if (item.hasCheckbox) {
+                    let id = `task_${dateStr}_${taskIdCounter++}`;
+                    newCompleted[id] = item.isChecked || false;
+                    item.id = id;
+                }
+            }
+        }
+        dailyLogs[dateStr].completed = newCompleted;
+        saveData();
+    }
+
+    // Timer function
+    function startTimer(taskId, durationSeconds, displaySpanId) {
+        if (activeTimers[taskId]) clearInterval(activeTimers[taskId]);
+        let remaining = durationSeconds;
+        let displaySpan = document.getElementById(displaySpanId);
+        if (!displaySpan) return;
+        const updateDisplay = () => {
+            let mins = Math.floor(remaining / 60);
+            let secs = remaining % 60;
+            displaySpan.innerText = `${mins}:${secs.toString().padStart(2,'0')}`;
+        };
+        updateDisplay();
+        activeTimers[taskId] = setInterval(() => {
+            remaining--;
+            if (remaining < 0) {
+                clearInterval(activeTimers[taskId]);
+                delete activeTimers[taskId];
+                displaySpan.innerText = "0:00 done!";
+                try { new Audio().play().catch(e=>{}); } catch(e) {}
+                alert(`Timer for ${taskId} finished!`);
+            } else {
+                updateDisplay();
+            }
+        }, 1000);
+    }
+
+    // Render daily checklist with two toggles per strength exercise
+    function renderDailyChecklist(dateStr) {
+        let log = dailyLogs[dateStr] || { completed: {}, rawSections: [], repSettings: {} };
+        let sections = log.rawSections;
+        let container = document.getElementById('dailyChecklistContainer');
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="note">No program imported yet. Use the Smart Import above to create your routine.</div>';
+            return;
+        }
+        let html = '';
+        for (let section of sections) {
+            html += `<div class="section-title">📌 ${escapeHtml(section.title)}</div>`;
+            html += `<ul class="daily-checklist">`;
+            for (let item of section.items) {
+                if (item.isPlain) {
+                    html += `<li style="list-style:none; margin-left:20px;"><em>${escapeHtml(item.text)}</em></li>`;
+                    continue;
+                }
+                if (!item.hasCheckbox) {
+                    html += `<li style="list-style:none; margin-left:20px;">📝 ${escapeHtml(item.text)}</li>`;
+                    continue;
+                }
+                let checked = (log.completed[item.id] === true);
+                let checkedClass = checked ? 'checked' : '';
+                let videoHtml = item.videoUrl ? `<span class="video-link" data-url="${escapeHtml(item.videoUrl)}">📺 Watch video</span>` : '';
+                
+                // Determine if this item should have toggles (e.g., strength exercises)
+                let isStrength = (item.text.toLowerCase().includes('squat') || 
+                                  item.text.toLowerCase().includes('push') || 
+                                  item.text.toLowerCase().includes('bridge') ||
+                                  item.text.toLowerCase().includes('raise') ||
+                                  item.text.toLowerCase().includes('plank') ||
+                                  item.text.toLowerCase().includes('strength') ||
+                                  item.text.toLowerCase().includes('heel') ||
+                                  item.text.toLowerCase().includes('calf'));
+                
+                let repLoggingEnabled = false, timerEnabled = false;
+                let repLogs = [];
+                if (log.repSettings[item.id]) {
+                    repLoggingEnabled = log.repSettings[item.id].repLoggingEnabled || false;
+                    timerEnabled = log.repSettings[item.id].timerEnabled || false;
+                    repLogs = log.repSettings[item.id].repLogs || [];
+                }
+                
+                let repToggleClass = repLoggingEnabled ? 'active' : '';
+                let timerToggleClass = timerEnabled ? 'active' : '';
+                
+                let repPanelHtml = '';
+                if (isStrength) {
+                    repPanelHtml = `
+                        <div style="margin-left: auto;">
+                            <button class="toggle-btn rep-toggle ${repToggleClass}" data-task-id="${item.id}" data-toggle-type="rep">🧾 Reps</button>
+                            <button class="toggle-btn timer-toggle ${timerToggleClass}" data-task-id="${item.id}" data-toggle-type="timer">⏲️ Timer</button>
+                        </div>
+                    `;
+                }
+                
+                // Build rep log panel (if enabled)
+                let repLogPanelHtml = '';
+                if (repLoggingEnabled) {
+                    let timestampsHtml = repLogs.map((rep, idx) => `<div class="timestamp-item">Rep ${idx+1}: ${new Date(rep.timestamp).toLocaleTimeString()}.${String(rep.timestamp % 1000).padStart(3,'0')}</div>`).join('');
+                    repLogPanelHtml = `
+                        <div class="rep-log-panel active" id="rep-panel-${item.id}">
+                            <div><strong>Rep log</strong></div>
+                            <div class="timestamp-list" id="rep-list-${item.id}">${timestampsHtml || '<em>No reps recorded yet</em>'}</div>
+                            <button class="record-rep-btn" data-task-id="${item.id}">⏱️ Record Rep</button>
+                        </div>
+                    `;
+                }
+                
+                // Build timer panel (if enabled)
+                let timerPanelHtml = '';
+                if (timerEnabled) {
+                    timerPanelHtml = `
+                        <div class="timer-panel active" id="timer-panel-${item.id}">
+                            <div class="timer-controls">
+                                <span>⏲️ Rest timer:</span>
+                                <input type="number" id="rest-sec-${item.id}" value="60" min="5" step="5" style="width:60px;"> sec
+                                <button class="start-timer-btn" data-task-id="${item.id}" data-rest-field="rest-sec-${item.id}">▶ Start</button>
+                                <span class="timer-display" id="timer-display-${item.id}">0:00</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <li class="${checkedClass}" data-task-id="${item.id}">
+                        <input type="checkbox" data-task-id="${item.id}" ${checked ? 'checked' : ''}>
+                        <label>${escapeHtml(item.text)}</label>${videoHtml}
+                        ${repPanelHtml}
+                        ${repLogPanelHtml}
+                        ${timerPanelHtml}
+                    </li>
+                `;
+            }
+            html += `</ul>`;
+        }
         container.innerHTML = html;
-
-        // Attach event listeners
+        
+        // Attach checkbox events
         container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.addEventListener('change', (e) => {
-                const idx = parseInt(cb.dataset.idx);
-                checks[currentWeek][idx] = cb.checked;
-                updateProgress();
-                saveToLocal();
-                // Update strikethrough styling
-                const li = cb.closest('li');
+                let taskId = cb.dataset.taskId;
+                dailyLogs[dateStr].completed[taskId] = cb.checked;
+                saveData();
+                renderCalendar();
+                let li = cb.closest('li');
                 if (cb.checked) li.classList.add('checked');
                 else li.classList.remove('checked');
             });
         });
-
-        updateProgress();
-    }
-
-    function updateProgress() {
-        const weekChecks = checks[currentWeek];
-        const total = weekChecks.length;
-        const completed = weekChecks.filter(v => v === true).length;
-        const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
-        document.getElementById('progressFill').style.width = percent + '%';
-        document.getElementById('progressText').innerHTML = `${completed}/${total} tasks (${percent}%)`;
         
-        // Change color based on progress
-        const fill = document.getElementById('progressFill');
-        if (percent === 100) fill.style.background = '#008000';
-        else if (percent >= 50) fill.style.background = '#000080';
-        else fill.style.background = '#800000';
-    }
-
-    function resetWeek() {
-        if (confirm(`Reset ALL checks for Week ${currentWeek === 1 ? '1-2' : currentWeek === 2 ? '3-4' : currentWeek === 3 ? '5-6' : '7-8'}?`)) {
-            checks[currentWeek] = new Array(checklists[currentWeek].length).fill(false);
-            renderChecklist();
-            saveToLocal();
-        }
-    }
-
-    function resetAll() {
-        if (confirm('⚠️ Reset EVERYTHING? This will clear all progress for all weeks.')) {
-            for (let i = 1; i <= 4; i++) {
-                checks[i] = new Array(checklists[i].length).fill(false);
-            }
-            renderChecklist();
-            saveToLocal();
-        }
-    }
-
-    function switchWeek(week) {
-        currentWeek = week;
-        // Update tab styling
-        document.querySelectorAll('.week-tab').forEach((tab, idx) => {
-            if (parseInt(tab.dataset.week) === week) {
-                tab.classList.add('active');
-            } else {
-                tab.classList.remove('active');
-            }
+        // Attach toggle buttons (rep logging and timer)
+        container.querySelectorAll('.rep-toggle, .timer-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let taskId = btn.dataset.taskId;
+                let toggleType = btn.dataset.toggleType;
+                if (!dailyLogs[dateStr].repSettings[taskId]) {
+                    dailyLogs[dateStr].repSettings[taskId] = { repLoggingEnabled: false, timerEnabled: false, repLogs: [] };
+                }
+                let settings = dailyLogs[dateStr].repSettings[taskId];
+                if (toggleType === 'rep') {
+                    settings.repLoggingEnabled = !settings.repLoggingEnabled;
+                } else if (toggleType === 'timer') {
+                    settings.timerEnabled = !settings.timerEnabled;
+                }
+                saveData();
+                renderDailyChecklist(dateStr); // refresh to show/hide panels
+            });
         });
-        renderChecklist();
-        saveToLocal();
+        
+        // Attach record rep buttons
+        container.querySelectorAll('.record-rep-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let taskId = btn.dataset.taskId;
+                let now = Date.now();
+                if (!dailyLogs[dateStr].repSettings[taskId]) {
+                    dailyLogs[dateStr].repSettings[taskId] = { repLoggingEnabled: true, timerEnabled: false, repLogs: [] };
+                }
+                let settings = dailyLogs[dateStr].repSettings[taskId];
+                if (!settings.repLogs) settings.repLogs = [];
+                settings.repLogs.push({ timestamp: now });
+                saveData();
+                renderDailyChecklist(dateStr);
+            });
+        });
+        
+        // Attach start timer buttons
+        container.querySelectorAll('.start-timer-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let taskId = btn.dataset.taskId;
+                let restSec = parseInt(document.getElementById(btn.dataset.restField).value);
+                if (isNaN(restSec)) restSec = 60;
+                startTimer(taskId, restSec, `timer-display-${taskId}`);
+            });
+        });
+        
+        // Attach video links
+        container.querySelectorAll('.video-link').forEach(link => {
+            link.addEventListener('click', () => {
+                let url = link.dataset.url;
+                if (url) window.open(url, '_blank');
+            });
+        });
     }
 
-    // Initialize
-    loadSavedData();
-    renderChecklist();
+    // Calendar rendering (unchanged but uses new completion logic)
+    function renderCalendar() {
+        let year = currentDate.getFullYear();
+        let month = currentDate.getMonth();
+        let firstDay = new Date(year, month, 1);
+        let startDayOfWeek = firstDay.getDay();
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let gridHtml = '';
+        let weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+        for (let i = 0; i < 7; i++) gridHtml += `<div class="cal-day-header">${weekdays[i]}</div>`;
+        for (let i = 0; i < startDayOfWeek; i++) gridHtml += `<div class="cal-day empty"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+            let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            let log = dailyLogs[dateStr];
+            let completedCount = 0, totalTasks = 0;
+            if (log && log.rawSections) {
+                let taskIds = Object.keys(log.completed || {});
+                totalTasks = taskIds.length;
+                completedCount = taskIds.filter(id => log.completed[id] === true).length;
+            }
+            let statusClass = '';
+            if (totalTasks > 0) {
+                if (completedCount === totalTasks) statusClass = 'complete';
+                else if (completedCount > 0) statusClass = 'partial';
+            }
+            let isSelected = (selectedDateStr === dateStr) ? 'selected' : '';
+            gridHtml += `<div class="cal-day ${statusClass} ${isSelected}" data-date="${dateStr}"><div class="day-number">${d}</div><div style="font-size:8px;">${completedCount}/${totalTasks}</div></div>`;
+        }
+        document.getElementById('calendarGrid').innerHTML = gridHtml;
+        document.getElementById('monthYearDisplay').innerText = `${firstDay.toLocaleString('default', { month: 'long' })} ${year}`;
+        document.querySelectorAll('.cal-day[data-date]').forEach(el => {
+            el.addEventListener('click', () => {
+                selectedDateStr = el.dataset.date;
+                renderCalendar();
+                document.getElementById('selectedDateTitle').innerHTML = `📅 ${selectedDateStr}`;
+                renderDailyChecklist(selectedDateStr);
+            });
+        });
+    }
+
+    function importAndApply() {
+        let text = document.getElementById('programText').value;
+        if (!text.trim()) { alert('Paste a routine first.'); return; }
+        let sections = parseSmartImport(text);
+        if (sections.length === 0) { alert('No valid sections found.'); return; }
+        currentProgram = text;
+        let startDate = new Date();
+        for (let i = 0; i < 56; i++) {
+            let futureDate = new Date(startDate);
+            futureDate.setDate(startDate.getDate() + i);
+            let dateStr = formatDate(futureDate);
+            applySectionsToDate(dateStr, sections);
+        }
+        saveData();
+        renderCalendar();
+        if (selectedDateStr) renderDailyChecklist(selectedDateStr);
+        document.getElementById('importStatus').innerHTML = '✅ Imported to next 56 days!';
+        setTimeout(() => document.getElementById('importStatus').innerHTML = '', 3000);
+    }
+
+    function copyFromYesterday() {
+        if (!selectedDateStr) return;
+        let date = new Date(selectedDateStr);
+        date.setDate(date.getDate() - 1);
+        let yesterdayStr = formatDate(date);
+        let yesterdayLog = dailyLogs[yesterdayStr];
+        if (!yesterdayLog || !yesterdayLog.rawSections) { alert('No program for yesterday.'); return; }
+        let sectionsCopy = JSON.parse(JSON.stringify(yesterdayLog.rawSections));
+        applySectionsToDate(selectedDateStr, sectionsCopy);
+        renderDailyChecklist(selectedDateStr);
+        renderCalendar();
+        alert('Copied from ' + yesterdayStr);
+    }
+
+    function saveCurrentDay() { if (selectedDateStr) { saveData(); alert('Saved'); } else alert('Select a date first.'); }
+    function resetAll() {
+        if (confirm('⚠️ Delete all data?')) {
+            localStorage.removeItem('achilles_daily_v4');
+            localStorage.removeItem('exercise_inventory_v2');
+            dailyLogs = {}; exerciseInventory = {};
+            loadInventory(); loadData();
+            renderCalendar();
+            if (selectedDateStr) renderDailyChecklist(selectedDateStr);
+            alert('Reset complete.');
+        }
+    }
+    function showInventory() {
+        let container = document.getElementById('inventoryList');
+        container.innerHTML = '';
+        for (let [name, data] of Object.entries(exerciseInventory)) {
+            let div = document.createElement('div');
+            div.className = 'inventory-item';
+            div.innerHTML = `<strong>${escapeHtml(name)}</strong><br>
+                <input type="text" placeholder="Video URL" value="${escapeHtml(data.videoUrl || '')}" data-exercise="${name}" class="inv-video" style="width:90%"><br>
+                <textarea placeholder="Description" data-exercise="${name}" class="inv-desc" rows="2" style="width:90%">${escapeHtml(data.description || '')}</textarea>
+                <button data-exercise="${name}" class="delete-exercise-btn retro-button">✗ Delete</button>`;
+            container.appendChild(div);
+        }
+        document.querySelectorAll('.inv-video').forEach(inp => inp.addEventListener('change', (e) => { exerciseInventory[inp.dataset.exercise].videoUrl = inp.value; saveInventory(); }));
+        document.querySelectorAll('.inv-desc').forEach(ta => ta.addEventListener('change', (e) => { exerciseInventory[ta.dataset.exercise].description = ta.value; saveInventory(); }));
+        document.querySelectorAll('.delete-exercise-btn').forEach(btn => btn.addEventListener('click', () => { delete exerciseInventory[btn.dataset.exercise]; saveInventory(); showInventory(); }));
+        document.getElementById('inventoryModal').style.display = 'flex';
+    }
+    function closeInventory() { document.getElementById('inventoryModal').style.display = 'none'; }
+    function showHelp() { document.getElementById('helpModal').style.display = 'flex'; }
+    function closeHelp() { document.getElementById('helpModal').style.display = 'none'; }
+    function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); }
+    function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); }
+    function goToToday() { currentDate = new Date(); renderCalendar(); selectedDateStr = getTodayStr(); renderDailyChecklist(selectedDateStr); }
+
+    // Initialisation
+    loadInventory();
+    loadData();
+    renderCalendar();
+    selectedDateStr = getTodayStr();
+    renderDailyChecklist(selectedDateStr);
+    document.getElementById('selectedDateTitle').innerHTML = `📅 ${selectedDateStr}`;
 
     // Event listeners
-    document.getElementById('saveBtn').onclick = () => {
-        saveToLocal();
-        alert('✅ Progress saved!');
-    };
-    document.getElementById('resetWeekBtn').onclick = resetWeek;
-    document.getElementById('resetAllBtn').onclick = resetAll;
-
-    document.querySelectorAll('.week-tab').forEach(tab => {
-        tab.onclick = () => {
-            const week = parseInt(tab.dataset.week);
-            switchWeek(week);
-        };
-    });
+    document.getElementById('prevMonthBtn').onclick = prevMonth;
+    document.getElementById('nextMonthBtn').onclick = nextMonth;
+    document.getElementById('todayBtn').onclick = goToToday;
+    document.getElementById('saveDayBtn').onclick = saveCurrentDay;
+    document.getElementById('copyPrevDayBtn').onclick = copyFromYesterday;
+    document.getElementById('importProgramBtn').onclick = importAndApply;
+    document.getElementById('showInventoryBtn').onclick = showInventory;
+    document.getElementById('showHelpBtn').onclick = showHelp;
+    document.getElementById('resetAllDataBtn').onclick = resetAll;
+    document.getElementById('closeInventoryBtn').onclick = closeInventory;
+    document.getElementById('closeHelpBtn').onclick = closeHelp;
+    document.getElementById('closeHelpModalBtn').onclick = closeHelp;
 </script>
 </body>
 </html>
