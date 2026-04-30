@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Achilles Routine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            background: #c0c0c0;
+            padding: 8px;
+        }
+        .window {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .title-bar {
+            background: #000080;
+            color: white;
+            padding: 6px 8px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .content {
+            padding: 12px;
+            background: #fffffa;
+        }
+        .week-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .week-tab {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #808080;
+            border-bottom-color: #808080;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        .week-tab.active {
+            background: #000080;
+            color: white;
+            border: 2px solid #808080;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        .checklist {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .checklist li {
+            margin: 10px 0;
+            font-size: 11px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .checklist li input {
+            margin-top: 2px;
+            width: 14px;
+            height: 14px;
+        }
+        .checklist li label {
+            flex: 1;
+            cursor: pointer;
+        }
+        .checklist li.checked label {
+            text-decoration: line-through;
+            color: #666;
+        }
+        .button-bar {
+            display: flex;
+            gap: 8px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .retro-button {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #000;
+            border-bottom-color: #000;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-family: "MS Sans Serif", Tahoma, monospace;
+            font-size: 11px;
+        }
+        .retro-button:active {
+            border: 2px solid #000;
+            border-right-color: #fff;
+            border-bottom-color: #fff;
+        }
+        .status-bar {
+            background: #c0c0c0;
+            border-top: 1px solid #808080;
+            padding: 4px 8px;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .progress-bar {
+            background: #fff;
+            border: 1px solid #808080;
+            height: 16px;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            background: #000080;
+            width: 0%;
+            height: 100%;
+        }
+        .footnote {
+            font-size: 9px;
+            color: #666;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid #c0c0c0;
+        }
+        h3 {
+            font-size: 12px;
+            margin: 10px 0 5px;
+            color: #000080;
+        }
+        hr {
+            border: 1px solid #c0c0c0;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="window">
+    <div class="title-bar">
+        <span>🦶 ACHILLES.CHK</span>
+        <span>📅</span>
+    </div>
+    <div class="content">
+        <div class="week-tabs" id="weekTabs">
+            <div class="week-tab active" data-week="1">Week 1-2</div>
+            <div class="week-tab" data-week="2">Week 3-4</div>
+            <div class="week-tab" data-week="3">Week 5-6</div>
+            <div class="week-tab" data-week="4">Week 7-8</div>
+        </div>
+
+        <div id="progressContainer">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div id="progressText" style="font-size: 10px; text-align: right;">0% complete</div>
+        </div>
+
+        <div id="checklistContainer"></div>
+
+        <div class="button-bar">
+            <button class="retro-button" id="saveBtn">💾 Save</button>
+            <button class="retro-button" id="resetWeekBtn">⟳ Reset Week</button>
+            <button class="retro-button" id="resetAllBtn">🗑️ Reset All</button>
+        </div>
+
+        <div class="footnote">
+            💡 <strong>Tips:</strong><br>
+            • Do ankle wake-up BEFORE any standing/walking<br>
+            • Morning walk: 20 min (fixed)<br>
+            • Evening walk + floor routine after work<br>
+            • 3x/week strength on Mon/Wed/Fri
+        </div>
+    </div>
+    <div class="status-bar">
+        <span>🦵 Remember: No cold stretching</span>
+        <span id="lastSaved">Ready</span>
+    </div>
+</div>
+
+<script>
+    // Checklists for each 2-week block
+    const checklists = {
+        1: [  // Weeks 1-2
+            "☀️ Morning: 20 min walk (after bus)",
+            "🌙 Evening: 6-8 min walk home",
+            "🦶 Ankle pumps: 50 reps (lying down)",
+            "🦶 Heel slides (toes on floor): 20 reps",
+            "🧣 Towel stretch: 20 sec x2 per leg",
+            "🧱 Wall calf stretch: 3x15 sec per leg",
+            "💪 Strength (3x/week): 8 squats, 15 bridges, 15 heel raises, 10 push-ups, 12 leg lifts, 10 sec plank",
+            "🪑 Floor sitting: Change leg position every 15 min",
+            "👣 Point & flex feet every 30 min while sitting"
+        ],
+        2: [  // Weeks 3-4
+            "☀️ Morning: 20 min walk",
+            "🌙 Evening: 8-10 min walk home",
+            "🦶 Ankle pumps: 50 reps",
+            "🦶 Heel slides: 20 reps",
+            "🧣 Towel stretch: 20 sec x2 per leg",
+            "🧱 Wall calf stretch: 3x15 sec per leg",
+            "💪 Strength (3x/week): 10 squats, 18 bridges, 18 heel raises, 12 push-ups, 15 leg lifts, 12 sec plank",
+            "🪑 Floor sitting: Change position every 15 min",
+            "👣 Point & flex feet every 30 min"
+        ],
+        3: [  // Weeks 5-6
+            "☀️ Morning: 20 min walk",
+            "🌙 Evening: 10-12 min walk home",
+            "🦶 Ankle pumps: 50 reps",
+            "🦶 Heel slides: 20 reps",
+            "🧣 Towel stretch: 20 sec x2 per leg (two sets now)",
+            "🧱 Wall calf stretch: 3x15 sec per leg",
+            "💪 Strength (3x/week): 12 squats, 20 bridges, 20 heel raises, 15 push-ups, 18 leg lifts, 15 sec plank",
+            "🪑 Floor sitting: Change position often",
+            "👣 Point & flex feet regularly"
+        ],
+        4: [  // Weeks 7-8
+            "☀️ Morning: 20 min walk",
+            "🌙 Evening: 12-15 min walk home",
+            "🦶 Ankle pumps: 50 reps",
+            "🦶 Heel slides: 20 reps",
+            "🧣 Towel stretch: 20 sec x2 per leg",
+            "🧱 Wall calf stretch: 3x15 sec per leg",
+            "💪 Strength (3x/week): Maintain Week 5-6 numbers",
+            "🪑 Floor sitting: Keep moving positions",
+            "👣 Daily mobility becoming habit"
+        ]
+    };
+
+    let currentWeek = 1;
+    let checks = { 1: [], 2: [], 3: [], 4: [] };
+
+    function loadSavedData() {
+        const saved = localStorage.getItem('achilles_routine');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                if (data.checks) checks = data.checks;
+                if (data.currentWeek) currentWeek = data.currentWeek;
+            } catch(e) {}
+        }
+        // Initialize empty arrays for any missing weeks
+        for (let i = 1; i <= 4; i++) {
+            if (!checks[i] || checks[i].length !== checklists[i].length) {
+                checks[i] = new Array(checklists[i].length).fill(false);
+            }
+        }
+    }
+
+    function saveToLocal() {
+        localStorage.setItem('achilles_routine', JSON.stringify({
+            checks: checks,
+            currentWeek: currentWeek,
+            lastSaved: new Date().toISOString()
+        }));
+        document.getElementById('lastSaved').innerText = 'Saved ' + new Date().toLocaleTimeString();
+    }
+
+    function renderChecklist() {
+        const container = document.getElementById('checklistContainer');
+        const items = checklists[currentWeek];
+        const weekChecks = checks[currentWeek];
+
+        let html = '<ul class="checklist">';
+        items.forEach((item, idx) => {
+            const checked = weekChecks[idx] ? 'checked' : '';
+            const checkedClass = weekChecks[idx] ? 'checked' : '';
+            html += `
+                <li class="${checkedClass}">
+                    <input type="checkbox" data-idx="${idx}" ${checked}>
+                    <label>${item}</label>
+                </li>
+            `;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+
+        // Attach event listeners
+        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const idx = parseInt(cb.dataset.idx);
+                checks[currentWeek][idx] = cb.checked;
+                updateProgress();
+                saveToLocal();
+                // Update strikethrough styling
+                const li = cb.closest('li');
+                if (cb.checked) li.classList.add('checked');
+                else li.classList.remove('checked');
+            });
+        });
+
+        updateProgress();
+    }
+
+    function updateProgress() {
+        const weekChecks = checks[currentWeek];
+        const total = weekChecks.length;
+        const completed = weekChecks.filter(v => v === true).length;
+        const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+        document.getElementById('progressFill').style.width = percent + '%';
+        document.getElementById('progressText').innerHTML = `${completed}/${total} tasks (${percent}%)`;
+        
+        // Change color based on progress
+        const fill = document.getElementById('progressFill');
+        if (percent === 100) fill.style.background = '#008000';
+        else if (percent >= 50) fill.style.background = '#000080';
+        else fill.style.background = '#800000';
+    }
+
+    function resetWeek() {
+        if (confirm(`Reset ALL checks for Week ${currentWeek === 1 ? '1-2' : currentWeek === 2 ? '3-4' : currentWeek === 3 ? '5-6' : '7-8'}?`)) {
+            checks[currentWeek] = new Array(checklists[currentWeek].length).fill(false);
+            renderChecklist();
+            saveToLocal();
+        }
+    }
+
+    function resetAll() {
+        if (confirm('⚠️ Reset EVERYTHING? This will clear all progress for all weeks.')) {
+            for (let i = 1; i <= 4; i++) {
+                checks[i] = new Array(checklists[i].length).fill(false);
+            }
+            renderChecklist();
+            saveToLocal();
+        }
+    }
+
+    function switchWeek(week) {
+        currentWeek = week;
+        // Update tab styling
+        document.querySelectorAll('.week-tab').forEach((tab, idx) => {
+            if (parseInt(tab.dataset.week) === week) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+        renderChecklist();
+        saveToLocal();
+    }
+
+    // Initialize
+    loadSavedData();
+    renderChecklist();
+
+    // Event listeners
+    document.getElementById('saveBtn').onclick = () => {
+        saveToLocal();
+        alert('✅ Progress saved!');
+    };
+    document.getElementById('resetWeekBtn').onclick = resetWeek;
+    document.getElementById('resetAllBtn').onclick = resetAll;
+
+    document.querySelectorAll('.week-tab').forEach(tab => {
+        tab.onclick = () => {
+            const week = parseInt(tab.dataset.week);
+            switchWeek(week);
+        };
+    });
+</script>
+</body>
+</html>
