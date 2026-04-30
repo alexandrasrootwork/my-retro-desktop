@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Achilles Daily Tracker + Rep Logging + Timer</title>
+    <title>Achilles Daily + Weekly Frequency</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -120,6 +120,13 @@
             color: #0066cc;
             cursor: pointer;
             text-decoration: underline;
+        }
+        .frequency-counter {
+            font-size: 9px;
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
         }
         .toggle-btn {
             background: #c0c0c0;
@@ -289,22 +296,17 @@
 
 <div class="window">
     <div class="title-bar">
-        <span>🦵 ACHILLES DAILY v4.0 (Two Toggles)</span>
+        <span>🦵 ACHILLES v5.0 (Weekly Frequency)</span>
         <span>📅</span>
     </div>
     <div class="content">
-        <!-- Calendar Navigation -->
         <div class="calendar-nav">
             <button class="retro-button" id="prevMonthBtn">◀ Prev</button>
             <div class="month-year" id="monthYearDisplay"></div>
             <button class="retro-button" id="nextMonthBtn">Next ▶</button>
             <button class="retro-button" id="todayBtn">Today</button>
         </div>
-
-        <!-- Calendar Grid -->
         <div id="calendarGrid" class="calendar-grid"></div>
-
-        <!-- Daily Checklist Panel -->
         <div class="daily-panel" id="dailyPanel">
             <div id="selectedDateTitle">📅 No date selected</div>
             <div id="dailyChecklistContainer"></div>
@@ -313,18 +315,14 @@
                 <button class="retro-button" id="copyPrevDayBtn">📋 Copy from Yesterday</button>
             </div>
         </div>
-
-        <!-- Smart Program Import -->
         <div class="program-builder">
-            <h3>🏋️ Smart Bulk Import (creates exercises & checklists)</h3>
+            <h3>🏋️ Smart Bulk Import (supports weekly frequency)</h3>
             <div class="note">
-                💡 <strong>Format rules:</strong><br>
-                <code>## Section Title</code> = heading<br>
-                <code>- Description text [ ]</code> = checkbox task<br>
-                <code>- Exercise name [x] !video(URL)</code> = checked + video<br>
-                Unknown exercises are auto-added to inventory.
+                💡 <strong>New format for weekly tasks:</strong><br>
+                <code>- Strength session: full body [ ] (3x per week)</code><br>
+                The app will count how many times you check it in the current week and show e.g., (1/3 this week).
             </div>
-            <textarea id="programText" rows="4" placeholder="Paste your workout routine here..."></textarea>
+            <textarea id="programText" rows="4" placeholder="Paste your routine here..."></textarea>
             <div class="button-bar">
                 <button class="retro-button" id="importProgramBtn">📥 Import & Apply to Future Dates</button>
                 <button class="retro-button" id="showInventoryBtn">📚 Exercise Inventory</button>
@@ -335,12 +333,11 @@
         </div>
     </div>
     <div class="status-bar">
-        <span>✅ Click any date to log daily tasks</span>
+        <span>✅ Click any date | Weekly counters reset each Monday</span>
         <span id="syncStatus">Local only</span>
     </div>
 </div>
 
-<!-- Inventory Modal -->
 <div id="inventoryModal" class="modal">
     <div class="modal-content">
         <div class="modal-title-bar">📚 Exercise Inventory <span style="cursor:pointer" id="closeInventoryBtn">✗</span></div>
@@ -348,30 +345,32 @@
     </div>
 </div>
 
-<!-- Help Modal -->
 <div id="helpModal" class="modal">
     <div class="modal-content">
-        <div class="modal-title-bar">❓ Help & Import Format <span style="cursor:pointer" id="closeHelpBtn">✗</span></div>
+        <div class="modal-title-bar">❓ Help & Formatting Guide <span style="cursor:pointer" id="closeHelpBtn">✗</span></div>
         <div class="modal-body" style="padding:12px;">
             <h3>📝 How to format your workout routines for import</h3>
             <div class="help-text">
-## Week 1 – Foundation
+## Week 1-2 – Foundation
 - Morning walk 20 min [ ]
-- Evening walk 6-8 min [ ]
 - Ankle pumps 50 [ ] !video(https://youtu.be/abc123)
-- Heel slides 20 [x]
-- Strength: squats 8, bridges 15 [ ]
+- Strength session: squats 8, bridges 15 [ ] (3x per week)
+- Evening walk 6-8 min [ ]
+
+## Week 3-4 – Increase
+- Evening walk 8-10 min [ ]
+- Strength session: squats 10, bridges 18 [ ] (3x per week)
             </div>
             <p><strong>Rules:</strong></p>
             <ul style="font-size:11px; margin-left:20px;">
-                <li><code>## Title</code> = creates a section heading</li>
-                <li><code>- task [ ]</code> = creates a checkbox item (empty)</li>
-                <li><code>- task [x]</code> = creates a checkbox item (pre‑checked)</li>
-                <li><code>!video(URL)</code> = adds a clickable video link</li>
-                <li>Any exercise name not in your inventory is automatically added</li>
+                <li><code>## Week X-Y</code> – defines a period. Tasks inside will only appear for dates whose week number falls between X and Y (based on the import date).</li>
+                <li><code>- task [ ]</code> – daily checkbox.</li>
+                <li><code>- task [ ] (Nx per week)</code> – weekly frequency task. The app counts how many times you check it in the current week (Monday–Sunday) and shows a counter.</li>
+                <li><code>!video(URL)</code> – adds a video link.</li>
+                <li>Unknown exercises are auto-added to inventory.</li>
             </ul>
             <p><strong>💬 For AI / ChatGPT prompts:</strong><br>
-            When asking me to create a workout, tell me: "Use the format with ## sections, - items, [ ] checkboxes, and !video(URL)."</p>
+            "Create a 8-week workout program for my Achilles tendon recovery. Use format with ## Week X-Y headers, - items, [ ] checkboxes, and for tasks that should be done multiple times per week write (Nx per week) after the checkbox. Include !video(URL) for stretches."</p>
             <button class="retro-button" id="closeHelpModalBtn" style="margin-top:12px;">Got it</button>
         </div>
     </div>
@@ -379,12 +378,13 @@
 
 <script>
     // ---------- DATA ----------
-    let dailyLogs = {};   // key: YYYY-MM-DD -> { completed: { taskId: bool }, rawSections: [...], repSettings: { taskId: { repLoggingEnabled, timerEnabled, repLogs: [] } } }
+    let dailyLogs = {};       // { dateStr: { completed: { taskId: bool }, taskMeta: { taskId: { frequencyPerWeek, weekCounterLastReset, weeklyCount } }, rawSections: [...] } }
     let exerciseInventory = {};
     let currentProgram = null;
     let currentDate = new Date();
     let selectedDateStr = null;
     let activeTimers = {};
+    let programStartDate = null;  // set on import
 
     // ---------- HELPERS ----------
     function formatDate(date) {
@@ -397,6 +397,23 @@
     function escapeHtml(str) {
         if (!str) return '';
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    // Get week number (Monday-based) relative to program start, but simpler: week of year
+    function getWeekOfYear(date) {
+        let d = new Date(date);
+        d.setHours(0,0,0,0);
+        d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+        let week1 = new Date(d.getFullYear(), 0, 4);
+        return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+    // Get the user's current week number in the program (0-indexed week count from programStartDate)
+    function getProgramWeekNumber(dateStr) {
+        if (!programStartDate) return 1;
+        let start = new Date(programStartDate);
+        let current = new Date(dateStr);
+        let diffDays = Math.floor((current - start) / (1000 * 60 * 60 * 24));
+        let weekNum = Math.floor(diffDays / 7) + 1;
+        return Math.max(1, weekNum);
     }
 
     // Inventory
@@ -422,43 +439,62 @@
 
     // Daily logs
     function loadData() {
-        let saved = localStorage.getItem('achilles_daily_v4');
+        let saved = localStorage.getItem('achilles_daily_v5');
         if (saved) {
             try {
                 let data = JSON.parse(saved);
                 dailyLogs = data.dailyLogs || {};
                 currentProgram = data.currentProgram || null;
+                programStartDate = data.programStartDate || null;
             } catch(e) {}
         }
         let today = getTodayStr();
-        if (!dailyLogs[today]) dailyLogs[today] = { completed: {}, rawSections: [], repSettings: {} };
+        if (!dailyLogs[today]) dailyLogs[today] = { completed: {}, taskMeta: {}, rawSections: [] };
         for (let date in dailyLogs) {
-            if (!dailyLogs[date].repSettings) dailyLogs[date].repSettings = {};
+            if (!dailyLogs[date].taskMeta) dailyLogs[date].taskMeta = {};
         }
     }
     function saveData() {
-        localStorage.setItem('achilles_daily_v4', JSON.stringify({
+        localStorage.setItem('achilles_daily_v5', JSON.stringify({
             dailyLogs: dailyLogs,
-            currentProgram: currentProgram
+            currentProgram: currentProgram,
+            programStartDate: programStartDate
         }));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
     }
 
-    // Smart import parser (same as before)
+    // Parse import with frequency detection
     function parseSmartImport(text) {
         let lines = text.split(/\r?\n/);
-        let sections = [];
-        let currentSection = { title: "General", items: [] };
+        let sections = [];  // each section: { title, weekRangeStart, weekRangeEnd, items }
+        let currentSection = { title: "General", weekRangeStart: 1, weekRangeEnd: 999, items: [] };
         for (let line of lines) {
             line = line.trim();
             if (line.startsWith("##")) {
                 if (currentSection.items.length) sections.push(currentSection);
-                currentSection = { title: line.replace(/^##\s*/, ""), items: [] };
+                let title = line.replace(/^##\s*/, "");
+                let weekRange = { start: 1, end: 999 };
+                let match = title.match(/Week\s*(\d+)\s*[-–]\s*(\d+)/i);
+                if (match) {
+                    weekRange.start = parseInt(match[1]);
+                    weekRange.end = parseInt(match[2]);
+                } else {
+                    match = title.match(/Week\s*(\d+)/i);
+                    if (match) weekRange.start = weekRange.end = parseInt(match[1]);
+                }
+                currentSection = { title: title, weekRangeStart: weekRange.start, weekRangeEnd: weekRange.end, items: [] };
             } else if (line.startsWith("-")) {
                 let raw = line.substring(1).trim();
                 let hasCheckbox = raw.includes("[ ]") || raw.includes("[x]");
                 let isChecked = raw.includes("[x]");
                 let cleanText = raw.replace(/\[[ x]\]/g, "").trim();
+                // Check for frequency suffix like (3x per week)
+                let frequency = null;
+                let freqMatch = cleanText.match(/\((\d+)\s*x\s*per\s*week\)/i);
+                if (freqMatch) {
+                    frequency = parseInt(freqMatch[1]);
+                    cleanText = cleanText.replace(/\((\d+)\s*x\s*per\s*week\)/i, "").trim();
+                }
                 let videoMatch = cleanText.match(/!video\(([^)]+)\)/);
                 let videoUrl = videoMatch ? videoMatch[1] : null;
                 cleanText = cleanText.replace(/!video\([^)]+\)/, "").trim();
@@ -474,6 +510,7 @@
                     isChecked: isChecked,
                     videoUrl: videoUrl,
                     exerciseName: exerciseName,
+                    frequencyPerWeek: frequency,
                     raw: raw
                 });
             } else if (line.length > 0 && !line.startsWith("#") && !line.startsWith("-")) {
@@ -484,25 +521,224 @@
         return sections;
     }
 
-    function applySectionsToDate(dateStr, sections) {
-        dailyLogs[dateStr] = dailyLogs[dateStr] || { completed: {}, rawSections: [], repSettings: {} };
-        dailyLogs[dateStr].rawSections = sections;
+    // Apply sections to a specific date, considering week range and frequency initialization
+    function applySectionsToDate(dateStr, allSections) {
+        let weekNum = getProgramWeekNumber(dateStr);
+        let applicableSections = allSections.filter(s => weekNum >= s.weekRangeStart && weekNum <= s.weekRangeEnd);
+        if (applicableSections.length === 0) {
+            // fallback to first section
+            applicableSections = [allSections[0]];
+        }
+        let log = dailyLogs[dateStr] || { completed: {}, taskMeta: {}, rawSections: [] };
+        log.rawSections = applicableSections;
         let newCompleted = {};
+        let newTaskMeta = {};
         let taskIdCounter = 0;
-        for (let section of sections) {
+        for (let section of applicableSections) {
             for (let item of section.items) {
                 if (item.hasCheckbox) {
                     let id = `task_${dateStr}_${taskIdCounter++}`;
+                    // For frequency tasks, we need to know the weekly count. We'll store separate metadata per week.
+                    // To avoid recomputing each time, we'll store initial completed state as false.
                     newCompleted[id] = item.isChecked || false;
+                    newTaskMeta[id] = {
+                        text: item.text,
+                        frequencyPerWeek: item.frequencyPerWeek || null,
+                        videoUrl: item.videoUrl,
+                        // weekly progress will be computed on the fly from dailyLogs of the same week
+                    };
                     item.id = id;
                 }
             }
         }
-        dailyLogs[dateStr].completed = newCompleted;
+        log.completed = newCompleted;
+        log.taskMeta = newTaskMeta;
+        dailyLogs[dateStr] = log;
         saveData();
     }
 
-    // Timer function
+    // Get weekly completion count for a frequency task across all dates in the same week
+    function getWeeklyCount(dateStr, taskId, taskMeta) {
+        if (!taskMeta.frequencyPerWeek) return null;
+        let targetDate = new Date(dateStr);
+        let startOfWeek = new Date(targetDate);
+        startOfWeek.setDate(targetDate.getDate() - targetDate.getDay()); // Sunday
+        let endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        let count = 0;
+        for (let d = new Date(startOfWeek); d <= endOfWeek; d.setDate(d.getDate() + 1)) {
+            let dStr = formatDate(d);
+            let log = dailyLogs[dStr];
+            if (log && log.completed && log.completed[taskId] === true) count++;
+        }
+        return count;
+    }
+
+    // Render daily checklist with frequency counters
+    function renderDailyChecklist(dateStr) {
+        let log = dailyLogs[dateStr] || { completed: {}, taskMeta: {}, rawSections: [] };
+        let sections = log.rawSections;
+        let container = document.getElementById('dailyChecklistContainer');
+        if (!sections || sections.length === 0) {
+            container.innerHTML = '<div class="note">No program imported yet. Use the Smart Import above to create your routine.</div>';
+            return;
+        }
+        let html = '';
+        for (let section of sections) {
+            html += `<div class="section-title">📌 ${escapeHtml(section.title)}</div>`;
+            html += `<ul class="daily-checklist">`;
+            for (let item of section.items) {
+                if (item.isPlain) {
+                    html += `<li style="list-style:none; margin-left:20px;"><em>${escapeHtml(item.text)}</em></li>`;
+                    continue;
+                }
+                if (!item.hasCheckbox) {
+                    html += `<li style="list-style:none; margin-left:20px;">📝 ${escapeHtml(item.text)}</li>`;
+                    continue;
+                }
+                let taskId = item.id;
+                let checked = (log.completed[taskId] === true);
+                let checkedClass = checked ? 'checked' : '';
+                let videoHtml = item.videoUrl ? `<span class="video-link" data-url="${escapeHtml(item.videoUrl)}">📺 Watch video</span>` : '';
+                
+                let meta = log.taskMeta[taskId] || {};
+                let frequency = meta.frequencyPerWeek;
+                let counterHtml = '';
+                if (frequency) {
+                    let weeklyCount = getWeeklyCount(dateStr, taskId, meta);
+                    counterHtml = `<span class="frequency-counter">(${weeklyCount}/${frequency} this week)</span>`;
+                }
+                
+                // Determine if this item should have toggles (strength)
+                let isStrength = (item.text.toLowerCase().includes('squat') || 
+                                  item.text.toLowerCase().includes('push') || 
+                                  item.text.toLowerCase().includes('bridge') ||
+                                  item.text.toLowerCase().includes('raise') ||
+                                  item.text.toLowerCase().includes('plank') ||
+                                  item.text.toLowerCase().includes('strength') ||
+                                  item.text.toLowerCase().includes('heel') ||
+                                  item.text.toLowerCase().includes('calf'));
+                
+                let repLoggingEnabled = false, timerEnabled = false;
+                let repLogs = [];
+                if (log.repSettings && log.repSettings[taskId]) {
+                    repLoggingEnabled = log.repSettings[taskId].repLoggingEnabled || false;
+                    timerEnabled = log.repSettings[taskId].timerEnabled || false;
+                    repLogs = log.repSettings[taskId].repLogs || [];
+                }
+                let repToggleClass = repLoggingEnabled ? 'active' : '';
+                let timerToggleClass = timerEnabled ? 'active' : '';
+                
+                let repPanelHtml = '', timerPanelHtml = '';
+                if (isStrength) {
+                    let repPanel = `<div class="rep-log-panel ${repLoggingEnabled ? 'active' : ''}" id="rep-panel-${taskId}">
+                                        <div><strong>Rep log</strong></div>
+                                        <div class="timestamp-list" id="rep-list-${taskId}">${repLogs.map((rep, idx) => `<div class="timestamp-item">Rep ${idx+1}: ${new Date(rep.timestamp).toLocaleTimeString()}.${String(rep.timestamp % 1000).padStart(3,'0')}</div>`).join('') || '<em>No reps recorded yet</em>'}</div>
+                                        <button class="record-rep-btn" data-task-id="${taskId}">⏱️ Record Rep</button>
+                                    </div>`;
+                    let timerPanel = `<div class="timer-panel ${timerEnabled ? 'active' : ''}" id="timer-panel-${taskId}">
+                                        <div class="timer-controls">
+                                            <span>⏲️ Rest timer:</span>
+                                            <input type="number" id="rest-sec-${taskId}" value="60" min="5" step="5" style="width:60px;"> sec
+                                            <button class="start-timer-btn" data-task-id="${taskId}" data-rest-field="rest-sec-${taskId}">▶ Start</button>
+                                            <span class="timer-display" id="timer-display-${taskId}">0:00</span>
+                                        </div>
+                                    </div>`;
+                    repPanelHtml = `
+                        <div style="margin-left: auto;">
+                            <button class="toggle-btn rep-toggle ${repToggleClass}" data-task-id="${taskId}" data-toggle-type="rep">🧾 Reps</button>
+                            <button class="toggle-btn timer-toggle ${timerToggleClass}" data-task-id="${taskId}" data-toggle-type="timer">⏲️ Timer</button>
+                        </div>
+                        ${repPanel}
+                        ${timerPanel}
+                    `;
+                }
+                
+                html += `
+                    <li class="${checkedClass}" data-task-id="${taskId}">
+                        <input type="checkbox" data-task-id="${taskId}" ${checked ? 'checked' : ''}>
+                        <label>${escapeHtml(item.text)}</label>${videoHtml}${counterHtml}
+                        ${repPanelHtml}
+                    </li>
+                `;
+            }
+            html += `</ul>`;
+        }
+        container.innerHTML = html;
+        
+        // Attach checkbox events (including frequency update)
+        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                let taskId = cb.dataset.taskId;
+                let wasChecked = dailyLogs[dateStr].completed[taskId];
+                dailyLogs[dateStr].completed[taskId] = cb.checked;
+                saveData();
+                renderCalendar();
+                // Re-render to update frequency counter for current day and other days in same week
+                renderDailyChecklist(dateStr);
+                let li = cb.closest('li');
+                if (cb.checked) li.classList.add('checked');
+                else li.classList.remove('checked');
+            });
+        });
+        
+        // Attach toggle buttons
+        container.querySelectorAll('.rep-toggle, .timer-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                let taskId = btn.dataset.taskId;
+                let toggleType = btn.dataset.toggleType;
+                if (!dailyLogs[dateStr].repSettings) dailyLogs[dateStr].repSettings = {};
+                if (!dailyLogs[dateStr].repSettings[taskId]) {
+                    dailyLogs[dateStr].repSettings[taskId] = { repLoggingEnabled: false, timerEnabled: false, repLogs: [] };
+                }
+                let settings = dailyLogs[dateStr].repSettings[taskId];
+                if (toggleType === 'rep') {
+                    settings.repLoggingEnabled = !settings.repLoggingEnabled;
+                } else if (toggleType === 'timer') {
+                    settings.timerEnabled = !settings.timerEnabled;
+                }
+                saveData();
+                renderDailyChecklist(dateStr);
+            });
+        });
+        
+        // Record rep
+        container.querySelectorAll('.record-rep-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let taskId = btn.dataset.taskId;
+                let now = Date.now();
+                if (!dailyLogs[dateStr].repSettings) dailyLogs[dateStr].repSettings = {};
+                if (!dailyLogs[dateStr].repSettings[taskId]) {
+                    dailyLogs[dateStr].repSettings[taskId] = { repLoggingEnabled: true, timerEnabled: false, repLogs: [] };
+                }
+                let settings = dailyLogs[dateStr].repSettings[taskId];
+                if (!settings.repLogs) settings.repLogs = [];
+                settings.repLogs.push({ timestamp: now });
+                saveData();
+                renderDailyChecklist(dateStr);
+            });
+        });
+        
+        // Start timer
+        container.querySelectorAll('.start-timer-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let taskId = btn.dataset.taskId;
+                let restSec = parseInt(document.getElementById(btn.dataset.restField).value);
+                if (isNaN(restSec)) restSec = 60;
+                startTimer(taskId, restSec, `timer-display-${taskId}`);
+            });
+        });
+        
+        // Video links
+        container.querySelectorAll('.video-link').forEach(link => {
+            link.addEventListener('click', () => {
+                let url = link.dataset.url;
+                if (url) window.open(url, '_blank');
+            });
+        });
+    }
+
     function startTimer(taskId, durationSeconds, displaySpanId) {
         if (activeTimers[taskId]) clearInterval(activeTimers[taskId]);
         let remaining = durationSeconds;
@@ -528,174 +764,7 @@
         }, 1000);
     }
 
-    // Render daily checklist with two toggles per strength exercise
-    function renderDailyChecklist(dateStr) {
-        let log = dailyLogs[dateStr] || { completed: {}, rawSections: [], repSettings: {} };
-        let sections = log.rawSections;
-        let container = document.getElementById('dailyChecklistContainer');
-        if (!sections || sections.length === 0) {
-            container.innerHTML = '<div class="note">No program imported yet. Use the Smart Import above to create your routine.</div>';
-            return;
-        }
-        let html = '';
-        for (let section of sections) {
-            html += `<div class="section-title">📌 ${escapeHtml(section.title)}</div>`;
-            html += `<ul class="daily-checklist">`;
-            for (let item of section.items) {
-                if (item.isPlain) {
-                    html += `<li style="list-style:none; margin-left:20px;"><em>${escapeHtml(item.text)}</em></li>`;
-                    continue;
-                }
-                if (!item.hasCheckbox) {
-                    html += `<li style="list-style:none; margin-left:20px;">📝 ${escapeHtml(item.text)}</li>`;
-                    continue;
-                }
-                let checked = (log.completed[item.id] === true);
-                let checkedClass = checked ? 'checked' : '';
-                let videoHtml = item.videoUrl ? `<span class="video-link" data-url="${escapeHtml(item.videoUrl)}">📺 Watch video</span>` : '';
-                
-                // Determine if this item should have toggles (e.g., strength exercises)
-                let isStrength = (item.text.toLowerCase().includes('squat') || 
-                                  item.text.toLowerCase().includes('push') || 
-                                  item.text.toLowerCase().includes('bridge') ||
-                                  item.text.toLowerCase().includes('raise') ||
-                                  item.text.toLowerCase().includes('plank') ||
-                                  item.text.toLowerCase().includes('strength') ||
-                                  item.text.toLowerCase().includes('heel') ||
-                                  item.text.toLowerCase().includes('calf'));
-                
-                let repLoggingEnabled = false, timerEnabled = false;
-                let repLogs = [];
-                if (log.repSettings[item.id]) {
-                    repLoggingEnabled = log.repSettings[item.id].repLoggingEnabled || false;
-                    timerEnabled = log.repSettings[item.id].timerEnabled || false;
-                    repLogs = log.repSettings[item.id].repLogs || [];
-                }
-                
-                let repToggleClass = repLoggingEnabled ? 'active' : '';
-                let timerToggleClass = timerEnabled ? 'active' : '';
-                
-                let repPanelHtml = '';
-                if (isStrength) {
-                    repPanelHtml = `
-                        <div style="margin-left: auto;">
-                            <button class="toggle-btn rep-toggle ${repToggleClass}" data-task-id="${item.id}" data-toggle-type="rep">🧾 Reps</button>
-                            <button class="toggle-btn timer-toggle ${timerToggleClass}" data-task-id="${item.id}" data-toggle-type="timer">⏲️ Timer</button>
-                        </div>
-                    `;
-                }
-                
-                // Build rep log panel (if enabled)
-                let repLogPanelHtml = '';
-                if (repLoggingEnabled) {
-                    let timestampsHtml = repLogs.map((rep, idx) => `<div class="timestamp-item">Rep ${idx+1}: ${new Date(rep.timestamp).toLocaleTimeString()}.${String(rep.timestamp % 1000).padStart(3,'0')}</div>`).join('');
-                    repLogPanelHtml = `
-                        <div class="rep-log-panel active" id="rep-panel-${item.id}">
-                            <div><strong>Rep log</strong></div>
-                            <div class="timestamp-list" id="rep-list-${item.id}">${timestampsHtml || '<em>No reps recorded yet</em>'}</div>
-                            <button class="record-rep-btn" data-task-id="${item.id}">⏱️ Record Rep</button>
-                        </div>
-                    `;
-                }
-                
-                // Build timer panel (if enabled)
-                let timerPanelHtml = '';
-                if (timerEnabled) {
-                    timerPanelHtml = `
-                        <div class="timer-panel active" id="timer-panel-${item.id}">
-                            <div class="timer-controls">
-                                <span>⏲️ Rest timer:</span>
-                                <input type="number" id="rest-sec-${item.id}" value="60" min="5" step="5" style="width:60px;"> sec
-                                <button class="start-timer-btn" data-task-id="${item.id}" data-rest-field="rest-sec-${item.id}">▶ Start</button>
-                                <span class="timer-display" id="timer-display-${item.id}">0:00</span>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                html += `
-                    <li class="${checkedClass}" data-task-id="${item.id}">
-                        <input type="checkbox" data-task-id="${item.id}" ${checked ? 'checked' : ''}>
-                        <label>${escapeHtml(item.text)}</label>${videoHtml}
-                        ${repPanelHtml}
-                        ${repLogPanelHtml}
-                        ${timerPanelHtml}
-                    </li>
-                `;
-            }
-            html += `</ul>`;
-        }
-        container.innerHTML = html;
-        
-        // Attach checkbox events
-        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.addEventListener('change', (e) => {
-                let taskId = cb.dataset.taskId;
-                dailyLogs[dateStr].completed[taskId] = cb.checked;
-                saveData();
-                renderCalendar();
-                let li = cb.closest('li');
-                if (cb.checked) li.classList.add('checked');
-                else li.classList.remove('checked');
-            });
-        });
-        
-        // Attach toggle buttons (rep logging and timer)
-        container.querySelectorAll('.rep-toggle, .timer-toggle').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                let taskId = btn.dataset.taskId;
-                let toggleType = btn.dataset.toggleType;
-                if (!dailyLogs[dateStr].repSettings[taskId]) {
-                    dailyLogs[dateStr].repSettings[taskId] = { repLoggingEnabled: false, timerEnabled: false, repLogs: [] };
-                }
-                let settings = dailyLogs[dateStr].repSettings[taskId];
-                if (toggleType === 'rep') {
-                    settings.repLoggingEnabled = !settings.repLoggingEnabled;
-                } else if (toggleType === 'timer') {
-                    settings.timerEnabled = !settings.timerEnabled;
-                }
-                saveData();
-                renderDailyChecklist(dateStr); // refresh to show/hide panels
-            });
-        });
-        
-        // Attach record rep buttons
-        container.querySelectorAll('.record-rep-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let taskId = btn.dataset.taskId;
-                let now = Date.now();
-                if (!dailyLogs[dateStr].repSettings[taskId]) {
-                    dailyLogs[dateStr].repSettings[taskId] = { repLoggingEnabled: true, timerEnabled: false, repLogs: [] };
-                }
-                let settings = dailyLogs[dateStr].repSettings[taskId];
-                if (!settings.repLogs) settings.repLogs = [];
-                settings.repLogs.push({ timestamp: now });
-                saveData();
-                renderDailyChecklist(dateStr);
-            });
-        });
-        
-        // Attach start timer buttons
-        container.querySelectorAll('.start-timer-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let taskId = btn.dataset.taskId;
-                let restSec = parseInt(document.getElementById(btn.dataset.restField).value);
-                if (isNaN(restSec)) restSec = 60;
-                startTimer(taskId, restSec, `timer-display-${taskId}`);
-            });
-        });
-        
-        // Attach video links
-        container.querySelectorAll('.video-link').forEach(link => {
-            link.addEventListener('click', () => {
-                let url = link.dataset.url;
-                if (url) window.open(url, '_blank');
-            });
-        });
-    }
-
-    // Calendar rendering (unchanged but uses new completion logic)
+    // Calendar rendering (uses weekly completion for frequency tasks? For simplicity, show raw checkbox completion)
     function renderCalendar() {
         let year = currentDate.getFullYear();
         let month = currentDate.getMonth();
@@ -710,10 +779,9 @@
             let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
             let log = dailyLogs[dateStr];
             let completedCount = 0, totalTasks = 0;
-            if (log && log.rawSections) {
-                let taskIds = Object.keys(log.completed || {});
-                totalTasks = taskIds.length;
-                completedCount = taskIds.filter(id => log.completed[id] === true).length;
+            if (log && log.completed) {
+                totalTasks = Object.keys(log.completed).length;
+                completedCount = Object.values(log.completed).filter(v => v === true).length;
             }
             let statusClass = '';
             if (totalTasks > 0) {
@@ -741,7 +809,10 @@
         let sections = parseSmartImport(text);
         if (sections.length === 0) { alert('No valid sections found.'); return; }
         currentProgram = text;
-        let startDate = new Date();
+        // Set program start date to today if not set
+        if (!programStartDate) programStartDate = new Date().toISOString().split('T')[0];
+        // Apply to all dates from today up to 8 weeks ahead
+        let startDate = new Date(programStartDate);
         for (let i = 0; i < 56; i++) {
             let futureDate = new Date(startDate);
             futureDate.setDate(startDate.getDate() + i);
@@ -772,7 +843,7 @@
     function saveCurrentDay() { if (selectedDateStr) { saveData(); alert('Saved'); } else alert('Select a date first.'); }
     function resetAll() {
         if (confirm('⚠️ Delete all data?')) {
-            localStorage.removeItem('achilles_daily_v4');
+            localStorage.removeItem('achilles_daily_v5');
             localStorage.removeItem('exercise_inventory_v2');
             dailyLogs = {}; exerciseInventory = {};
             loadInventory(); loadData();
