@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Achilles Tracker - Weekly Workout Program</title>
+    <title>Achilles Tracker - Weekly Workouts</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,7 +17,7 @@
             border: 2px solid #fff;
             border-right-color: #000;
             border-bottom-color: #000;
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
         }
         .title-bar {
@@ -62,13 +63,14 @@
         .week-header {
             background: #000080;
             color: white;
-            padding: 8px;
+            padding: 10px;
             margin: 10px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
+            border-radius: 3px;
         }
         .week-nav {
             display: flex;
@@ -76,45 +78,78 @@
             align-items: center;
         }
         .week-number {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
         }
         .workout-card {
-            background: #f0f0f0;
-            border: 1px solid #c0c0c0;
-            padding: 12px;
+            background: #e0e0e0;
+            border: 1px solid #808080;
             margin-bottom: 15px;
+            overflow: hidden;
         }
-        .workout-title {
-            font-weight: bold;
-            color: #000080;
-            margin-bottom: 10px;
-            font-size: 14px;
+        .workout-header {
+            background: #c0c0c0;
+            padding: 12px;
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
-            flex-wrap: wrap;
             align-items: center;
+            border-bottom: 1px solid #808080;
+            font-weight: bold;
+        }
+        .workout-header:hover {
+            background: #b0b0b0;
+        }
+        .workout-title {
+            font-size: 14px;
+            color: #000080;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .expand-icon {
+            font-size: 12px;
+            background: #808080;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .workout-stats {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         .frequency-badge {
-            background: #c0c0c0;
-            padding: 4px 8px;
+            background: #000080;
+            color: white;
+            padding: 4px 10px;
             border-radius: 3px;
             font-size: 11px;
         }
         .progress-badge {
             background: #006600;
             color: white;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 3px;
             font-size: 11px;
         }
         .progress-badge.complete {
             background: #00aa00;
         }
+        .workout-content {
+            display: none;
+            padding: 12px;
+            background: #fff;
+        }
+        .workout-content.expanded {
+            display: block;
+        }
         .exercise-item {
             margin: 12px 0;
             padding: 10px;
-            background: #fff;
+            background: #f0f0f0;
             border-left: 3px solid #000080;
         }
         .exercise-header {
@@ -171,7 +206,7 @@
         .timer-container {
             margin-top: 8px;
             padding: 6px;
-            background: #e0e0e0;
+            background: #d0d0d0;
             border-radius: 3px;
         }
         .timer-display {
@@ -195,17 +230,23 @@
             width: 55px;
             text-align: center;
         }
-        .complete-workout-btn {
+        .complete-session-btn {
             background: #006600;
             color: white;
             border: none;
-            padding: 6px 12px;
-            margin-top: 10px;
+            padding: 8px 16px;
+            margin-top: 15px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 12px;
+            width: 100%;
+            font-weight: bold;
         }
-        .complete-workout-btn:active {
+        .complete-session-btn:active {
             background: #004400;
+        }
+        .complete-session-btn.disabled {
+            background: #808080;
+            cursor: not-allowed;
         }
         .retro-button {
             background: #c0c0c0;
@@ -224,7 +265,7 @@
         }
         textarea {
             width: 100%;
-            height: 200px;
+            height: 250px;
             font-family: monospace;
             font-size: 10px;
             padding: 5px;
@@ -251,16 +292,16 @@
             flex-wrap: wrap;
             align-items: center;
         }
-        hr {
-            margin: 15px 0;
-            border: 1px solid #c0c0c0;
-        }
         pre {
             background: #e0e0e0;
             padding: 8px;
             font-size: 9px;
             white-space: pre-wrap;
             margin: 5px 0;
+        }
+        hr {
+            margin: 15px 0;
+            border: 1px solid #c0c0c0;
         }
     </style>
 </head>
@@ -283,11 +324,11 @@
         <div id="workoutTab" class="tab-pane active">
             <div class="week-header">
                 <div class="week-nav">
-                    <button class="retro-button" id="prevWeekBtn">◀ Prev Week</button>
+                    <button class="retro-button" id="prevWeekBtn">◀ Prev</button>
                     <span class="week-number" id="weekNumberDisplay">Week 1</span>
-                    <button class="retro-button" id="nextWeekBtn">Next Week ▶</button>
+                    <button class="retro-button" id="nextWeekBtn">Next ▶</button>
                 </div>
-                <button class="retro-button" id="currentWeekBtn">Current Week</button>
+                <button class="retro-button" id="currentWeekBtn">📍 Current Week</button>
             </div>
             <div id="weeklyWorkoutContainer">
                 <div class="note">📅 Loading workouts...</div>
@@ -297,19 +338,26 @@
         <!-- IMPORT TAB -->
         <div id="importTab" class="tab-pane">
             <div class="note">
-                <strong>📥 Paste your workout program below</strong><br>
-                Format:
+                <strong>📥 IMPORT FORMAT (use this EXACT structure)</strong><br><br>
+                <strong>Rules:</strong><br>
+                • Each workout: <code>[Workout Name]</code> on its own line<br>
+                • Each exercise: <code>- [name]: [sets] sets of [reps] reps</code><br>
+                • Optional video: add <code>!video(URL)</code><br>
+                • Weekly schedule: <code>Week [number]: [Workout Name] [X]x/week, [Workout Name] [Y]x/week</code><br><br>
+                
+                <strong>Example:</strong>
                 <pre>
-Workout Name: Mobility & Calf Recovery
-- Ankle pumps: 3 sets of 20 reps !video(URL)
+[Mobility & Calf Recovery]
+- Ankle pumps: 3 sets of 20 reps
 - Towel stretch: 3 sets of 20 sec
 
-Workout Name: Strength Foundation
+[Strength Foundation]
 - Squats: 3 sets of 10 reps
+- Push-ups: 3 sets of 8 reps
 
-Weekly schedule:
-Week 1: Mobility & Calf Recovery 3x/week, Strength Foundation 2x/week
-Week 2: Mobility & Calf Recovery 3x/week, Strength Foundation 2x/week
+WEEKLY SCHEDULE:
+Week 1: [Mobility & Calf Recovery] 3x/week, [Strength Foundation] 2x/week
+Week 2: [Mobility & Calf Recovery] 3x/week, [Strength Foundation] 2x/week
                 </pre>
             </div>
             <textarea id="importText" placeholder="Paste your workout program here..."></textarea>
@@ -319,10 +367,7 @@ Week 2: Mobility & Calf Recovery 3x/week, Strength Foundation 2x/week
 
         <!-- HISTORY TAB -->
         <div id="historyTab" class="tab-pane">
-            <div class="note">
-                <strong>📊 Weekly Completion History</strong><br>
-                Track your progress week by week.
-            </div>
+            <div class="note">📊 Weekly completion history</div>
             <div id="historyContainer"></div>
             <button class="retro-button" id="resetHistoryBtn" style="margin-top:10px; background:#800000; color:white;">🗑️ Reset All History</button>
         </div>
@@ -330,64 +375,57 @@ Week 2: Mobility & Calf Recovery 3x/week, Strength Foundation 2x/week
         <!-- HELP TAB -->
         <div id="helpTab" class="tab-pane">
             <div class="note">
-                <strong>📖 WORKOUT PROGRAM FORMAT SPECIFICATION</strong><br><br>
+                <strong>📖 COMPLETE IMPORT GUIDE</strong><br><br>
                 
-                <strong>RULE 1: Workout Definition</strong><br>
-                • Each workout starts with <code>Workout Name: [name]</code> on its own line<br>
-                • Each exercise starts with <code>- </code> (dash + space)<br>
-                • Exercise format: <code>name: X sets of Y reps</code> or <code>name: X sets of Y sec</code><br>
-                • Optional video: add <code>!video(URL)</code> at the end<br>
-                • Separate workouts with a blank line<br><br>
+                <strong>WORKOUT DEFINITION:</strong><br>
+                <code>[Workout Name]</code> - Workout name in square brackets on its own line<br>
+                <code>- Exercise name: X sets of Y reps</code> - Each exercise starts with dash and space<br>
+                <code>- Exercise name: X sets of Y sec</code> - Use "sec" for timed holds<br>
+                <code>!video(URL)</code> - Add at the end of an exercise line for video link<br><br>
                 
-                <strong>RULE 2: Weekly Schedule</strong><br>
-                • Write <code>Weekly schedule:</code> on its own line<br>
-                • Each week: <code>Week 1: WorkoutName 3x/week, WorkoutName 2x/week</code><br>
-                • No spaces between number and "x"<br>
-                • Comma + space between multiple workouts<br>
-                • Workout names must match EXACTLY the names above<br><br>
+                <strong>WEEKLY SCHEDULE:</strong><br>
+                <code>WEEKLY SCHEDULE:</code> - This exact line, then each week on its own line<br>
+                <code>Week 1: [Workout Name] 3x/week, [Workout Name] 2x/week</code><br><br>
                 
-                <strong>✅ CORRECT EXAMPLE:</strong>
+                <strong>✅ COMPLETE EXAMPLE (copy this to test):</strong>
                 <pre>
-Workout Name: Leg Day
-- Squats: 3 sets of 10 reps
-- Calf raises: 3 sets of 15 reps !video(https://youtu.be/example)
+[Mobility & Calf Recovery]
+- Ankle pumps: 3 sets of 20 reps !video(https://youtu.be/JfB6GBYfi7E)
+- Heel slides: 3 sets of 15 reps
+- Towel stretch: 3 sets of 20 sec
 
-Workout Name: Upper Body
-- Push-ups: 3 sets of 8 reps
+[Strength Foundation]
+- Bodyweight squats: 3 sets of 10 reps
+- Glute bridges: 3 sets of 15 reps
+- Wall push-ups: 3 sets of 10 reps
 
-Weekly schedule:
-Week 1: Leg Day 3x/week, Upper Body 2x/week
-Week 2: Leg Day 3x/week, Upper Body 2x/week
+WEEKLY SCHEDULE:
+Week 1: [Mobility & Calf Recovery] 3x/week, [Strength Foundation] 2x/week
+Week 2: [Mobility & Calf Recovery] 3x/week, [Strength Foundation] 2x/week
                 </pre>
                 
-                <strong>🤖 COPY THIS PROMPT FOR CHATGPT/CLAUDE:</strong>
+                <strong>🤖 COPY THIS PROMPT FOR CHATGPT:</strong>
                 <pre>
-Create an 8-week Achilles tendon recovery workout program using this EXACT format:
+Create an 8-week Achilles tendon recovery program using this EXACT format:
 
-Workout Name: [exact name]
-- [exercise name]: [number] sets of [number] reps !video(optional URL)
-- [exercise name]: [number] sets of [number] sec
+[Workout Name]
+- exercise name: X sets of Y reps !video(optional URL)
+- exercise name: X sets of Y sec
 
-(Repeat for each workout. Put a blank line between workouts.)
+(Repeat for each workout)
 
-Weekly schedule:
-Week 1: [Workout Name] [number]x/week, [Workout Name] [number]x/week
-Week 2: [Workout Name] [number]x/week, [Workout Name] [number]x/week
-(Continue through Week 8)
+WEEKLY SCHEDULE:
+Week 1: [Workout Name] Xx/week, [Workout Name] Yx/week
+Week 2: [Workout Name] Xx/week, [Workout Name] Yx/week
+(continue through Week 8)
 
-CRITICAL RULES:
-- "Workout Name: " must be exact (colon after Name)
-- Each exercise starts with "- " (dash space)
-- Exercise format: "name: X sets of Y reps" (colon after name)
-- Units: "reps" for repetitions, "sec" for seconds hold
-- Weekly schedule: "Week X: Name1 3x/week, Name2 2x/week" (no spaces in "3x")
-- Workout names must match exactly between definition and schedule
+CRITICAL: Use square brackets around workout names. Use dash and space for exercises. Write "WEEKLY SCHEDULE:" exactly.
                 </pre>
             </div>
         </div>
     </div>
     <div class="status-bar">
-        <span>💪 Click "Complete Workout" to mark a session done</span>
+        <span>💡 Click workout header to expand/collapse</span>
         <span id="syncStatus">Ready</span>
     </div>
 </div>
@@ -396,8 +434,9 @@ CRITICAL RULES:
     // ========== DATA ==========
     let workouts = {};           // workoutId -> { name, exercises }
     let weeklySchedule = [];     // { weekNumber: 1, workoutFrequencies: { workoutId: 3 } }
-    let weeklyCompletions = {};  // "weekNumber_workoutId" -> count of completions this week
-    let currentDisplayWeek = 1;  // Week being viewed
+    let weeklyCompletions = {};  // "weekNumber_workoutId" -> count
+    let currentDisplayWeek = 1;
+    let expandedWorkouts = {};    // track which workouts are expanded
     
     // ========== HELPERS ==========
     function escapeHtml(str) {
@@ -414,37 +453,26 @@ CRITICAL RULES:
         return Math.min(week, weeklySchedule.length || 8);
     }
     
-    // Load/Save
     function loadData() {
-        let saved = localStorage.getItem('workout_tracker_v6');
+        let saved = localStorage.getItem('workout_tracker_v7');
         if (saved) {
             try {
                 let data = JSON.parse(saved);
                 workouts = data.workouts || {};
                 weeklySchedule = data.weeklySchedule || [];
                 weeklyCompletions = data.weeklyCompletions || {};
+                expandedWorkouts = data.expandedWorkouts || {};
             } catch(e) {}
-        }
-        if (Object.keys(workouts).length === 0) {
-            // Demo data
-            workouts = {
-                "demo1": { name: "Sample Workout", exercises: [
-                    { id: "ex1", name: "Ankle Pumps", sets: 3, reps: 20, videoUrl: "" },
-                    { id: "ex2", name: "Calf Raises", sets: 3, reps: 15, videoUrl: "" }
-                ]}
-            };
-            weeklySchedule = [{ weekNumber: 1, workoutFrequencies: { demo1: 3 } }];
         }
     }
     
     function saveData() {
-        localStorage.setItem('workout_tracker_v6', JSON.stringify({
-            workouts, weeklySchedule, weeklyCompletions
+        localStorage.setItem('workout_tracker_v7', JSON.stringify({
+            workouts, weeklySchedule, weeklyCompletions, expandedWorkouts
         }));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
     }
     
-    // Get workouts for a specific week
     function getWorkoutsForWeek(weekNum) {
         let weekSchedule = weeklySchedule.find(w => w.weekNumber === weekNum);
         if (!weekSchedule) return [];
@@ -468,7 +496,6 @@ CRITICAL RULES:
         return result;
     }
     
-    // Mark a workout as completed for the week
     function completeWorkout(workoutId, weekNum) {
         let weekSchedule = weeklySchedule.find(w => w.weekNumber === weekNum);
         if (!weekSchedule) return false;
@@ -480,7 +507,7 @@ CRITICAL RULES:
         let currentCompleted = weeklyCompletions[completionKey] || 0;
         
         if (currentCompleted >= frequency) {
-            alert(`You've already completed ${workoutId} ${frequency} times this week!`);
+            alert(`You've already completed ${frequency} sessions of this workout this week!`);
             return false;
         }
         
@@ -489,7 +516,12 @@ CRITICAL RULES:
         return true;
     }
     
-    // Render weekly workout view
+    function toggleWorkout(workoutId) {
+        expandedWorkouts[workoutId] = !expandedWorkouts[workoutId];
+        saveData();
+        renderWeeklyWorkouts();
+    }
+    
     function renderWeeklyWorkouts() {
         let weekWorkouts = getWorkoutsForWeek(currentDisplayWeek);
         let container = document.getElementById('weeklyWorkoutContainer');
@@ -502,23 +534,28 @@ CRITICAL RULES:
         
         let html = '';
         for (let w of weekWorkouts) {
-            let percentComplete = (w.completed / w.frequency) * 100;
+            let isExpanded = expandedWorkouts[w.id] || false;
+            let expandIcon = isExpanded ? '▼' : '▶';
             let progressClass = w.completed >= w.frequency ? 'complete' : '';
+            let remainingText = w.completed >= w.frequency ? 'Goal achieved!' : `${w.completed}/${w.frequency} sessions done`;
             
-            html += `<div class="workout-card" data-workout-id="${w.id}">
-                <div class="workout-title">
-                    <span>🏋️ ${escapeHtml(w.name)}</span>
-                    <div class="flex-row">
-                        <span class="frequency-badge">Target: ${w.frequency}x/week</span>
-                        <span class="progress-badge ${progressClass}">Completed: ${w.completed}/${w.frequency}</span>
+            html += `<div class="workout-card">
+                <div class="workout-header" onclick="toggleWorkout('${w.id}')">
+                    <div class="workout-title">
+                        <span class="expand-icon">${expandIcon}</span>
+                        <span>🏋️ ${escapeHtml(w.name)}</span>
                     </div>
-                </div>`;
+                    <div class="workout-stats">
+                        <span class="frequency-badge">🎯 Target: ${w.frequency}x/week</span>
+                        <span class="progress-badge ${progressClass}">📊 ${remainingText}</span>
+                    </div>
+                </div>
+                <div class="workout-content ${isExpanded ? 'expanded' : ''}">`;
             
-            // Show exercises for this workout
+            // Exercises
             for (let exercise of w.exercises) {
                 let videoHtml = exercise.videoUrl ? `<span class="video-link" data-url="${escapeHtml(exercise.videoUrl)}">📺 Watch video</span>` : '';
                 
-                // Get stored rep logs for this exercise (per workout, per week)
                 let repLogKey = `week${currentDisplayWeek}_${w.id}_${exercise.id}`;
                 let repLogs = JSON.parse(localStorage.getItem(repLogKey) || '[]');
                 let timestampsHtml = '';
@@ -535,7 +572,7 @@ CRITICAL RULES:
                     </div>
                     <div class="checkbox-row">
                         ${videoHtml}
-                        <button class="record-rep-btn" data-workout="${w.id}" data-exercise-id="${exercise.id}" data-week="${currentDisplayWeek}">🕐 Record Rep</button>
+                        <button class="record-rep-btn" data-workout="${w.id}" data-exercise-id="${exercise.id}" data-week="${currentDisplayWeek}">🕐 Record Rep (timestamp)</button>
                     </div>
                     ${timestampsHtml}
                     <div class="timer-container">
@@ -552,13 +589,9 @@ CRITICAL RULES:
                 </div>`;
             }
             
-            if (w.completed < w.frequency) {
-                html += `<button class="complete-workout-btn" data-workout="${w.id}" data-week="${currentDisplayWeek}">✅ Mark One Complete Session (${w.completed + 1}/${w.frequency})</button>`;
-            } else {
-                html += `<div class="progress-text" style="color:#006600; margin-top:10px;">🎉 Weekly goal achieved! Great job!</div>`;
-            }
-            
-            html += `</div>`;
+            let btnDisabled = (w.completed >= w.frequency) ? 'disabled' : '';
+            html += `<button class="complete-session-btn ${btnDisabled}" data-workout="${w.id}" data-week="${currentDisplayWeek}" ${btnDisabled}>✅ Mark One Complete Session (${w.completed + 1}/${w.frequency})</button>`;
+            html += `</div></div>`;
         }
         container.innerHTML = html;
         document.getElementById('weekNumberDisplay').innerText = `Week ${currentDisplayWeek}`;
@@ -574,6 +607,7 @@ CRITICAL RULES:
         // Attach record rep buttons
         container.querySelectorAll('.record-rep-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 let workoutId = btn.dataset.workout;
                 let exerciseId = btn.dataset.exerciseId;
                 let weekNum = parseInt(btn.dataset.week);
@@ -581,13 +615,14 @@ CRITICAL RULES:
                 let logs = JSON.parse(localStorage.getItem(repLogKey) || '[]');
                 logs.push({ timestamp: Date.now() });
                 localStorage.setItem(repLogKey, JSON.stringify(logs));
-                renderWeeklyWorkouts(); // refresh to show new timestamp
+                renderWeeklyWorkouts();
             });
         });
         
-        // Attach complete workout buttons
-        container.querySelectorAll('.complete-workout-btn').forEach(btn => {
+        // Attach complete session buttons
+        container.querySelectorAll('.complete-session-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 let workoutId = btn.dataset.workout;
                 let weekNum = parseInt(btn.dataset.week);
                 if (completeWorkout(workoutId, weekNum)) {
@@ -600,6 +635,7 @@ CRITICAL RULES:
         // Setup timers
         container.querySelectorAll('.timer-start, .timer-pause, .timer-stop, .timer-reset').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.stopPropagation();
                 let timerId = btn.dataset.timerId;
                 let displaySpan = document.getElementById(`timer_display_${timerId}`);
                 let minutesInput = document.getElementById(`timer_min_${timerId}`);
@@ -659,7 +695,6 @@ CRITICAL RULES:
         });
     }
     
-    // Render history
     function renderHistory() {
         let container = document.getElementById('historyContainer');
         if (weeklySchedule.length === 0) {
@@ -670,20 +705,23 @@ CRITICAL RULES:
         let html = '';
         for (let week of weeklySchedule) {
             html += `<div class="workout-card" style="margin-bottom:10px;">
-                <div class="workout-title">📆 Week ${week.weekNumber}</div>`;
+                <div class="workout-header" style="cursor:default; background:#c0c0c0;">
+                    <div class="workout-title">📆 Week ${week.weekNumber}</div>
+                </div>
+                <div class="workout-content" style="display:block; padding:10px;">`;
             for (let [workoutId, frequency] of Object.entries(week.workoutFrequencies)) {
                 let workout = workouts[workoutId];
                 if (workout) {
                     let completionKey = `${week.weekNumber}_${workoutId}`;
                     let completed = weeklyCompletions[completionKey] || 0;
                     let percent = Math.round((completed / frequency) * 100);
-                    html += `<div style="margin:5px 0;">
-                        <strong>${escapeHtml(workout.name)}</strong>: ${completed}/${frequency} (${percent}%)
-                        <div style="background:#c0c0c0; height:8px; margin-top:3px;"><div style="background:#000080; width:${percent}%; height:8px;"></div></div>
+                    html += `<div style="margin:8px 0;">
+                        <strong>${escapeHtml(workout.name)}</strong>: ${completed}/${frequency} sessions (${percent}%)
+                        <div style="background:#c0c0c0; height:10px; margin-top:3px;"><div style="background:#000080; width:${percent}%; height:10px;"></div></div>
                     </div>`;
                 }
             }
-            html += `</div>`;
+            html += `</div></div>`;
         }
         container.innerHTML = html;
     }
@@ -733,14 +771,14 @@ CRITICAL RULES:
         let lines = text.split(/\r?\n/);
         let newWorkouts = {};
         let scheduleLines = [];
-        let currentWorkout = null;
         let parsingSchedule = false;
+        let currentWorkoutId = null;
         
         for (let line of lines) {
             line = line.trim();
             if (line === "") continue;
             
-            if (line.toLowerCase().includes("weekly schedule")) {
+            if (line.toUpperCase().includes("WEEKLY SCHEDULE")) {
                 parsingSchedule = true;
                 continue;
             }
@@ -750,13 +788,14 @@ CRITICAL RULES:
                 continue;
             }
             
-            if (line.toLowerCase().startsWith("workout name:")) {
-                let name = line.replace(/workout name:/i, '').trim();
-                let id = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-                currentWorkout = { name: name, exercises: [] };
-                newWorkouts[id] = currentWorkout;
+            // Workout name in square brackets
+            if (line.startsWith("[") && line.endsWith("]")) {
+                let name = line.slice(1, -1).trim();
+                currentWorkoutId = name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+                newWorkouts[currentWorkoutId] = { name: name, exercises: [] };
             }
-            else if (line.startsWith("-") && currentWorkout) {
+            // Exercise line starting with dash
+            else if (line.startsWith("-") && currentWorkoutId) {
                 let exerciseText = line.substring(1).trim();
                 let videoUrl = "";
                 let videoMatch = exerciseText.match(/!video\(([^)]+)\)/);
@@ -769,14 +808,15 @@ CRITICAL RULES:
                 let exerciseName = colonIndex !== -1 ? exerciseText.substring(0, colonIndex).trim() : exerciseText;
                 let details = colonIndex !== -1 ? exerciseText.substring(colonIndex + 1).trim() : "";
                 
-                let sets = 3, reps = "10";
+                let sets = 3;
+                let reps = "10";
                 let setsMatch = details.match(/(\d+)\s*sets?/i);
                 let repsMatch = details.match(/(\d+)\s*reps?/i) || details.match(/(\d+)\s*sec/i);
                 if (setsMatch) sets = parseInt(setsMatch[1]);
                 if (repsMatch) reps = repsMatch[1];
                 
-                currentWorkout.exercises.push({
-                    id: `ex_${Date.now()}_${currentWorkout.exercises.length}`,
+                newWorkouts[currentWorkoutId].exercises.push({
+                    id: `ex_${Date.now()}_${newWorkouts[currentWorkoutId].exercises.length}`,
                     name: exerciseName,
                     sets: sets,
                     reps: reps,
@@ -785,6 +825,7 @@ CRITICAL RULES:
             }
         }
         
+        // Parse schedule lines
         let workoutNameToId = {};
         for (let [id, w] of Object.entries(newWorkouts)) {
             workoutNameToId[w.name.toLowerCase()] = id;
@@ -796,15 +837,15 @@ CRITICAL RULES:
             if (!weekMatch) continue;
             let weekNum = parseInt(weekMatch[1]);
             let frequencies = {};
-            let parts = line.split(/[,:]/);
-            for (let part of parts) {
-                let freqMatch = part.match(/([a-zA-Z\s]+?)\s*(\d+)\s*x/i);
-                if (freqMatch) {
-                    let workoutName = freqMatch[1].trim().toLowerCase();
-                    let freq = parseInt(freqMatch[2]);
-                    if (workoutNameToId[workoutName]) {
-                        frequencies[workoutNameToId[workoutName]] = freq;
-                    }
+            
+            // Find all [Workout Name] Xx/week patterns
+            let bracketPattern = /\[([^\]]+)\]\s*(\d+)x\/week/g;
+            let match;
+            while ((match = bracketPattern.exec(line)) !== null) {
+                let workoutName = match[1].trim().toLowerCase();
+                let freq = parseInt(match[2]);
+                if (workoutNameToId[workoutName]) {
+                    frequencies[workoutNameToId[workoutName]] = freq;
                 }
             }
             newSchedule.push({ weekNumber: weekNum, workoutFrequencies: frequencies });
@@ -817,20 +858,20 @@ CRITICAL RULES:
             weeklySchedule = newSchedule;
         }
         
-        // Reset completions when importing new program
         weeklyCompletions = {};
-        
+        expandedWorkouts = {};
         saveData();
+        
         currentDisplayWeek = getCurrentRealWeek();
         renderWeeklyWorkouts();
         renderHistory();
+        
         document.getElementById('importStatus').innerHTML = '✅ Imported ' + Object.keys(workouts).length + ' workouts, ' + weeklySchedule.length + ' weeks.';
         setTimeout(() => document.getElementById('importStatus').innerHTML = '', 4000);
         alert('Import complete! Go to "This Week\'s Workouts" to see your program.');
         switchTab('workout');
     }
     
-    // Tab switching
     function switchTab(tabId) {
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
@@ -840,6 +881,9 @@ CRITICAL RULES:
         if (tabId === 'workout') renderWeeklyWorkouts();
         if (tabId === 'history') renderHistory();
     }
+    
+    // Make toggleWorkout globally available for onclick
+    window.toggleWorkout = toggleWorkout;
     
     // Initialize
     loadData();
