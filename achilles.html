@@ -5,31 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Achilles & Mobility Tracker</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: "MS Sans Serif", Tahoma, sans-serif;
             background: #c0c0c0;
             padding: 12px;
         }
-
-        /* Windows 95 style window */
         .window {
             background: #c0c0c0;
             border: 3px solid;
-            border-top-color: #ffffff;
-            border-left-color: #ffffff;
+            border-top-color: #fff;
+            border-left-color: #fff;
             border-right-color: #808080;
             border-bottom-color: #808080;
             max-width: 1100px;
             margin: 0 auto;
-            box-shadow: 2px 2px 0 0 #404040;
         }
-
         .title-bar {
             background: #000080;
             color: white;
@@ -37,15 +28,8 @@
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            font-size: 13px;
         }
-
-        .content {
-            padding: 14px;
-            background: #fffffa;
-        }
-
-        /* Tab bar */
+        .content { padding: 14px; background: #fffffa; }
         .tab-bar {
             display: flex;
             gap: 2px;
@@ -53,7 +37,6 @@
             border-bottom: 1px solid #808080;
             flex-wrap: wrap;
         }
-
         .tab {
             background: #c0c0c0;
             border: 2px solid #fff;
@@ -64,33 +47,18 @@
             font-size: 12px;
             font-weight: bold;
         }
-
         .tab.active {
             background: #fffffa;
             border-bottom: 2px solid #fffffa;
-            border-right-color: #ffffff;
-            border-bottom-color: #fffffa;
         }
-
-        .tab-pane {
-            display: none;
-        }
-
-        .tab-pane.active {
-            display: block;
-        }
-
-        /* day selector */
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
         .day-selector {
             display: flex;
             gap: 4px;
-            margin: 12px 0 18px 0;
+            margin: 12px 0 18px;
             flex-wrap: wrap;
-            background: #e0e0e0;
-            padding: 8px;
-            border: 1px solid #808080;
         }
-
         .day-btn {
             background: #c0c0c0;
             border: 2px solid #fff;
@@ -104,108 +72,53 @@
             text-align: center;
             min-width: 70px;
         }
-
         .day-btn.active {
             background: #fffffa;
             border: 2px solid #000080;
             color: #000080;
         }
-
-        .day-btn.today {
-            background: #006000;
-            color: white;
-            border-color: #00aa00;
-        }
-
-        /* exercise cards */
+        .day-btn.today { background: #006000; color: white; }
         .workout-card {
             background: #e0e0e0;
             border: 1px solid #808080;
             margin-bottom: 16px;
-            overflow: hidden;
         }
-
         .workout-header {
             background: #c0c0c0;
             padding: 12px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
-            align-items: center;
             border-bottom: 1px solid #808080;
             font-weight: bold;
         }
-
-        .workout-title {
-            font-size: 14px;
-            color: #000080;
-        }
-
+        .workout-title { color: #000080; }
         .expand-icon {
-            font-size: 12px;
             background: #808080;
             color: white;
             padding: 2px 8px;
             border-radius: 3px;
             margin-right: 8px;
         }
-
-        .workout-content {
-            display: none;
-            padding: 12px;
-            background: #fff;
-        }
-
-        .workout-content.expanded {
-            display: block;
-        }
-
+        .workout-content { display: none; padding: 12px; background: #fff; }
+        .workout-content.expanded { display: block; }
         .exercise-item {
             margin: 12px 0;
             padding: 10px;
             background: #f4f4f4;
             border-left: 4px solid #000080;
         }
-
         .exercise-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
             margin-bottom: 8px;
         }
-
-        .exercise-name {
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .exercise-reps {
-            font-size: 11px;
-            color: #444;
-        }
-
-        .checkbox-row {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin: 8px 0;
-            flex-wrap: wrap;
-        }
-
-        .exercise-checkbox {
-            transform: scale(1.1);
-            margin-right: 6px;
-        }
-
-        .video-link {
-            font-size: 10px;
-            color: #0066cc;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
+        .exercise-name { font-weight: bold; }
+        .exercise-reps { font-size: 11px; color: #444; }
+        .checkbox-row { display: flex; gap: 14px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
+        .exercise-checkbox { transform: scale(1.2); margin-right: 8px; cursor: pointer; }
+        .video-link { font-size: 10px; color: #0066cc; cursor: pointer; text-decoration: underline; }
         .record-rep-btn {
             background: #000080;
             color: white;
@@ -213,9 +126,7 @@
             padding: 3px 10px;
             cursor: pointer;
             font-size: 10px;
-            border-radius: 2px;
         }
-
         .timestamp-list {
             margin-top: 6px;
             font-size: 9px;
@@ -225,14 +136,11 @@
             background: #e8e8e8;
             padding: 4px;
         }
-
         .timer-container {
             margin-top: 10px;
             padding: 6px;
             background: #d4d0c8;
-            border-radius: 3px;
         }
-
         .timer-display {
             font-family: monospace;
             font-size: 20px;
@@ -241,17 +149,8 @@
             color: #0f0;
             padding: 4px 10px;
             text-align: center;
-            letter-spacing: 2px;
         }
-
-        .timer-controls {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
+        .timer-controls { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
         .retro-button {
             background: #c0c0c0;
             border: 2px solid #fff;
@@ -262,13 +161,11 @@
             font-family: monospace;
             font-size: 11px;
         }
-
         .retro-button:active {
             border: 2px solid #000;
             border-right-color: #fff;
             border-bottom-color: #fff;
         }
-
         .complete-day-container {
             margin: 20px 0 10px;
             padding: 12px;
@@ -276,12 +173,7 @@
             border: 1px solid #808080;
             text-align: center;
         }
-
-        .day-complete-check {
-            transform: scale(1.3);
-            margin-right: 10px;
-        }
-
+        .day-complete-check { transform: scale(1.3); margin-right: 10px; cursor: pointer; }
         .status-bar {
             background: #c0c0c0;
             border-top: 1px solid #808080;
@@ -290,7 +182,6 @@
             display: flex;
             justify-content: space-between;
         }
-
         textarea {
             width: 100%;
             height: 220px;
@@ -299,7 +190,6 @@
             padding: 6px;
             margin: 12px 0;
         }
-
         .note {
             background: #ffffcc;
             padding: 8px;
@@ -307,159 +197,123 @@
             margin: 12px 0;
             border-left: 4px solid #000080;
         }
-
         .workout-list-item {
             background: #e0e0e0;
             padding: 8px;
             margin: 8px 0;
             border-left: 3px solid #000080;
         }
-
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 4px;
-            background: #c0c0c0;
             padding: 8px;
             border: 1px solid #808080;
+            background: #c0c0c0;
         }
-
         .cal-day {
             background: #fffffa;
             padding: 8px;
             text-align: center;
             cursor: pointer;
             border: 1px solid #808080;
-            font-size: 12px;
         }
-
-        .cal-day.selected {
-            background: #000080;
-            color: white;
-        }
-
+        .cal-day.selected { background: #000080; color: white; }
         .assignment-panel {
             margin-top: 16px;
             padding: 10px;
             background: #e0e0e0;
             border: 1px solid #808080;
         }
+        hr { margin: 12px 0; }
     </style>
 </head>
 <body>
 
 <div class="window">
-    <div class="title-bar">
-        <span>🏋️ ACHILLES & MOBILITY TRACKER</span>
-        <span>📅 v2.0</span>
-    </div>
+    <div class="title-bar"><span>🏋️ ACHILLES & MOBILITY TRACKER</span><span>📅</span></div>
     <div class="content">
         <div class="tab-bar">
             <div class="tab active" data-tab="daily">📋 Daily Checklist</div>
-            <div class="tab" data-tab="plan">📆 Plan (assign workouts)</div>
-            <div class="tab" data-tab="library">📚 Library & Import</div>
+            <div class="tab" data-tab="plan">📆 Plan</div>
+            <div class="tab" data-tab="library">📚 Library</div>
             <div class="tab" data-tab="history">📊 History</div>
         </div>
 
-        <!-- DAILY CHECKLIST TAB -->
+        <!-- DAILY TAB -->
         <div id="dailyTab" class="tab-pane active">
             <div class="day-selector" id="daySelector"></div>
-            <div id="dailyWorkoutContainer">
-                <div class="note">📅 Select a day to see your exercises</div>
-            </div>
-            <div class="complete-day-container" id="dayCompleteContainer" style="display: none;">
-                <label style="font-size: 14px; font-weight: bold;">
+            <div id="dailyWorkoutContainer"><div class="note">📅 Loading...</div></div>
+            <div class="complete-day-container" id="dayCompleteContainer" style="display:none">
+                <label style="font-size:14px;font-weight:bold">
                     <input type="checkbox" id="dayCompleteCheckbox" class="day-complete-check"> ✔️ Day Complete
                 </label>
-                <div id="dayCompleteStatus" style="font-size: 10px; margin-top: 5px;"></div>
+                <div id="dayCompleteStatus" style="font-size:10px;margin-top:5px"></div>
             </div>
         </div>
 
-        <!-- PLAN TAB (calendar assignment) -->
+        <!-- PLAN TAB -->
         <div id="planTab" class="tab-pane">
-            <div class="note"><strong>📅 PLAN YOUR WEEKS</strong><br>Click a date → select workouts from library → save assignment</div>
-            <div id="calendarView" class="calendar-grid" style="margin-bottom: 16px;"></div>
+            <div class="note"><strong>📆 PLAN YOUR WEEKS</strong><br>Click a date → select workouts → Save</div>
+            <div id="calendarView" class="calendar-grid"></div>
             <div id="assignmentPanel" class="assignment-panel">
                 <div><strong>📌 Workouts for <span id="selectedDateLabel">(select date)</span></strong></div>
-                <div id="workoutChecklistPanel" style="margin: 12px 0;"></div>
-                <button id="saveAssignmentsBtn" class="retro-button">💾 Save assignments for this date</button>
+                <div id="workoutChecklistPanel" style="margin:12px 0"></div>
+                <button id="saveAssignmentsBtn" class="retro-button">💾 Save assignments</button>
             </div>
         </div>
 
-        <!-- LIBRARY + IMPORT TAB -->
+        <!-- LIBRARY TAB -->
         <div id="libraryTab" class="tab-pane">
-            <div class="note"><strong>📥 IMPORT WORKOUTS (plain text)</strong><br>
-                Format: each workout starts with <strong>[Workout Name]</strong><br>
-                Then each exercise: <strong>- Exercise name: 3 sets of 12 reps</strong><br>
-                Optional video: add <strong>!video(URL)</strong> at the end.<br>
-                <strong>Example:</strong><br>
-                [Morning Mobility]<br>
-                - Ankle pumps: 3 sets of 25 reps<br>
-                - Towel stretch: 3 sets of 20 sec !video(https://youtu.be/example)
+            <div class="note"><strong>📥 IMPORT WORKOUTS</strong><br>
+                Format: <strong>[Workout Name]</strong><br>
+                <strong>- Exercise name: 3 sets of 12 reps</strong><br>
+                Add video: <strong>!video(URL)</strong>
             </div>
             <textarea id="importWorkoutText" placeholder="Paste your workouts here..."></textarea>
             <button id="importWorkoutsBtn" class="retro-button">🚀 Import to Library</button>
             <hr>
-            <div><strong>📚 YOUR WORKOUT LIBRARY</strong></div>
+            <div><strong>📚 YOUR LIBRARY</strong></div>
             <div id="libraryList"></div>
         </div>
 
         <!-- HISTORY TAB -->
         <div id="historyTab" class="tab-pane">
-            <div class="note">📊 Completed exercises (permanently checked) + day completions</div>
+            <div class="note">📊 Completed exercises (permanent) + day completions</div>
             <div id="historyContainer"></div>
-            <button id="resetAllHistoryBtn" class="retro-button" style="background:#800000; color:white; margin-top:12px;">⚠️ Reset All Progress</button>
+            <button id="resetAllHistoryBtn" class="retro-button" style="background:#800000;color:white;margin-top:12px">⚠️ Reset All</button>
         </div>
     </div>
-    <div class="status-bar">
-        <span>💡 Click workout header to expand</span>
-        <span id="syncStatus">Ready</span>
-    </div>
+    <div class="status-bar"><span>💡 Click workout header to expand</span><span id="syncStatus">Ready</span></div>
 </div>
 
 <script>
-    // ---------- DATA STRUCTURES ----------
-    let workoutLibrary = [];     // { id, name, exercises: [{ id, name, sets, reps, videoUrl }] }
-    let assignments = {};       // "YYYY-MM-DD" -> [workoutId, workoutId, ...]
-    let exercisePermanentChecks = {}; // "YYYY-MM-DD_workoutId_exerciseId" -> true
-    let dayCompletionStatus = {};      // "YYYY-MM-DD" -> "full" / "partial"
-    
+    // ========== DATA ==========
+    let workoutLibrary = [];
+    let assignments = {};
+    let exercisePermanentChecks = {};
+    let dayCompletionStatus = {};
     let currentDisplayDate = new Date();
     let selectedPlanDate = new Date();
-    
-    // helpers
+    let activeTimers = {};
+
+    // ========== HELPERS ==========
     function formatYMD(date) {
         let y = date.getFullYear();
         let m = String(date.getMonth() + 1).padStart(2, '0');
         let d = String(date.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
     }
-    
-    function getWeekDays(targetDate) {
-        let date = new Date(targetDate);
-        let day = date.getDay();
-        let diff = (day === 0 ? -6 : 1 - day);
-        let monday = new Date(date);
-        monday.setDate(date.getDate() + diff);
-        let days = [];
-        for (let i = 0; i < 7; i++) {
-            let d = new Date(monday);
-            d.setDate(monday.getDate() + i);
-            days.push(d);
-        }
-        return days;
-    }
-    
+
     function saveAll() {
-        let data = {
+        localStorage.setItem('achilles_tracker_v3', JSON.stringify({
             workoutLibrary, assignments, exercisePermanentChecks, dayCompletionStatus
-        };
-        localStorage.setItem('achilles_tracker_v2', JSON.stringify(data));
+        }));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
     }
-    
+
     function loadAll() {
-        let raw = localStorage.getItem('achilles_tracker_v2');
+        let raw = localStorage.getItem('achilles_tracker_v3');
         if (raw) {
             try {
                 let data = JSON.parse(raw);
@@ -470,205 +324,258 @@
             } catch(e) {}
         }
         if (workoutLibrary.length === 0) {
-            // seed demo
-            workoutLibrary.push({
-                id: "morning_mob", name: "Morning Mobility",
-                exercises: [{ id: "ex1", name: "Ankle pumps", sets: 3, reps: "20 reps", videoUrl: "" },
-                            { id: "ex2", name: "Heel slides", sets: 3, reps: "15 reps", videoUrl: "" }]
-            });
-            workoutLibrary.push({
-                id: "strength_found", name: "Strength Foundation",
-                exercises: [{ id: "ex3", name: "Bodyweight squats", sets: 3, reps: "10 reps", videoUrl: "" },
-                            { id: "ex4", name: "Glute bridges", sets: 3, reps: "15 reps", videoUrl: "" }]
-            });
+            workoutLibrary = [
+                { id: "morning_mob", name: "Morning Mobility", exercises: [
+                    { id: "ex1", name: "Ankle pumps", sets: 3, reps: "20 reps", videoUrl: "" },
+                    { id: "ex2", name: "Heel slides", sets: 3, reps: "15 reps", videoUrl: "" }
+                ]},
+                { id: "strength_fnd", name: "Strength Foundation", exercises: [
+                    { id: "ex3", name: "Bodyweight squats", sets: 3, reps: "10 reps", videoUrl: "" },
+                    { id: "ex4", name: "Glute bridges", sets: 3, reps: "15 reps", videoUrl: "" }
+                ]}
+            ];
             saveAll();
         }
     }
-    
-    // render daily checklist for a specific date
+
+    function getWeekDays(date) {
+        let d = new Date(date);
+        let day = d.getDay();
+        let diff = day === 0 ? -6 : 1 - day;
+        let monday = new Date(d);
+        monday.setDate(d.getDate() + diff);
+        let days = [];
+        for (let i = 0; i < 7; i++) {
+            let day = new Date(monday);
+            day.setDate(monday.getDate() + i);
+            days.push(day);
+        }
+        return days;
+    }
+
+    // ========== DAILY CHECKLIST ==========
     function renderDailyChecklist(date) {
         let ymd = formatYMD(date);
-        let assignedWorkoutIds = assignments[ymd] || [];
+        let assignedIds = assignments[ymd] || [];
         let container = document.getElementById('dailyWorkoutContainer');
-        if (assignedWorkoutIds.length === 0) {
-            container.innerHTML = '<div class="note">📭 No workouts assigned for this day. Go to "Plan" tab to add workouts.</div>';
+        
+        if (assignedIds.length === 0) {
+            container.innerHTML = '<div class="note">📭 No workouts assigned. Go to Plan tab to add.</div>';
             document.getElementById('dayCompleteContainer').style.display = 'none';
             return;
         }
-        
+
         let html = '';
-        let allExercisesChecked = true;
+        let allChecked = true;
         let anyChecked = false;
-        
-        for (let wid of assignedWorkoutIds) {
+
+        for (let wid of assignedIds) {
             let workout = workoutLibrary.find(w => w.id === wid);
             if (!workout) continue;
-            let exList = workout.exercises;
+            
             html += `<div class="workout-card">
-                        <div class="workout-header" onclick="toggleWorkoutExpand('${workout.id}_${ymd}')">
-                            <div class="workout-title"><span class="expand-icon" id="expandIcon_${workout.id}_${ymd}">▶</span> 🏋️ ${escapeHtml(workout.name)}</div>
-                        </div>
-                        <div class="workout-content" id="workoutContent_${workout.id}_${ymd}">`;
-            for (let ex of exList) {
+                <div class="workout-header" onclick="toggleWorkout('${workout.id}_${ymd}')">
+                    <div class="workout-title"><span class="expand-icon" id="icon_${workout.id}_${ymd}">▶</span> 🏋️ ${escapeHtml(workout.name)}</div>
+                </div>
+                <div class="workout-content" id="content_${workout.id}_${ymd}">`;
+            
+            for (let ex of workout.exercises) {
                 let checkKey = `${ymd}_${workout.id}_${ex.id}`;
                 let isChecked = exercisePermanentChecks[checkKey] === true;
-                if (!isChecked) allExercisesChecked = false;
+                if (!isChecked) allChecked = false;
                 if (isChecked) anyChecked = true;
+                
                 let videoHtml = ex.videoUrl ? `<span class="video-link" data-url="${escapeHtml(ex.videoUrl)}">📺 Watch video</span>` : '';
-                html += `<div class="exercise-item">
-                            <div class="exercise-header">
-                                <div class="exercise-name"><input type="checkbox" class="exercise-checkbox" data-checkkey="${checkKey}" ${isChecked ? 'checked' : ''}> ${escapeHtml(ex.name)}</div>
-                                <div class="exercise-reps">${ex.sets} × ${ex.reps}</div>
-                            </div>
-                            <div class="checkbox-row">
-                                ${videoHtml}
-                                <button class="record-rep-btn" data-workout="${workout.id}" data-exercise="${ex.id}" data-date="${ymd}">🕐 Record Rep (timestamp)</button>
-                            </div>
-                            <div id="timestamps_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}" class="timestamp-list"></div>
-                            <div class="timer-container">
-                                <div class="timer-display" id="timer_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">01:00</div>
-                                <div class="timer-controls">
-                                    <input type="number" placeholder="Min" value="1" style="width:55px;" class="timer-min" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}"> min
-                                    <input type="number" placeholder="Sec" value="0" style="width:55px;" class="timer-sec" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}"> sec
-                                    <button class="retro-button timer-start" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">▶ Start</button>
-                                    <button class="retro-button timer-pause" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⏸ Pause</button>
-                                    <button class="retro-button timer-stop" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⏹ Stop</button>
-                                    <button class="retro-button timer-reset" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⟳ Reset</button>
-                                </div>
-                            </div>
-                        </div>`;
-                // load timestamps
                 let repKey = `reps_${ymd}_${workout.id}_${ex.id}`;
                 let logs = JSON.parse(localStorage.getItem(repKey) || '[]');
-                if (logs.length) {
-                    let tsHtml = logs.map((l,i) => `<div class="timestamp-item">Rep ${i+1}: ${new Date(l.ts).toLocaleTimeString()}</div>`).join('');
-                    document.getElementById(`timestamps_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}`).innerHTML = tsHtml;
-                }
+                let tsHtml = logs.length ? `<div class="timestamp-list">${logs.map((l,i) => `<div>Rep ${i+1}: ${new Date(l.ts).toLocaleTimeString()}</div>`).join('')}</div>` : '';
+                
+                html += `<div class="exercise-item">
+                    <div class="exercise-header">
+                        <div class="exercise-name"><input type="checkbox" class="exercise-checkbox" data-checkkey="${checkKey}" ${isChecked ? 'checked' : ''}> ${escapeHtml(ex.name)}</div>
+                        <div class="exercise-reps">${ex.sets} × ${ex.reps}</div>
+                    </div>
+                    <div class="checkbox-row">
+                        ${videoHtml}
+                        <button class="record-rep-btn" data-workout="${workout.id}" data-exercise="${ex.id}" data-date="${ymd}">🕐 Record Rep</button>
+                    </div>
+                    ${tsHtml}
+                    <div class="timer-container">
+                        <div class="timer-display" id="timer_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">01:00</div>
+                        <div class="timer-controls">
+                            <input type="number" placeholder="Min" value="1" style="width:55px" class="timer-min" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}"> min
+                            <input type="number" placeholder="Sec" value="0" style="width:55px" class="timer-sec" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}"> sec
+                            <button class="retro-button timer-start" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">▶ Start</button>
+                            <button class="retro-button timer-pause" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⏸ Pause</button>
+                            <button class="retro-button timer-stop" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⏹ Stop</button>
+                            <button class="retro-button timer-reset" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⟳ Reset</button>
+                        </div>
+                    </div>
+                </div>`;
             }
             html += `</div></div>`;
         }
         container.innerHTML = html;
         
-        let dayCompleteBox = document.getElementById('dayCompleteCheckbox');
+        // Update Day Complete checkbox
         let dayCompleteContainer = document.getElementById('dayCompleteContainer');
+        let dayCheckbox = document.getElementById('dayCompleteCheckbox');
         dayCompleteContainer.style.display = 'block';
-        let dayStatus = dayCompletionStatus[ymd];
-        if (allExercisesChecked && assignedWorkoutIds.length > 0) {
-            dayCompleteBox.indeterminate = false;
-            dayCompleteBox.checked = true;
+        
+        if (allChecked && assignedIds.length > 0) {
+            dayCheckbox.indeterminate = false;
+            dayCheckbox.checked = true;
             dayCompletionStatus[ymd] = 'full';
-        } else if (anyChecked && !allExercisesChecked) {
-            dayCompleteBox.indeterminate = true;
-            dayCompleteBox.checked = false;
+            document.getElementById('dayCompleteStatus').innerText = '✓ All exercises completed!';
+        } else if (anyChecked && !allChecked) {
+            dayCheckbox.indeterminate = true;
+            dayCheckbox.checked = false;
             dayCompletionStatus[ymd] = 'partial';
+            document.getElementById('dayCompleteStatus').innerText = '– Some exercises done';
         } else {
-            dayCompleteBox.indeterminate = false;
-            dayCompleteBox.checked = false;
-            if (assignedWorkoutIds.length > 0 && !anyChecked) dayCompletionStatus[ymd] = null;
+            dayCheckbox.indeterminate = false;
+            dayCheckbox.checked = false;
+            dayCompletionStatus[ymd] = null;
+            document.getElementById('dayCompleteStatus').innerText = '';
         }
-        document.getElementById('dayCompleteStatus').innerText = dayCompletionStatus[ymd] === 'full' ? '✓ All exercises completed!' : (dayCompletionStatus[ymd] === 'partial' ? '– Some exercises done' : '');
         saveAll();
         
-        // attach checkboxes events
-        document.querySelectorAll('.exercise-checkbox').forEach(cb => {
-            cb.addEventListener('change', (e) => {
-                let key = cb.dataset.checkkey;
-                exercisePermanentChecks[key] = cb.checked;
-                renderDailyChecklist(date);
-                saveAll();
-            });
-        });
-        attachVideoAndRepButtons(date);
+        // Attach event listeners
+        attachExerciseCheckboxes(date);
+        attachVideoLinks();
+        attachRecordRepButtons();
         attachTimers();
     }
     
-    function attachVideoAndRepButtons(date) {
+    function attachExerciseCheckboxes(date) {
+        document.querySelectorAll('.exercise-checkbox').forEach(cb => {
+            cb.removeEventListener('change', () => {});
+            cb.addEventListener('change', function() {
+                let key = this.dataset.checkkey;
+                exercisePermanentChecks[key] = this.checked;
+                saveAll();
+                renderDailyChecklist(date);
+            });
+        });
+    }
+    
+    function attachVideoLinks() {
         document.querySelectorAll('.video-link').forEach(link => {
+            link.removeEventListener('click', () => {});
             link.addEventListener('click', () => { if(link.dataset.url) window.open(link.dataset.url, '_blank'); });
         });
+    }
+    
+    function attachRecordRepButtons() {
         document.querySelectorAll('.record-rep-btn').forEach(btn => {
-            btn.removeEventListener('click', recordRepHandler);
-            btn.addEventListener('click', recordRepHandler);
+            btn.removeEventListener('click', () => {});
+            btn.addEventListener('click', function() {
+                let workout = this.dataset.workout;
+                let exercise = this.dataset.exercise;
+                let ymd = this.dataset.date;
+                let repKey = `reps_${ymd}_${workout}_${exercise}`;
+                let logs = JSON.parse(localStorage.getItem(repKey) || '[]');
+                logs.push({ ts: Date.now() });
+                localStorage.setItem(repKey, JSON.stringify(logs));
+                renderDailyChecklist(new Date(ymd));
+            });
         });
-        function recordRepHandler(e) {
-            let btn = e.currentTarget;
-            let workoutId = btn.dataset.workout;
-            let exerciseId = btn.dataset.exercise;
-            let ymd = btn.dataset.date;
-            let repKey = `reps_${ymd}_${workoutId}_${exerciseId}`;
-            let logs = JSON.parse(localStorage.getItem(repKey) || '[]');
-            logs.push({ ts: Date.now() });
-            localStorage.setItem(repKey, JSON.stringify(logs));
-            renderDailyChecklist(new Date(ymd));
-        }
     }
     
     function attachTimers() {
         document.querySelectorAll('.timer-start, .timer-pause, .timer-stop, .timer-reset').forEach(btn => {
-            btn.removeEventListener('click', timerHandler);
-            btn.addEventListener('click', timerHandler);
+            btn.removeEventListener('click', () => {});
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                let idx = this.dataset.timerIdx;
+                let display = document.getElementById(`timer_${idx}`);
+                let minInput = document.querySelector(`.timer-min[data-timer-idx="${idx}"]`);
+                let secInput = document.querySelector(`.timer-sec[data-timer-idx="${idx}"]`);
+                if (!display) return;
+                
+                if (this.classList.contains('timer-start')) {
+                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
+                    let mins = parseInt(minInput?.value) || 0;
+                    let secs = parseInt(secInput?.value) || 0;
+                    let remaining = mins * 60 + secs;
+                    if (remaining <= 0) remaining = 60;
+                    
+                    function update() {
+                        let m = Math.floor(remaining / 60);
+                        let s = remaining % 60;
+                        display.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                    }
+                    update();
+                    activeTimers[idx] = setInterval(() => {
+                        if (remaining > 0) {
+                            remaining--;
+                            update();
+                            if (remaining === 0) {
+                                clearInterval(activeTimers[idx]);
+                                alert('⏰ Timer finished!');
+                            }
+                        }
+                    }, 1000);
+                }
+                else if (this.classList.contains('timer-pause')) {
+                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
+                }
+                else if (this.classList.contains('timer-stop')) {
+                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
+                    display.innerText = '00:00';
+                }
+                else if (this.classList.contains('timer-reset')) {
+                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
+                    let mins = parseInt(minInput?.value) || 0;
+                    let secs = parseInt(secInput?.value) || 0;
+                    let remaining = mins * 60 + secs;
+                    if (remaining <= 0) remaining = 60;
+                    let m = Math.floor(remaining / 60);
+                    let s = remaining % 60;
+                    display.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                }
+            });
         });
-        function timerHandler(e) {
-            let idx = e.currentTarget.dataset.timerIdx;
-            let displaySpan = document.getElementById(`timer_${idx}`);
-            let minInput = document.querySelector(`.timer-min[data-timer-idx="${idx}"]`);
-            let secInput = document.querySelector(`.timer-sec[data-timer-idx="${idx}"]`);
-            if (!displaySpan) return;
-            let intervalKey = `interval_${idx}`;
-            let remainingKey = `remaining_${idx}`;
-            if (e.currentTarget.classList.contains('timer-start')) {
-                if (window[intervalKey]) clearInterval(window[intervalKey]);
-                let mins = parseInt(minInput?.value) || 0;
-                let secs = parseInt(secInput?.value) || 0;
-                let remaining = mins*60 + secs;
-                if (remaining <= 0) remaining = 60;
-                window[remainingKey] = remaining;
-                function update() { let m = Math.floor(window[remainingKey]/60), s = window[remainingKey]%60; displaySpan.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
-                update();
-                window[intervalKey] = setInterval(() => { if(window[remainingKey] > 0) { window[remainingKey]--; update(); if(window[remainingKey]===0){ clearInterval(window[intervalKey]); alert('Timer finished!'); }}}, 1000);
-            } else if (e.currentTarget.classList.contains('timer-pause')) { if(window[intervalKey]) clearInterval(window[intervalKey]); }
-            else if (e.currentTarget.classList.contains('timer-stop')) { if(window[intervalKey]) clearInterval(window[intervalKey]); window[remainingKey] = 0; displaySpan.innerText = '00:00'; }
-            else if (e.currentTarget.classList.contains('timer-reset')) { if(window[intervalKey]) clearInterval(window[intervalKey]); let mins = parseInt(minInput?.value)||0, secs=parseInt(secInput?.value)||0; let rem = mins*60+secs; if(rem<=0) rem=60; window[remainingKey]=rem; let m=Math.floor(rem/60), s=rem%60; displaySpan.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
-        }
     }
     
-    function renderDaySelector(centerDate) {
-        let week = getWeekDays(centerDate);
-        let ymdToday = formatYMD(new Date());
+    function renderDaySelector() {
+        let week = getWeekDays(currentDisplayDate);
+        let todayYMD = formatYMD(new Date());
+        let currentYMD = formatYMD(currentDisplayDate);
         let html = '';
         week.forEach(day => {
             let ymd = formatYMD(day);
-            let activeClass = (formatYMD(currentDisplayDate) === ymd) ? 'active' : '';
-            let todayClass = (ymd === ymdToday) ? 'today' : '';
-            html += `<div class="day-btn ${activeClass} ${todayClass}" data-date="${ymd}">${day.toLocaleDateString('en-US', {weekday:'short'})}<br>${day.getDate()}</div>`;
+            let active = ymd === currentYMD ? 'active' : '';
+            let todayClass = ymd === todayYMD ? 'today' : '';
+            html += `<div class="day-btn ${active} ${todayClass}" data-date="${ymd}">${day.toLocaleDateString('en-US', {weekday:'short'})}<br>${day.getDate()}</div>`;
         });
         document.getElementById('daySelector').innerHTML = html;
         document.querySelectorAll('.day-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                let newDate = new Date(btn.dataset.date);
-                currentDisplayDate = newDate;
-                renderDaySelector(currentDisplayDate);
+                currentDisplayDate = new Date(btn.dataset.date);
+                renderDaySelector();
                 renderDailyChecklist(currentDisplayDate);
             });
         });
     }
     
-    // plan tab calendar
+    // ========== PLAN TAB ==========
     function renderCalendar() {
-        let year = selectedPlanDate.getFullYear(), month = selectedPlanDate.getMonth();
+        let year = selectedPlanDate.getFullYear();
+        let month = selectedPlanDate.getMonth();
         let firstDay = new Date(year, month, 1);
         let startDay = firstDay.getDay();
-        let daysInMonth = new Date(year, month+1, 0).getDate();
-        let gridHtml = '';
-        for (let i=0; i<startDay; i++) gridHtml += `<div class="cal-day"></div>`;
-        for (let d=1; d<=daysInMonth; d++) {
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let html = '';
+        for (let i = 0; i < startDay; i++) html += `<div class="cal-day"></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
             let dateObj = new Date(year, month, d);
             let ymd = formatYMD(dateObj);
-            gridHtml += `<div class="cal-day" data-date="${ymd}">${d}</div>`;
+            html += `<div class="cal-day" data-date="${ymd}">${d}</div>`;
         }
-        document.getElementById('calendarView').innerHTML = gridHtml;
+        document.getElementById('calendarView').innerHTML = html;
         document.querySelectorAll('.cal-day[data-date]').forEach(cell => {
-            cell.addEventListener('click', () => { loadAssignmentsForDate(cell.dataset.date); });
+            cell.addEventListener('click', () => loadAssignmentsForDate(cell.dataset.date));
         });
     }
     
@@ -676,85 +583,115 @@
         document.getElementById('selectedDateLabel').innerText = ymd;
         let assigned = assignments[ymd] || [];
         let container = document.getElementById('workoutChecklistPanel');
-        if (workoutLibrary.length === 0) { container.innerHTML = '<div>No workouts in library. Import first.</div>'; return; }
-        let listHtml = '';
+        if (workoutLibrary.length === 0) {
+            container.innerHTML = '<div>No workouts in library. Import first.</div>';
+            return;
+        }
+        let html = '';
         workoutLibrary.forEach(workout => {
-            let isChecked = assigned.includes(workout.id);
-            listHtml += `<div><label><input type="checkbox" class="assign-checkbox" data-wid="${workout.id}" ${isChecked ? 'checked' : ''}> ${escapeHtml(workout.name)}</label></div>`;
+            let checked = assigned.includes(workout.id);
+            html += `<div><label><input type="checkbox" class="assign-checkbox" data-wid="${workout.id}" ${checked ? 'checked' : ''}> ${escapeHtml(workout.name)}</label></div>`;
         });
-        container.innerHTML = listHtml;
+        container.innerHTML = html;
         window.currentAssignYmd = ymd;
     }
     
     function saveAssignments() {
         let ymd = window.currentAssignYmd;
         if (!ymd) { alert('Select a date first'); return; }
-        let selectedWids = [];
-        document.querySelectorAll('.assign-checkbox:checked').forEach(cb => selectedWids.push(cb.dataset.wid));
-        assignments[ymd] = selectedWids;
+        let selected = [];
+        document.querySelectorAll('.assign-checkbox:checked').forEach(cb => selected.push(cb.dataset.wid));
+        assignments[ymd] = selected;
         saveAll();
-        alert(`Assignments saved for ${ymd}`);
+        alert(`Saved assignments for ${ymd}`);
+        if (document.querySelector('.tab.active').dataset.tab === 'daily') {
+            renderDailyChecklist(currentDisplayDate);
+        }
     }
     
+    // ========== LIBRARY TAB ==========
     function renderLibrary() {
         let container = document.getElementById('libraryList');
-        if (!workoutLibrary.length) { container.innerHTML = '<div class="note">No workouts. Import some using the text box above.</div>'; return; }
+        if (!workoutLibrary.length) {
+            container.innerHTML = '<div class="note">No workouts. Import some using the text box.</div>';
+            return;
+        }
         let html = '';
         workoutLibrary.forEach(w => {
-            html += `<div class="workout-list-item"><strong>📌 ${escapeHtml(w.name)}</strong><br><span style="font-size:10px;">${w.exercises.length} exercises</span>
-            <button class="retro-button delete-workout-btn" data-id="${w.id}" style="float:right;">🗑️ Delete</button></div>`;
+            html += `<div class="workout-list-item">
+                <strong>📌 ${escapeHtml(w.name)}</strong><br>
+                <span style="font-size:10px">${w.exercises.length} exercises</span>
+                <button class="retro-button delete-workout" data-id="${w.id}" style="float:right">🗑️ Delete</button>
+                <div style="clear:both"></div>
+            </div>`;
         });
         container.innerHTML = html;
-        document.querySelectorAll('.delete-workout-btn').forEach(btn => {
+        document.querySelectorAll('.delete-workout').forEach(btn => {
             btn.addEventListener('click', () => {
                 let id = btn.dataset.id;
                 workoutLibrary = workoutLibrary.filter(w => w.id !== id);
                 saveAll();
                 renderLibrary();
-                renderDailyChecklist(currentDisplayDate);
+                if (document.querySelector('.tab.active').dataset.tab === 'daily') {
+                    renderDailyChecklist(currentDisplayDate);
+                }
             });
         });
     }
     
-    function importWorkoutsFromText() {
-        let raw = document.getElementById('importWorkoutText').value;
-        if (!raw.trim()) { alert('Paste workout text'); return; }
-        let lines = raw.split(/\r?\n/);
+    function importWorkouts() {
+        let text = document.getElementById('importWorkoutText').value;
+        if (!text.trim()) { alert('Paste workout text first'); return; }
+        let lines = text.split(/\r?\n/);
         let newWorkouts = [];
-        let currentWorkout = null;
+        let current = null;
+        
         for (let line of lines) {
             line = line.trim();
             if (line.startsWith('[') && line.endsWith(']')) {
-                if (currentWorkout) newWorkouts.push(currentWorkout);
+                if (current) newWorkouts.push(current);
                 let name = line.slice(1, -1);
-                currentWorkout = { id: Date.now() + '_' + name.replace(/\s/g,''), name: name, exercises: [] };
-            } else if (line.startsWith('-') && currentWorkout) {
+                current = { id: Date.now() + '_' + Math.random(), name: name, exercises: [] };
+            } else if (line.startsWith('-') && current) {
                 let exText = line.substring(1).trim();
                 let videoUrl = '';
                 let vMatch = exText.match(/!video\(([^)]+)\)/);
-                if (vMatch) { videoUrl = vMatch[1]; exText = exText.replace(/!video\([^)]+\)/,'').trim(); }
+                if (vMatch) { videoUrl = vMatch[1]; exText = exText.replace(/!video\([^)]+\)/, '').trim(); }
                 let colonIdx = exText.indexOf(':');
                 let exName = colonIdx !== -1 ? exText.substring(0, colonIdx).trim() : exText;
-                let details = colonIdx !== -1 ? exText.substring(colonIdx+1).trim() : '';
-                let sets = 3, reps = '10';
+                let details = colonIdx !== -1 ? exText.substring(colonIdx + 1).trim() : '';
+                let sets = 3;
+                let reps = '10';
                 let setsMatch = details.match(/(\d+)\s*sets?/i);
                 let repsMatch = details.match(/(\d+)\s*reps?/i) || details.match(/(\d+)\s*sec/i);
                 if (setsMatch) sets = parseInt(setsMatch[1]);
                 if (repsMatch) reps = repsMatch[1];
-                currentWorkout.exercises.push({ id: Date.now() + '_ex', name: exName, sets: sets, reps: reps, videoUrl: videoUrl });
+                current.exercises.push({ id: Date.now() + '_ex', name: exName, sets: sets, reps: reps, videoUrl: videoUrl });
             }
         }
-        if (currentWorkout) newWorkouts.push(currentWorkout);
-        if (newWorkouts.length) { workoutLibrary.push(...newWorkouts); saveAll(); renderLibrary(); alert(`Imported ${newWorkouts.length} workouts.`); }
-        else alert('No valid workouts found. Use [Name] and - exercise lines.');
+        if (current) newWorkouts.push(current);
+        
+        if (newWorkouts.length) {
+            workoutLibrary.push(...newWorkouts);
+            saveAll();
+            renderLibrary();
+            alert(`Imported ${newWorkouts.length} workouts.`);
+            document.getElementById('importWorkoutText').value = '';
+        } else {
+            alert('No valid workouts found. Use [Name] and - exercise lines.');
+        }
     }
     
+    // ========== HISTORY TAB ==========
     function renderHistory() {
         let container = document.getElementById('historyContainer');
-        let dates = Object.keys(dayCompletionStatus).sort().reverse().slice(0, 30);
-        if (!dates.length) { container.innerHTML = '<div class="note">No data yet. Complete exercises to see history.</div>'; return; }
-        let html = '<ul style="list-style:none;">';
-        for (let d of dates) {
+        let dates = Object.keys(dayCompletionStatus).sort().reverse();
+        if (!dates.length) {
+            container.innerHTML = '<div class="note">No data yet. Complete exercises to see history.</div>';
+            return;
+        }
+        let html = '<ul style="list-style:none">';
+        for (let d of dates.slice(0, 30)) {
             let status = dayCompletionStatus[d] === 'full' ? '✅ Full' : (dayCompletionStatus[d] === 'partial' ? '⚠️ Partial' : '❌ None');
             html += `<li>📅 ${d} → ${status}</li>`;
         }
@@ -763,15 +700,17 @@
     }
     
     function resetAll() {
-        if (confirm('⚠️ Delete ALL workouts, assignments, progress? Cannot undo.')) {
+        if (confirm('⚠️ Delete ALL data? Cannot undo.')) {
             localStorage.clear();
             location.reload();
         }
     }
     
-    function toggleWorkoutExpand(id) {
-        let content = document.getElementById(`workoutContent_${id}`);
-        let icon = document.getElementById(`expandIcon_${id}`);
+    // ========== UTILITIES ==========
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    window.toggleWorkout = function(id) {
+        let content = document.getElementById(`content_${id}`);
+        let icon = document.getElementById(`icon_${id}`);
         if (content.classList.contains('expanded')) {
             content.classList.remove('expanded');
             icon.innerText = '▶';
@@ -779,31 +718,31 @@
             content.classList.add('expanded');
             icon.innerText = '▼';
         }
-    }
+    };
     
     function switchTab(tabId) {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId + 'Tab').classList.add('active');
         document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-        if (tabId === 'daily') renderDailyChecklist(currentDisplayDate);
-        if (tabId === 'plan') { renderCalendar(); if(window.currentAssignYmd) loadAssignmentsForDate(window.currentAssignYmd); }
+        if (tabId === 'daily') { renderDaySelector(); renderDailyChecklist(currentDisplayDate); }
+        if (tabId === 'plan') renderCalendar();
         if (tabId === 'library') renderLibrary();
         if (tabId === 'history') renderHistory();
     }
     
-    // init
+    // ========== INIT ==========
     loadAll();
-    renderDaySelector(new Date());
+    renderDaySelector();
     renderDailyChecklist(currentDisplayDate);
     renderLibrary();
     renderCalendar();
     renderHistory();
+    
     document.getElementById('saveAssignmentsBtn').addEventListener('click', saveAssignments);
-    document.getElementById('importWorkoutsBtn').addEventListener('click', importWorkoutsFromText);
+    document.getElementById('importWorkoutsBtn').addEventListener('click', importWorkouts);
     document.getElementById('resetAllHistoryBtn').addEventListener('click', resetAll);
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
-    window.toggleWorkoutExpand = toggleWorkoutExpand;
 </script>
 </body>
 </html>
