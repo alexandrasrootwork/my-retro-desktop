@@ -89,10 +89,38 @@
             cursor: pointer;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid #808080;
             font-weight: bold;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .workout-title { color: #000080; }
+        .workout-title { 
+            color: #000080;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .editable-title {
+            background: #fffffa;
+            border: 1px solid #808080;
+            padding: 4px 8px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: bold;
+            color: #000080;
+            cursor: text;
+        }
+        .edit-title-btn {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #808080;
+            border-bottom-color: #808080;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 9px;
+        }
         .expand-icon {
             background: #808080;
             color: white;
@@ -114,8 +142,55 @@
             flex-wrap: wrap;
             margin-bottom: 8px;
         }
-        .exercise-name { font-weight: bold; }
-        .exercise-reps { font-size: 11px; color: #444; }
+        .exercise-name { font-weight: bold; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .editable-exercise-name {
+            background: #fffffa;
+            border: 1px solid #808080;
+            padding: 2px 6px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .exercise-reps { 
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .editable-reps {
+            background: #fffffa;
+            border: 1px solid #808080;
+            padding: 2px 6px;
+            width: 70px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+        .edit-reps-btn, .edit-desc-btn, .edit-title-btn {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #808080;
+            border-bottom-color: #808080;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 9px;
+        }
+        .exercise-description {
+            margin: 8px 0 0 0;
+            padding: 6px;
+            background: #e8e8e8;
+            font-size: 10px;
+            color: #444;
+            border-left: 2px solid #808080;
+        }
+        .editable-description {
+            width: 100%;
+            background: #fffffa;
+            border: 1px solid #808080;
+            padding: 4px;
+            font-family: inherit;
+            font-size: 10px;
+            resize: vertical;
+        }
         .checkbox-row { display: flex; gap: 14px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
         .exercise-checkbox { transform: scale(1.2); margin-right: 8px; cursor: pointer; }
         .video-link { font-size: 10px; color: #0066cc; cursor: pointer; text-decoration: underline; }
@@ -135,6 +210,22 @@
             overflow-y: auto;
             background: #e8e8e8;
             padding: 4px;
+        }
+        .timestamp-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 4px;
+            border-bottom: 1px dotted #ccc;
+        }
+        .delete-rep-btn {
+            background: #800000;
+            color: white;
+            border: none;
+            padding: 0px 6px;
+            cursor: pointer;
+            font-size: 8px;
+            border-radius: 2px;
         }
         .timer-container {
             margin-top: 10px;
@@ -226,6 +317,7 @@
             border: 1px solid #808080;
         }
         hr { margin: 12px 0; }
+        .small-btn { font-size: 8px; padding: 1px 4px; }
     </style>
 </head>
 <body>
@@ -284,7 +376,7 @@
             <button id="resetAllHistoryBtn" class="retro-button" style="background:#800000;color:white;margin-top:12px">⚠️ Reset All</button>
         </div>
     </div>
-    <div class="status-bar"><span>💡 Click workout header to expand</span><span id="syncStatus">Ready</span></div>
+    <div class="status-bar"><span>💡 Click workout header to expand | ✏️ Edit titles/descriptions by clicking Edit buttons</span><span id="syncStatus">Ready</span></div>
 </div>
 
 <script>
@@ -306,14 +398,14 @@
     }
 
     function saveAll() {
-        localStorage.setItem('achilles_tracker_v3', JSON.stringify({
+        localStorage.setItem('achilles_tracker_v4', JSON.stringify({
             workoutLibrary, assignments, exercisePermanentChecks, dayCompletionStatus
         }));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
     }
 
     function loadAll() {
-        let raw = localStorage.getItem('achilles_tracker_v3');
+        let raw = localStorage.getItem('achilles_tracker_v4');
         if (raw) {
             try {
                 let data = JSON.parse(raw);
@@ -326,12 +418,12 @@
         if (workoutLibrary.length === 0) {
             workoutLibrary = [
                 { id: "morning_mob", name: "Morning Mobility", exercises: [
-                    { id: "ex1", name: "Ankle pumps", sets: 3, reps: "20 reps", videoUrl: "" },
-                    { id: "ex2", name: "Heel slides", sets: 3, reps: "15 reps", videoUrl: "" }
+                    { id: "ex1", name: "Ankle pumps", sets: 3, reps: "20 reps", videoUrl: "", description: "Point and flex feet slowly" },
+                    { id: "ex2", name: "Heel slides", sets: 3, reps: "15 reps", videoUrl: "", description: "Slide heel toward glute, toes on floor" }
                 ]},
                 { id: "strength_fnd", name: "Strength Foundation", exercises: [
-                    { id: "ex3", name: "Bodyweight squats", sets: 3, reps: "10 reps", videoUrl: "" },
-                    { id: "ex4", name: "Glute bridges", sets: 3, reps: "15 reps", videoUrl: "" }
+                    { id: "ex3", name: "Bodyweight squats", sets: 3, reps: "10 reps", videoUrl: "", description: "Use wall for support" },
+                    { id: "ex4", name: "Glute bridges", sets: 3, reps: "15 reps", videoUrl: "", description: "Lift hips, squeeze glutes" }
                 ]}
             ];
             saveAll();
@@ -351,6 +443,65 @@
             days.push(day);
         }
         return days;
+    }
+
+    // ========== EDIT FUNCTIONS ==========
+    function editWorkoutTitle(workoutId, ymd) {
+        let workout = workoutLibrary.find(w => w.id === workoutId);
+        if (!workout) return;
+        let newName = prompt("Enter new workout name:", workout.name);
+        if (newName && newName.trim()) {
+            workout.name = newName.trim();
+            saveAll();
+            renderDailyChecklist(new Date(ymd));
+        }
+    }
+
+    function editExerciseName(workoutId, exerciseId, ymd) {
+        let workout = workoutLibrary.find(w => w.id === workoutId);
+        if (!workout) return;
+        let exercise = workout.exercises.find(e => e.id === exerciseId);
+        if (!exercise) return;
+        let newName = prompt("Enter new exercise name:", exercise.name);
+        if (newName && newName.trim()) {
+            exercise.name = newName.trim();
+            saveAll();
+            renderDailyChecklist(new Date(ymd));
+        }
+    }
+
+    function editExerciseReps(workoutId, exerciseId, ymd) {
+        let workout = workoutLibrary.find(w => w.id === workoutId);
+        if (!workout) return;
+        let exercise = workout.exercises.find(e => e.id === exerciseId);
+        if (!exercise) return;
+        let newReps = prompt("Enter new reps/sets (e.g., '3 sets of 12 reps'):", exercise.reps);
+        if (newReps && newReps.trim()) {
+            exercise.reps = newReps.trim();
+            saveAll();
+            renderDailyChecklist(new Date(ymd));
+        }
+    }
+
+    function editExerciseDescription(workoutId, exerciseId, ymd) {
+        let workout = workoutLibrary.find(w => w.id === workoutId);
+        if (!workout) return;
+        let exercise = workout.exercises.find(e => e.id === exerciseId);
+        if (!exercise) return;
+        let newDesc = prompt("Enter description/notes for this exercise:", exercise.description || "");
+        if (newDesc !== null) {
+            exercise.description = newDesc.trim();
+            saveAll();
+            renderDailyChecklist(new Date(ymd));
+        }
+    }
+
+    function deleteRep(ymd, workoutId, exerciseId, repIndex) {
+        let repKey = `reps_${ymd}_${workoutId}_${exerciseId}`;
+        let logs = JSON.parse(localStorage.getItem(repKey) || '[]');
+        logs.splice(repIndex, 1);
+        localStorage.setItem(repKey, JSON.stringify(logs));
+        renderDailyChecklist(new Date(ymd));
     }
 
     // ========== DAILY CHECKLIST ==========
@@ -375,7 +526,12 @@
             
             html += `<div class="workout-card">
                 <div class="workout-header" onclick="toggleWorkout('${workout.id}_${ymd}')">
-                    <div class="workout-title"><span class="expand-icon" id="icon_${workout.id}_${ymd}">▶</span> 🏋️ ${escapeHtml(workout.name)}</div>
+                    <div class="workout-title">
+                        <span class="expand-icon" id="icon_${workout.id}_${ymd}">▶</span>
+                        <span>🏋️</span>
+                        <span id="title_text_${workout.id}_${ymd}">${escapeHtml(workout.name)}</span>
+                        <button class="edit-title-btn" onclick="event.stopPropagation(); editWorkoutTitle('${workout.id}', '${ymd}')">✏️ Edit</button>
+                    </div>
                 </div>
                 <div class="workout-content" id="content_${workout.id}_${ymd}">`;
             
@@ -388,16 +544,40 @@
                 let videoHtml = ex.videoUrl ? `<span class="video-link" data-url="${escapeHtml(ex.videoUrl)}">📺 Watch video</span>` : '';
                 let repKey = `reps_${ymd}_${workout.id}_${ex.id}`;
                 let logs = JSON.parse(localStorage.getItem(repKey) || '[]');
-                let tsHtml = logs.length ? `<div class="timestamp-list">${logs.map((l,i) => `<div>Rep ${i+1}: ${new Date(l.ts).toLocaleTimeString()}</div>`).join('')}</div>` : '';
+                let tsHtml = '';
+                if (logs.length) {
+                    tsHtml = `<div class="timestamp-list">${logs.map((l,i) => `
+                        <div class="timestamp-item">
+                            <span>Rep ${i+1}: ${new Date(l.ts).toLocaleTimeString()}</span>
+                            <button class="delete-rep-btn small-btn" onclick="deleteRep('${ymd}', '${workout.id}', '${ex.id}', ${i})">🗑️</button>
+                        </div>
+                    `).join('')}</div>`;
+                }
+                
+                let descriptionHtml = '';
+                let descText = ex.description || '';
+                descriptionHtml = `<div class="exercise-description">
+                    <strong>📝 Notes:</strong><br>
+                    <span id="desc_text_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">${escapeHtml(descText) || '(no description)'}</span>
+                    <button class="edit-desc-btn" onclick="editExerciseDescription('${workout.id}', '${ex.id}', '${ymd}')">✏️ Edit</button>
+                </div>`;
                 
                 html += `<div class="exercise-item">
                     <div class="exercise-header">
-                        <div class="exercise-name"><input type="checkbox" class="exercise-checkbox" data-checkkey="${checkKey}" ${isChecked ? 'checked' : ''}> ${escapeHtml(ex.name)}</div>
-                        <div class="exercise-reps">${ex.sets} × ${ex.reps}</div>
+                        <div class="exercise-name">
+                            <input type="checkbox" class="exercise-checkbox" data-checkkey="${checkKey}" ${isChecked ? 'checked' : ''}>
+                            <span id="ex_name_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">${escapeHtml(ex.name)}</span>
+                            <button class="edit-reps-btn" onclick="editExerciseName('${workout.id}', '${ex.id}', '${ymd}')">✏️ Name</button>
+                        </div>
+                        <div class="exercise-reps">
+                            <span id="ex_reps_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">${escapeHtml(ex.reps)}</span>
+                            <button class="edit-reps-btn" onclick="editExerciseReps('${workout.id}', '${ex.id}', '${ymd}')">✏️ Reps</button>
+                        </div>
                     </div>
+                    ${descriptionHtml}
                     <div class="checkbox-row">
                         ${videoHtml}
-                        <button class="record-rep-btn" data-workout="${workout.id}" data-exercise="${ex.id}" data-date="${ymd}">🕐 Record Rep</button>
+                        <button class="record-rep-btn" data-workout="${workout.id}" data-exercise="${ex.id}" data-date="${ymd}">🕐 Record Rep (timestamp)</button>
                     </div>
                     ${tsHtml}
                     <div class="timer-container">
@@ -666,7 +846,14 @@
                 let repsMatch = details.match(/(\d+)\s*reps?/i) || details.match(/(\d+)\s*sec/i);
                 if (setsMatch) sets = parseInt(setsMatch[1]);
                 if (repsMatch) reps = repsMatch[1];
-                current.exercises.push({ id: Date.now() + '_ex', name: exName, sets: sets, reps: reps, videoUrl: videoUrl });
+                current.exercises.push({ 
+                    id: Date.now() + '_ex', 
+                    name: exName, 
+                    sets: sets, 
+                    reps: reps, 
+                    videoUrl: videoUrl,
+                    description: "" 
+                });
             }
         }
         if (current) newWorkouts.push(current);
@@ -707,7 +894,11 @@
     }
     
     // ========== UTILITIES ==========
-    function escapeHtml(str) { return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    function escapeHtml(str) { 
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); 
+    }
+    
     window.toggleWorkout = function(id) {
         let content = document.getElementById(`content_${id}`);
         let icon = document.getElementById(`icon_${id}`);
@@ -719,6 +910,13 @@
             icon.innerText = '▼';
         }
     };
+    
+    // Make edit functions global for onclick
+    window.editWorkoutTitle = editWorkoutTitle;
+    window.editExerciseName = editExerciseName;
+    window.editExerciseReps = editExerciseReps;
+    window.editExerciseDescription = editExerciseDescription;
+    window.deleteRep = deleteRep;
     
     function switchTab(tabId) {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
