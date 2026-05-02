@@ -102,16 +102,6 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-        .editable-title {
-            background: #fffffa;
-            border: 1px solid #808080;
-            padding: 4px 8px;
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: bold;
-            color: #000080;
-            cursor: text;
-        }
         .edit-title-btn {
             background: #c0c0c0;
             border: 2px solid #fff;
@@ -141,31 +131,11 @@
             justify-content: space-between;
             flex-wrap: wrap;
             margin-bottom: 8px;
+            gap: 8px;
         }
         .exercise-name { font-weight: bold; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .editable-exercise-name {
-            background: #fffffa;
-            border: 1px solid #808080;
-            padding: 2px 6px;
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .exercise-reps { 
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .editable-reps {
-            background: #fffffa;
-            border: 1px solid #808080;
-            padding: 2px 6px;
-            width: 70px;
-            font-family: monospace;
-            font-size: 11px;
-        }
-        .edit-reps-btn, .edit-desc-btn, .edit-title-btn {
+        .exercise-reps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .edit-reps-btn, .edit-desc-btn, .edit-name-btn {
             background: #c0c0c0;
             border: 2px solid #fff;
             border-right-color: #808080;
@@ -181,15 +151,6 @@
             font-size: 10px;
             color: #444;
             border-left: 2px solid #808080;
-        }
-        .editable-description {
-            width: 100%;
-            background: #fffffa;
-            border: 1px solid #808080;
-            padding: 4px;
-            font-family: inherit;
-            font-size: 10px;
-            resize: vertical;
         }
         .checkbox-row { display: flex; gap: 14px; margin: 8px 0; flex-wrap: wrap; align-items: center; }
         .exercise-checkbox { transform: scale(1.2); margin-right: 8px; cursor: pointer; }
@@ -240,6 +201,8 @@
             color: #0f0;
             padding: 4px 10px;
             text-align: center;
+            display: inline-block;
+            min-width: 80px;
         }
         .timer-controls { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
         .retro-button {
@@ -318,6 +281,7 @@
         }
         hr { margin: 12px 0; }
         .small-btn { font-size: 8px; padding: 1px 4px; }
+        .timer-input { width: 55px; padding: 2px; }
     </style>
 </head>
 <body>
@@ -376,7 +340,7 @@
             <button id="resetAllHistoryBtn" class="retro-button" style="background:#800000;color:white;margin-top:12px">⚠️ Reset All</button>
         </div>
     </div>
-    <div class="status-bar"><span>💡 Click workout header to expand | ✏️ Edit titles/descriptions by clicking Edit buttons</span><span id="syncStatus">Ready</span></div>
+    <div class="status-bar"><span>💡 Click workout header to expand | ✏️ Edit titles/descriptions | 🕐 Each timer is independent</span><span id="syncStatus">Ready</span></div>
 </div>
 
 <script>
@@ -387,7 +351,10 @@
     let dayCompletionStatus = {};
     let currentDisplayDate = new Date();
     let selectedPlanDate = new Date();
-    let activeTimers = {};
+    
+    // Store timer intervals and remaining times separately for each unique timer ID
+    let timerIntervals = {};
+    let timerRemaining = {};
 
     // ========== HELPERS ==========
     function formatYMD(date) {
@@ -398,14 +365,14 @@
     }
 
     function saveAll() {
-        localStorage.setItem('achilles_tracker_v4', JSON.stringify({
+        localStorage.setItem('achilles_tracker_v5', JSON.stringify({
             workoutLibrary, assignments, exercisePermanentChecks, dayCompletionStatus
         }));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
     }
 
     function loadAll() {
-        let raw = localStorage.getItem('achilles_tracker_v4');
+        let raw = localStorage.getItem('achilles_tracker_v5');
         if (raw) {
             try {
                 let data = JSON.parse(raw);
@@ -504,6 +471,72 @@
         renderDailyChecklist(new Date(ymd));
     }
 
+    // ========== TIMER FUNCTIONS (completely independent) ==========
+    function startTimer(timerId, displayElement, minInput, secInput) {
+        // Stop any existing timer for this ID
+        if (timerIntervals[timerId]) {
+            clearInterval(timerIntervals[timerId]);
+            delete timerIntervals[timerId];
+        }
+        
+        let mins = parseInt(minInput?.value) || 0;
+        let secs = parseInt(secInput?.value) || 0;
+        let remaining = mins * 60 + secs;
+        if (remaining <= 0) remaining = 60;
+        
+        timerRemaining[timerId] = remaining;
+        
+        function updateDisplay() {
+            let m = Math.floor(timerRemaining[timerId] / 60);
+            let s = timerRemaining[timerId] % 60;
+            displayElement.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        updateDisplay();
+        
+        timerIntervals[timerId] = setInterval(() => {
+            if (timerRemaining[timerId] > 0) {
+                timerRemaining[timerId]--;
+                updateDisplay();
+                if (timerRemaining[timerId] === 0) {
+                    clearInterval(timerIntervals[timerId]);
+                    delete timerIntervals[timerId];
+                    alert('⏰ Timer finished!');
+                }
+            }
+        }, 1000);
+    }
+    
+    function pauseTimer(timerId) {
+        if (timerIntervals[timerId]) {
+            clearInterval(timerIntervals[timerId]);
+            delete timerIntervals[timerId];
+        }
+    }
+    
+    function stopTimer(timerId, displayElement) {
+        if (timerIntervals[timerId]) {
+            clearInterval(timerIntervals[timerId]);
+            delete timerIntervals[timerId];
+        }
+        timerRemaining[timerId] = 0;
+        displayElement.innerText = '00:00';
+    }
+    
+    function resetTimer(timerId, displayElement, minInput, secInput) {
+        if (timerIntervals[timerId]) {
+            clearInterval(timerIntervals[timerId]);
+            delete timerIntervals[timerId];
+        }
+        let mins = parseInt(minInput?.value) || 0;
+        let secs = parseInt(secInput?.value) || 0;
+        let remaining = mins * 60 + secs;
+        if (remaining <= 0) remaining = 60;
+        timerRemaining[timerId] = remaining;
+        let m = Math.floor(remaining / 60);
+        let s = remaining % 60;
+        displayElement.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
     // ========== DAILY CHECKLIST ==========
     function renderDailyChecklist(date) {
         let ymd = formatYMD(date);
@@ -529,7 +562,7 @@
                     <div class="workout-title">
                         <span class="expand-icon" id="icon_${workout.id}_${ymd}">▶</span>
                         <span>🏋️</span>
-                        <span id="title_text_${workout.id}_${ymd}">${escapeHtml(workout.name)}</span>
+                        <span>${escapeHtml(workout.name)}</span>
                         <button class="edit-title-btn" onclick="event.stopPropagation(); editWorkoutTitle('${workout.id}', '${ymd}')">✏️ Edit</button>
                     </div>
                 </div>
@@ -549,7 +582,7 @@
                     tsHtml = `<div class="timestamp-list">${logs.map((l,i) => `
                         <div class="timestamp-item">
                             <span>Rep ${i+1}: ${new Date(l.ts).toLocaleTimeString()}</span>
-                            <button class="delete-rep-btn small-btn" onclick="deleteRep('${ymd}', '${workout.id}', '${ex.id}', ${i})">🗑️</button>
+                            <button class="delete-rep-btn" onclick="deleteRep('${ymd}', '${workout.id}', '${ex.id}', ${i})">🗑️</button>
                         </div>
                     `).join('')}</div>`;
                 }
@@ -557,38 +590,40 @@
                 let descriptionHtml = '';
                 let descText = ex.description || '';
                 descriptionHtml = `<div class="exercise-description">
-                    <strong>📝 Notes:</strong><br>
-                    <span id="desc_text_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">${escapeHtml(descText) || '(no description)'}</span>
+                    <strong>📝 Notes:</strong> ${escapeHtml(descText) || '(no description)'}
                     <button class="edit-desc-btn" onclick="editExerciseDescription('${workout.id}', '${ex.id}', '${ymd}')">✏️ Edit</button>
                 </div>`;
+                
+                // Create unique timer ID for this specific exercise + day
+                let uniqueTimerId = `${workout.id}_${ex.id}_${ymd}`;
                 
                 html += `<div class="exercise-item">
                     <div class="exercise-header">
                         <div class="exercise-name">
                             <input type="checkbox" class="exercise-checkbox" data-checkkey="${checkKey}" ${isChecked ? 'checked' : ''}>
-                            <span id="ex_name_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">${escapeHtml(ex.name)}</span>
-                            <button class="edit-reps-btn" onclick="editExerciseName('${workout.id}', '${ex.id}', '${ymd}')">✏️ Name</button>
+                            <span>${escapeHtml(ex.name)}</span>
+                            <button class="edit-name-btn" onclick="editExerciseName('${workout.id}', '${ex.id}', '${ymd}')">✏️ Name</button>
                         </div>
                         <div class="exercise-reps">
-                            <span id="ex_reps_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">${escapeHtml(ex.reps)}</span>
+                            <span>${escapeHtml(ex.reps)}</span>
                             <button class="edit-reps-btn" onclick="editExerciseReps('${workout.id}', '${ex.id}', '${ymd}')">✏️ Reps</button>
                         </div>
                     </div>
                     ${descriptionHtml}
                     <div class="checkbox-row">
                         ${videoHtml}
-                        <button class="record-rep-btn" data-workout="${workout.id}" data-exercise="${ex.id}" data-date="${ymd}">🕐 Record Rep (timestamp)</button>
+                        <button class="record-rep-btn" data-workout="${workout.id}" data-exercise="${ex.id}" data-date="${ymd}">🕐 Record Rep</button>
                     </div>
                     ${tsHtml}
-                    <div class="timer-container">
-                        <div class="timer-display" id="timer_${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">01:00</div>
+                    <div class="timer-container" data-timer-id="${uniqueTimerId}">
+                        <div class="timer-display" id="timer_display_${uniqueTimerId}">01:00</div>
                         <div class="timer-controls">
-                            <input type="number" placeholder="Min" value="1" style="width:55px" class="timer-min" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}"> min
-                            <input type="number" placeholder="Sec" value="0" style="width:55px" class="timer-sec" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}"> sec
-                            <button class="retro-button timer-start" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">▶ Start</button>
-                            <button class="retro-button timer-pause" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⏸ Pause</button>
-                            <button class="retro-button timer-stop" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⏹ Stop</button>
-                            <button class="retro-button timer-reset" data-timer-idx="${workout.id}_${ex.id}_${ymd.replace(/-/g,'')}">⟳ Reset</button>
+                            <input type="number" placeholder="Min" value="1" class="timer-input timer-min" data-timer-id="${uniqueTimerId}"> min
+                            <input type="number" placeholder="Sec" value="0" class="timer-input timer-sec" data-timer-id="${uniqueTimerId}"> sec
+                            <button class="retro-button timer-start" data-timer-id="${uniqueTimerId}">▶ Start</button>
+                            <button class="retro-button timer-pause" data-timer-id="${uniqueTimerId}">⏸ Pause</button>
+                            <button class="retro-button timer-stop" data-timer-id="${uniqueTimerId}">⏹ Stop</button>
+                            <button class="retro-button timer-reset" data-timer-id="${uniqueTimerId}">⟳ Reset</button>
                         </div>
                     </div>
                 </div>`;
@@ -624,7 +659,7 @@
         attachExerciseCheckboxes(date);
         attachVideoLinks();
         attachRecordRepButtons();
-        attachTimers();
+        attachTimerButtons();
     }
     
     function attachExerciseCheckboxes(date) {
@@ -662,60 +697,46 @@
         });
     }
     
-    function attachTimers() {
-        document.querySelectorAll('.timer-start, .timer-pause, .timer-stop, .timer-reset').forEach(btn => {
-            btn.removeEventListener('click', () => {});
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                let idx = this.dataset.timerIdx;
-                let display = document.getElementById(`timer_${idx}`);
-                let minInput = document.querySelector(`.timer-min[data-timer-idx="${idx}"]`);
-                let secInput = document.querySelector(`.timer-sec[data-timer-idx="${idx}"]`);
-                if (!display) return;
-                
-                if (this.classList.contains('timer-start')) {
-                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
-                    let mins = parseInt(minInput?.value) || 0;
-                    let secs = parseInt(secInput?.value) || 0;
-                    let remaining = mins * 60 + secs;
-                    if (remaining <= 0) remaining = 60;
-                    
-                    function update() {
-                        let m = Math.floor(remaining / 60);
-                        let s = remaining % 60;
-                        display.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                    }
-                    update();
-                    activeTimers[idx] = setInterval(() => {
-                        if (remaining > 0) {
-                            remaining--;
-                            update();
-                            if (remaining === 0) {
-                                clearInterval(activeTimers[idx]);
-                                alert('⏰ Timer finished!');
-                            }
-                        }
-                    }, 1000);
-                }
-                else if (this.classList.contains('timer-pause')) {
-                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
-                }
-                else if (this.classList.contains('timer-stop')) {
-                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
-                    display.innerText = '00:00';
-                }
-                else if (this.classList.contains('timer-reset')) {
-                    if (activeTimers[idx]) clearInterval(activeTimers[idx]);
-                    let mins = parseInt(minInput?.value) || 0;
-                    let secs = parseInt(secInput?.value) || 0;
-                    let remaining = mins * 60 + secs;
-                    if (remaining <= 0) remaining = 60;
-                    let m = Math.floor(remaining / 60);
-                    let s = remaining % 60;
-                    display.innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                }
-            });
+    function attachTimerButtons() {
+        document.querySelectorAll('.timer-start').forEach(btn => {
+            btn.removeEventListener('click', timerClickHandler);
+            btn.addEventListener('click', timerClickHandler);
         });
+        document.querySelectorAll('.timer-pause').forEach(btn => {
+            btn.removeEventListener('click', timerClickHandler);
+            btn.addEventListener('click', timerClickHandler);
+        });
+        document.querySelectorAll('.timer-stop').forEach(btn => {
+            btn.removeEventListener('click', timerClickHandler);
+            btn.addEventListener('click', timerClickHandler);
+        });
+        document.querySelectorAll('.timer-reset').forEach(btn => {
+            btn.removeEventListener('click', timerClickHandler);
+            btn.addEventListener('click', timerClickHandler);
+        });
+    }
+    
+    function timerClickHandler(e) {
+        e.stopPropagation();
+        let timerId = this.dataset.timerId;
+        let displayElement = document.getElementById(`timer_display_${timerId}`);
+        let minInput = document.querySelector(`.timer-min[data-timer-id="${timerId}"]`);
+        let secInput = document.querySelector(`.timer-sec[data-timer-id="${timerId}"]`);
+        
+        if (!displayElement) return;
+        
+        if (this.classList.contains('timer-start')) {
+            startTimer(timerId, displayElement, minInput, secInput);
+        }
+        else if (this.classList.contains('timer-pause')) {
+            pauseTimer(timerId);
+        }
+        else if (this.classList.contains('timer-stop')) {
+            stopTimer(timerId, displayElement);
+        }
+        else if (this.classList.contains('timer-reset')) {
+            resetTimer(timerId, displayElement, minInput, secInput);
+        }
     }
     
     function renderDaySelector() {
