@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Retro Walkman - Sync Across Devices</title>
+    <title>Retro Walkman - Multi Upload & Sync</title>
     <style>
         * {
             margin: 0;
@@ -27,7 +27,7 @@
             border-radius: 20px;
             padding: 20px;
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
             box-shadow: 8px 8px 0px #1a1a1a, inset 1px 1px 0px #4a4a4a;
             border: 1px solid #1a1a1a;
             position: relative;
@@ -95,7 +95,7 @@
             background: #003300;
             color: #00ff00;
             font-family: monospace;
-            font-size: 18px;
+            font-size: 16px;
             padding: 8px 12px;
             text-align: center;
             margin-bottom: 15px;
@@ -180,7 +180,7 @@
             border-radius: 12px;
             padding: 12px;
             margin-top: 15px;
-            max-height: 250px;
+            max-height: 280px;
             overflow-y: auto;
         }
 
@@ -193,6 +193,25 @@
             font-size: 11px;
             padding-bottom: 5px;
             border-bottom: 1px solid #444;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .upload-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .upload-btn {
+            background: #2a4a6e;
+            border: none;
+            padding: 4px 10px;
+            color: white;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 10px;
+            border-radius: 4px;
         }
 
         .song-item {
@@ -226,39 +245,6 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 10px;
-        }
-
-        .add-song {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .add-song input {
-            flex: 1;
-            padding: 6px;
-            font-family: monospace;
-            font-size: 11px;
-            background: #333;
-            border: 1px solid #555;
-            color: white;
-        }
-
-        .add-song button, .file-input-label {
-            background: #2d5a2d;
-            border: none;
-            padding: 6px 12px;
-            color: white;
-            cursor: pointer;
-            font-family: monospace;
-            font-size: 11px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-
-        .file-input-label input {
-            display: none;
         }
 
         .progress-bar {
@@ -355,10 +341,21 @@
             margin-top: 5px;
         }
 
+        .batch-status {
+            background: #333;
+            color: #0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: monospace;
+            margin-top: 8px;
+            text-align: center;
+        }
+
         @media (max-width: 550px) {
             .walkman { padding: 12px; }
             .walkman-btn { padding: 8px 12px; font-size: 16px; }
-            .display { font-size: 14px; }
+            .display { font-size: 13px; }
         }
     </style>
 </head>
@@ -398,20 +395,27 @@
     <div class="library">
         <div class="library-header">
             <span>📼 MY TAPES (LIBRARY)</span>
-            <span id="songCount">0 songs</span>
+            <div class="upload-buttons">
+                <label class="upload-btn">
+                    📁 Multiple Files
+                    <input type="file" id="multiFileInput" accept="audio/*" multiple style="display:none;">
+                </label>
+                <label class="upload-btn">
+                    📂 Entire Folder
+                    <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none;">
+                </label>
+                <label class="upload-btn">
+                    🎵 Single MP3
+                    <input type="file" id="singleFileInput" accept="audio/*" style="display:none;">
+                </label>
+            </div>
         </div>
         <div id="songList"></div>
-        <div class="add-song">
-            <input type="text" id="songUrlInput" placeholder="Music URL (MP3) or YouTube URL...">
-            <button id="addUrlBtn">➕ URL</button>
-            <label class="file-input-label">
-                📁 Upload MP3
-                <input type="file" id="fileInput" accept="audio/*">
-            </label>
+        <div class="add-song" style="display: flex; gap: 8px; margin-top: 10px;">
+            <input type="text" id="songUrlInput" placeholder="Music URL (MP3)..." style="flex:1; padding:6px; background:#333; border:1px solid #555; color:white;">
+            <button id="addUrlBtn" style="background:#2d5a2d; border:none; padding:6px 12px; color:white; cursor:pointer;">➕ URL</button>
         </div>
-        <div class="add-song" style="margin-top: 6px;">
-            <input type="text" id="songNameInput" placeholder="Custom name (optional)">
-        </div>
+        <div id="batchStatus" class="batch-status" style="display:none;"></div>
     </div>
 </div>
 
@@ -444,7 +448,7 @@
     let syncInProgress = false;
     
     // ========== MUSIC DATA ==========
-    let musicLibrary = [];  // { id, name, url, type }
+    let musicLibrary = [];
     let currentIndex = 0;
     let audio = new Audio();
     let isPlaying = false;
@@ -531,7 +535,7 @@
         }
     }
     
-    // ========== LOCAL STORAGE FALLBACK ==========
+    // ========== LOCAL STORAGE ==========
     function loadLocalFallback() {
         const saved = localStorage.getItem('walkman_music_library');
         if (saved) {
@@ -576,14 +580,139 @@
     }
     
     function updateSongCount() {
-        document.getElementById('songCount').innerText = musicLibrary.length + ' songs';
+        const countSpan = document.getElementById('songCount');
+        if (countSpan) countSpan.innerText = musicLibrary.length + ' songs';
     }
     
-    // ========== MUSIC PLAYER FUNCTIONS ==========
+    // ========== MULTI FILE UPLOAD ==========
+    function showBatchStatus(message, isError = false) {
+        const statusDiv = document.getElementById('batchStatus');
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = message;
+        statusDiv.style.color = isError ? '#ff6666' : '#00ff00';
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+    
+    function addMultipleSongs(files) {
+        const audioFiles = Array.from(files).filter(f => f.type.startsWith('audio/'));
+        if (audioFiles.length === 0) {
+            showBatchStatus('❌ No audio files found', true);
+            return;
+        }
+        
+        let added = 0;
+        for (let file of audioFiles) {
+            let url = URL.createObjectURL(file);
+            let name = file.name.replace(/\.[^/.]+$/, '');
+            if (name.length > 40) name = name.substring(0, 37) + '...';
+            
+            // Check for duplicate by name (simple check)
+            let exists = musicLibrary.some(s => s.name === name);
+            if (!exists) {
+                musicLibrary.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    url: url,
+                    type: 'blob',
+                    blobUrl: url
+                });
+                added++;
+            }
+        }
+        
+        saveToLocal();
+        renderSongList();
+        showBatchStatus(`✅ Added ${added} new songs (${audioFiles.length - added} duplicates skipped)`);
+    }
+    
+    function addFolderSongs(files) {
+        // Files from folder input have webkitRelativePath
+        const audioFiles = Array.from(files).filter(f => f.type.startsWith('audio/'));
+        if (audioFiles.length === 0) {
+            showBatchStatus('❌ No audio files found in folder', true);
+            return;
+        }
+        
+        let added = 0;
+        for (let file of audioFiles) {
+            let url = URL.createObjectURL(file);
+            let relativePath = file.webkitRelativePath || file.name;
+            let name = relativePath.replace(/\.[^/.]+$/, '').replace(/\//g, ' › ');
+            if (name.length > 40) name = name.substring(0, 37) + '...';
+            
+            let exists = musicLibrary.some(s => s.name === name);
+            if (!exists) {
+                musicLibrary.push({
+                    id: Date.now() + Math.random(),
+                    name: name,
+                    url: url,
+                    type: 'blob',
+                    blobUrl: url,
+                    path: relativePath
+                });
+                added++;
+            }
+        }
+        
+        saveToLocal();
+        renderSongList();
+        showBatchStatus(`✅ Added ${added} songs from folder (${audioFiles.length - added} duplicates skipped)`);
+    }
+    
+    function addSingleSong(file) {
+        if (!file.type.startsWith('audio/')) {
+            alert('Please select an audio file');
+            return;
+        }
+        
+        let url = URL.createObjectURL(file);
+        let name = file.name.replace(/\.[^/.]+$/, '');
+        if (name.length > 40) name = name.substring(0, 37) + '...';
+        
+        musicLibrary.push({
+            id: Date.now(),
+            name: name,
+            url: url,
+            type: 'blob',
+            blobUrl: url
+        });
+        
+        saveToLocal();
+        renderSongList();
+        showBatchStatus(`✅ Added "${name}"`);
+    }
+    
+    function addSongFromUrl() {
+        let url = document.getElementById('songUrlInput').value.trim();
+        if (!url) {
+            alert('Enter a music URL (direct MP3 link)');
+            return;
+        }
+        
+        let name = url.split('/').pop() || 'Untitled';
+        if (name.length > 40) name = name.substring(0, 37) + '...';
+        if (name.includes('?')) name = name.split('?')[0];
+        
+        musicLibrary.push({
+            id: Date.now(),
+            name: name,
+            url: url,
+            type: 'url'
+        });
+        
+        saveToLocal();
+        renderSongList();
+        document.getElementById('songUrlInput').value = '';
+        showBatchStatus(`✅ Added "${name}"`);
+    }
+    
+    // ========== MUSIC PLAYER ==========
     function renderSongList() {
         let container = document.getElementById('songList');
         if (musicLibrary.length === 0) {
-            container.innerHTML = '<div style="color:#666; text-align:center; padding:20px;">🎵 No songs. Add MP3 files or URLs.</div>';
+            container.innerHTML = '<div style="color:#666; text-align:center; padding:20px;">🎵 No songs. Upload MP3 files or add URLs.</div>';
             return;
         }
         
@@ -617,7 +746,12 @@
     function deleteSongById(id) {
         let idx = musicLibrary.findIndex(s => s.id === id);
         if (idx !== -1) {
+            // Clean up blob URL if exists
+            if (musicLibrary[idx].blobUrl) {
+                URL.revokeObjectURL(musicLibrary[idx].blobUrl);
+            }
             musicLibrary.splice(idx, 1);
+            
             if (musicLibrary.length === 0) {
                 currentIndex = 0;
                 audio.pause();
@@ -637,52 +771,6 @@
             saveToLocal();
             renderSongList();
         }
-    }
-    
-    function addSongFromUrl() {
-        let url = document.getElementById('songUrlInput').value.trim();
-        let customName = document.getElementById('songNameInput').value.trim();
-        if (!url) {
-            alert('Enter a music URL (direct MP3 link)');
-            return;
-        }
-        
-        let name = customName || url.split('/').pop() || 'Untitled';
-        if (name.length > 30) name = name.substring(0, 27) + '...';
-        
-        musicLibrary.push({
-            id: Date.now(),
-            name: name,
-            url: url,
-            type: 'url'
-        });
-        saveToLocal();
-        renderSongList();
-        document.getElementById('songUrlInput').value = '';
-        document.getElementById('songNameInput').value = '';
-        alert(`✅ Added "${name}"`);
-    }
-    
-    function addSongFromFile(file) {
-        if (!file.type.startsWith('audio/')) {
-            alert('Please select an audio file (MP3, WAV, OGG, etc.)');
-            return;
-        }
-        
-        let url = URL.createObjectURL(file);
-        let name = file.name.replace(/\.[^/.]+$/, '');
-        if (name.length > 30) name = name.substring(0, 27) + '...';
-        
-        musicLibrary.push({
-            id: Date.now(),
-            name: name,
-            url: url,
-            type: 'blob',
-            blobUrl: url
-        });
-        saveToLocal();
-        renderSongList();
-        alert(`✅ Added "${name}"`);
     }
     
     function playSongAtIndex(idx) {
@@ -880,12 +968,34 @@
     document.getElementById('volumeSlider').addEventListener('input', setVolume);
     document.getElementById('progressBar').addEventListener('click', seekTo);
     document.getElementById('addUrlBtn').addEventListener('click', addSongFromUrl);
-    document.getElementById('fileInput').addEventListener('change', (e) => {
+    
+    // File upload handlers
+    document.getElementById('multiFileInput').addEventListener('change', (e) => {
         if (e.target.files.length > 0) {
-            addSongFromFile(e.target.files[0]);
+            addMultipleSongs(e.target.files);
             e.target.value = '';
         }
     });
+    document.getElementById('folderInput').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            addFolderSongs(e.target.files);
+            e.target.value = '';
+        }
+    });
+    document.getElementById('singleFileInput').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            addSingleSong(e.target.files[0]);
+            e.target.value = '';
+        }
+    });
+    
+    // Trigger hidden file inputs via labels
+    document.querySelectorAll('.upload-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Already handled by label's for or child input
+        });
+    });
+    
     document.getElementById('syncStatusIndicator').addEventListener('click', openSyncModal);
     document.getElementById('closeSyncModal').addEventListener('click', () => document.getElementById('syncModal').style.display = 'none');
     document.getElementById('saveSyncSettingsBtn').addEventListener('click', saveSyncSettings);
