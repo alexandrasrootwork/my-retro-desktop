@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Achilles & Mobility Tracker</title>
+    <title>Health & Mobility Tracker</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -18,7 +18,7 @@
             border-left-color: #fff;
             border-right-color: #808080;
             border-bottom-color: #808080;
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
         }
         .title-bar {
@@ -42,7 +42,7 @@
             border: 2px solid #fff;
             border-right-color: #808080;
             border-bottom-color: #808080;
-            padding: 6px 20px;
+            padding: 6px 16px;
             cursor: pointer;
             font-size: 12px;
             font-weight: bold;
@@ -54,15 +54,15 @@
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
         
-        /* Achilles specific styles */
-        .achilles-card {
+        /* Cards */
+        .health-card {
             background: #e0e0e0;
             border: 1px solid #808080;
             margin-bottom: 16px;
         }
-        .achilles-header {
+        .card-header {
             background: #c0c0c0;
-            padding: 12px;
+            padding: 10px 12px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -70,18 +70,26 @@
             border-bottom: 1px solid #808080;
             font-weight: bold;
         }
-        .achilles-content { display: none; padding: 12px; background: #fff; }
-        .achilles-content.expanded { display: block; }
-        .symptom-tracker {
-            background: #f4f4f4;
-            padding: 12px;
+        .card-content { display: none; padding: 12px; background: #fff; }
+        .card-content.expanded { display: block; }
+        
+        .symptom-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
             margin: 12px 0;
-            border-left: 4px solid #800000;
+        }
+        .symptom-item {
+            background: #f4f4f4;
+            padding: 10px;
+            border-left: 4px solid #000080;
+            min-width: 150px;
+            flex: 1;
         }
         .pain-scale {
             display: flex;
-            gap: 10px;
-            margin: 10px 0;
+            gap: 6px;
+            margin: 8px 0;
             flex-wrap: wrap;
         }
         .pain-btn {
@@ -89,16 +97,14 @@
             border: 2px solid #fff;
             border-right-color: #808080;
             border-bottom-color: #808080;
-            padding: 8px 12px;
+            padding: 4px 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
+            min-width: 32px;
+            text-align: center;
         }
         .pain-btn.active { background: #000080; color: white; }
-        .daily-log {
-            margin: 12px 0;
-            padding: 10px;
-            background: #ffffcc;
-        }
+        
         .retro-button {
             background: #c0c0c0;
             border: 2px solid #fff;
@@ -114,6 +120,23 @@
             border-right-color: #fff;
             border-bottom-color: #fff;
         }
+        
+        .exercise-item {
+            margin: 12px 0;
+            padding: 10px;
+            background: #f4f4f4;
+            border-left: 4px solid #000080;
+        }
+        .exercise-checkbox { transform: scale(1.2); margin-right: 8px; cursor: pointer; }
+        
+        .note {
+            background: #ffffcc;
+            padding: 8px;
+            font-size: 11px;
+            margin: 12px 0;
+            border-left: 4px solid #000080;
+        }
+        
         .status-bar {
             background: #c0c0c0;
             border-top: 1px solid #808080;
@@ -122,226 +145,202 @@
             display: flex;
             justify-content: space-between;
         }
-        .note {
-            background: #ffffcc;
-            padding: 8px;
+        
+        .history-table {
+            width: 100%;
             font-size: 11px;
-            margin: 12px 0;
-            border-left: 4px solid #000080;
+            border-collapse: collapse;
         }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            padding: 8px;
+        .history-table th, .history-table td {
             border: 1px solid #808080;
-            background: #c0c0c0;
+            padding: 6px;
+            text-align: left;
+            vertical-align: top;
         }
-        .cal-day {
-            background: #fffffa;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid #808080;
-            min-height: 50px;
+        .add-symptom-btn {
+            margin: 8px 0;
+            display: inline-block;
         }
-        .cal-day.has-data { background: #90ee90; }
-        .exercise-item {
-            margin: 12px 0;
-            padding: 10px;
-            background: #f4f4f4;
-            border-left: 4px solid #000080;
-        }
-        .exercise-checkbox { transform: scale(1.2); margin-right: 8px; cursor: pointer; }
-        .stretch-log {
-            font-family: monospace;
+        .symptom-tag {
+            background: #000080;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
             font-size: 10px;
-            margin-top: 5px;
-            padding: 4px;
-            background: #e8e8e8;
+            display: inline-block;
+            margin: 2px;
         }
+        .delete-symptom {
+            cursor: pointer;
+            margin-left: 6px;
+            color: #ff9999;
+        }
+        hr { margin: 12px 0; }
     </style>
 </head>
 <body>
 
 <div class="window">
-    <div class="title-bar"><span>🦶 ACHILLES & MOBILITY TRACKER</span><span>📅</span></div>
+    <div class="title-bar"><span>🏥 Health & Mobility Tracker</span><span>📅</span></div>
     <div class="content">
         <div class="tab-bar">
-            <div class="tab active" data-tab="achilles">🦶 Achilles</div>
-            <div class="tab" data-tab="daily">📋 Daily Workouts</div>
+            <div class="tab active" data-tab="daily">📋 Daily Log</div>
+            <div class="tab" data-tab="workout">💪 Workout</div>
             <div class="tab" data-tab="history">📊 History</div>
             <div class="tab" data-tab="settings">⚙️ Settings</div>
         </div>
 
-        <!-- ACHILLES TAB (NEW - PERSISTENT) -->
-        <div id="achillesTab" class="tab-pane active">
+        <!-- ========== DAILY LOG TAB (Symptoms + Achilles + General) ========== -->
+        <div id="dailyTab" class="tab-pane active">
             <div class="note">
-                <strong>🦶 Achilles Tendon Tracker</strong><br>
-                Track daily symptoms, stretches, and progress. All data is saved automatically.
+                <strong>📅 Daily Health Log — </strong> Track symptoms, swelling, Achilles, knees, or anything else.
+                <button id="addSymptomBtn" class="retro-button" style="margin-left: 12px; padding: 2px 8px;">➕ Add Symptom to Track</button>
             </div>
             
-            <div id="achillesDailyView">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
-                    <input type="date" id="achillesDatePicker" value="">
-                    <button id="copyPrevDayBtn" class="retro-button">📋 Copy from yesterday</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+                <input type="date" id="logDatePicker" style="font-size: 14px; padding: 4px;">
+                <button id="copyPrevLogBtn" class="retro-button">📋 Copy from yesterday</button>
+            </div>
+            
+            <!-- Dynamic Symptoms Container -->
+            <div id="symptomsContainer"></div>
+            
+            <!-- Fixed: Achilles specific section -->
+            <div class="health-card">
+                <div class="card-header" onclick="toggleCard('achillesSpecific')">
+                    <span>🦶 Achilles & Calf Specific</span>
+                    <span id="icon_achillesSpecific">▼</span>
                 </div>
-                
-                <!-- Morning Symptoms -->
-                <div class="achilles-card">
-                    <div class="achilles-header" onclick="toggleAchillesSection('morningSymptoms')">
-                        <span>🌅 Morning Symptoms (first steps)</span>
-                        <span id="icon_morningSymptoms">▼</span>
-                    </div>
-                    <div id="content_morningSymptoms" class="achilles-content expanded">
-                        <div class="symptom-tracker">
-                            <label>Pain level (0-10):</label>
+                <div id="content_achillesSpecific" class="card-content expanded">
+                    <div class="symptom-grid">
+                        <div class="symptom-item">
+                            <strong>Morning (first steps)</strong>
+                            <div>Pain (0-10): <span id="morningPainVal">-</span></div>
                             <div class="pain-scale" id="morningPainScale"></div>
-                            <label>Tightness:</label>
-                            <div class="pain-scale" id="morningTightnessScale"></div>
-                            <label>Notes:</label>
-                            <textarea id="morningNotes" rows="2" style="width:100%; margin-top:8px;" placeholder="e.g., 'Pain lasted 30 seconds, then faded'"></textarea>
+                            <div>Tightness (0-10): <span id="morningTightVal">-</span></div>
+                            <div class="pain-scale" id="morningTightScale"></div>
+                            <textarea id="morningNotes" rows="2" style="width:100%; margin-top:6px;" placeholder="How long did pain last?"></textarea>
                         </div>
-                    </div>
-                </div>
-                
-                <!-- Evening Symptoms -->
-                <div class="achilles-card">
-                    <div class="achilles-header" onclick="toggleAchillesSection('eveningSymptoms')">
-                        <span>🌙 Evening Symptoms (after day)</span>
-                        <span id="icon_eveningSymptoms">▼</span>
-                    </div>
-                    <div id="content_eveningSymptoms" class="achilles-content expanded">
-                        <div class="symptom-tracker">
-                            <label>Pain level (0-10):</label>
+                        <div class="symptom-item">
+                            <strong>Evening</strong>
+                            <div>Pain (0-10): <span id="eveningPainVal">-</span></div>
                             <div class="pain-scale" id="eveningPainScale"></div>
-                            <label>Swelling (0=none, 10=severe):</label>
+                            <div>Swelling (0-10): <span id="swellingVal">-</span></div>
                             <div class="pain-scale" id="swellingScale"></div>
-                            <label>Notes:</label>
-                            <textarea id="eveningNotes" rows="2" style="width:100%; margin-top:8px;" placeholder="e.g., 'Worse after walking home'"></textarea>
+                            <textarea id="eveningNotes" rows="2" style="width:100%; margin-top:6px;" placeholder="Triggers? Better/worse?"></textarea>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Stretches Completed -->
-                <div class="achilles-card">
-                    <div class="achilles-header" onclick="toggleAchillesSection('stretches')">
-                        <span>🧘 Stretches Completed Today</span>
-                        <span id="icon_stretches">▼</span>
+                    <div>
+                        <label>🚶 Walking today (minutes): <input type="number" id="walkingMinutes" value="28" style="width:80px;"></label>
                     </div>
-                    <div id="content_stretches" class="achilles-content expanded">
-                        <div class="exercise-item">
-                            <label><input type="checkbox" id="stretchSeatedPumps" class="stretch-checkbox"> Seated ankle pumps (2 min)</label>
-                        </div>
-                        <div class="exercise-item">
-                            <label><input type="checkbox" id="stretchHeelSlides" class="stretch-checkbox"> Heel slides (3 min)</label>
-                        </div>
-                        <div class="exercise-item">
-                            <label><input type="checkbox" id="stretchCalf" class="stretch-checkbox"> Wall calf stretch (5 min) - ✅ ONLY if no sharp pain</label>
-                        </div>
-                        <div class="exercise-item">
-                            <label><input type="checkbox" id="stretchElevation" class="stretch-checkbox"> Ankle elevation (10 min)</label>
-                        </div>
-                        <div class="exercise-item">
-                            <label>Minutes of walking today:</label>
-                            <input type="number" id="walkingMinutes" value="28" style="width:80px;"> min
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Daily Summary -->
-                <div class="daily-log">
-                    <strong>📝 Daily Summary</strong><br>
-                    <textarea id="dailySummary" rows="3" style="width:100%; margin-top:8px;" placeholder="How did your Achilles feel overall today? Any triggers?"></textarea>
-                    <button id="saveAchillesDayBtn" class="retro-button" style="margin-top:12px;">💾 Save Today's Achilles Data</button>
                 </div>
             </div>
             
-            <div id="achillesHistoryPreview" style="margin-top: 20px;">
-                <hr>
-                <strong>📜 Recent Achilles History</strong>
-                <div id="recentAchillesEntries" style="max-height: 200px; overflow-y: auto; margin-top: 8px;"></div>
+            <!-- Daily Summary -->
+            <div class="health-card">
+                <div class="card-header" onclick="toggleCard('dailySummaryCard')">
+                    <span>📝 Daily Summary & Notes</span>
+                    <span id="icon_dailySummaryCard">▼</span>
+                </div>
+                <div id="content_dailySummaryCard" class="card-content expanded">
+                    <textarea id="dailySummary" rows="3" style="width:100%;" placeholder="How did you feel overall? Anything unusual? Headaches? Energy levels?"></textarea>
+                    <div style="margin-top: 12px;">
+                        <label>💧 Water (cups): <input type="number" id="waterCups" value="2" step="0.5" style="width:70px;"></label>
+                        <label style="margin-left: 16px;">😴 Sleep (hours): <input type="number" id="sleepHours" value="6" step="0.5" style="width:70px;"></label>
+                    </div>
+                    <button id="saveDailyLogBtn" class="retro-button" style="margin-top: 12px;">💾 Save Today's Log</button>
+                </div>
             </div>
         </div>
 
-        <!-- DAILY WORKOUTS TAB -->
-        <div id="dailyTab" class="tab-pane">
+        <!-- ========== WORKOUT TAB ========== -->
+        <div id="workoutTab" class="tab-pane">
             <div class="note">
-                <strong>📋 Your Evening Workout (Seated/Lying Only)</strong><br>
-                Based on your medical situation. Do NOT do standing calf stretches if swollen.
+                <strong>💪 Evening Workout (Seated/Lying Only — Asthma Safe)</strong><br>
+                Based on your medical situation: Achilles tightness, knee weakness, swelling risk.
             </div>
-            <div id="workoutContainer">
-                <div class="exercise-item">
-                    <input type="checkbox" id="wk_anklePumps" class="workout-checkbox">
-                    <strong>Ankle pumps with resistance</strong> - 2 min
-                    <div class="stretch-log">Press heels into floor, point/flex hard</div>
+            
+            <div class="health-card">
+                <div class="card-header" onclick="toggleCard('workoutRoutine')">
+                    <span>🏋️ Today's Workout</span>
+                    <span id="icon_workoutRoutine">▼</span>
                 </div>
-                <div class="exercise-item">
-                    <input type="checkbox" id="wk_legLifts" class="workout-checkbox">
-                    <strong>Seated leg lifts</strong> - 3 min (hold 5 sec each)
-                    <div class="stretch-log">Long sitting, lift one leg 2 inches</div>
+                <div id="content_workoutRoutine" class="card-content expanded">
+                    <div class="exercise-item">
+                        <input type="checkbox" id="wk_anklePumps" class="workout-checkbox">
+                        <strong>Ankle pumps with resistance</strong> — 2 min
+                        <div style="font-size:10px; color:#555;">Press heels into floor, point/flex hard</div>
+                    </div>
+                    <div class="exercise-item">
+                        <input type="checkbox" id="wk_legLifts" class="workout-checkbox">
+                        <strong>Seated leg lifts</strong> — 3 min (hold 5 sec each)
+                        <div style="font-size:10px; color:#555;">Long sitting, lift one leg 2 inches</div>
+                    </div>
+                    <div class="exercise-item">
+                        <input type="checkbox" id="wk_gluteBridges" class="workout-checkbox">
+                        <strong>Glute bridges (slow negatives)</strong> — 4 min
+                        <div style="font-size:10px; color:#555;">Lift 2 sec, lower 5 sec. Squeeze glutes.</div>
+                    </div>
+                    <div class="exercise-item">
+                        <input type="checkbox" id="wk_isometricCalf" class="workout-checkbox">
+                        <strong>Isometric calf press</strong> — 3 min
+                        <div style="font-size:10px; color:#555;">Seated, press heels into floor, hold 10 sec</div>
+                    </div>
+                    <div class="exercise-item">
+                        <input type="checkbox" id="wk_tensionHold" class="workout-checkbox">
+                        <strong>Full body tension hold</strong> — 2 min (10 sec on, 5 sec off)
+                        <div style="font-size:10px; color:#555;">Squeeze everything like max effort deadlift</div>
+                    </div>
+                    <div class="exercise-item">
+                        <input type="checkbox" id="wk_ankleElevation" class="workout-checkbox">
+                        <strong>Ankle elevation</strong> — 10 min (after workout)
+                        <div style="font-size:10px; color:#555;">Lie on back, calves on pillow/duvet roll</div>
+                    </div>
+                    <button id="saveWorkoutBtn" class="retro-button" style="margin-top: 12px;">💾 Save Workout Completion</button>
+                    <span id="workoutSaveStatus" style="margin-left: 12px; font-size: 11px;"></span>
                 </div>
-                <div class="exercise-item">
-                    <input type="checkbox" id="wk_gluteBridges" class="workout-checkbox">
-                    <strong>Glute bridges (slow negatives)</strong> - 4 min
-                    <div class="stretch-log">Lift 2 sec, lower 5 sec. Squeeze glutes.</div>
-                </div>
-                <div class="exercise-item">
-                    <input type="checkbox" id="wk_isometricCalf" class="workout-checkbox">
-                    <strong>Isometric calf press</strong> - 3 min
-                    <div class="stretch-log">Seated, press heels into floor - hold 10 sec</div>
-                </div>
-                <div class="exercise-item">
-                    <input type="checkbox" id="wk_tensionHold" class="workout-checkbox">
-                    <strong>Full body tension hold</strong> - 2 min (10 sec on, 5 sec off)
-                    <div class="stretch-log">Squeeze everything like a max effort deadlift</div>
-                </div>
-                <div class="exercise-item">
-                    <input type="checkbox" id="wk_ankleElevation" class="workout-checkbox">
-                    <strong>Ankle elevation</strong> - 10 min (after workout)
-                    <div class="stretch-log">Lie on back, calves on pillow/duvet roll</div>
-                </div>
-            </div>
-            <div style="margin-top: 16px;">
-                <button id="saveWorkoutDayBtn" class="retro-button">💾 Save Today's Workout</button>
-                <span id="workoutSaveStatus" style="margin-left: 12px; font-size: 11px;"></span>
             </div>
         </div>
 
-        <!-- HISTORY TAB -->
+        <!-- ========== HISTORY TAB ========== -->
         <div id="historyTab" class="tab-pane">
-            <div class="note">📊 Complete history of Achilles symptoms and workout completion</div>
-            <div id="fullHistoryContainer"></div>
-            <button id="exportHistoryBtn" class="retro-button" style="margin-top: 12px;">📎 Export History (JSON)</button>
-            <button id="resetHistoryBtn" class="retro-button" style="margin-top: 12px; margin-left: 8px; background: #800000; color: white;">⚠️ Reset All Data</button>
+            <div class="note">📊 Complete history — symptoms, Achilles, workouts, hydration, sleep</div>
+            <div id="fullHistoryContainer" style="max-height: 500px; overflow-y: auto;"></div>
+            <div style="margin-top: 16px;">
+                <button id="exportHistoryBtn" class="retro-button">📎 Export JSON</button>
+                <button id="resetHistoryBtn" class="retro-button" style="margin-left: 8px; background: #800000; color: white;">⚠️ Reset All Data</button>
+            </div>
         </div>
 
-        <!-- SETTINGS TAB -->
+        <!-- ========== SETTINGS TAB ========== -->
         <div id="settingsTab" class="tab-pane">
             <div class="note">
-                <strong>⚙️ Settings & Tips</strong><br>
-                - Hydration target: 4-6 cups water daily (you're at ~2 cups)<br>
-                - Sleep target: 7+ hours (you average 6)<br>
-                - Swelling + headaches → reduce sodium (no restaurant food)<br>
-                - See a doctor about swelling if it persists
+                <strong>⚙️ Settings & Health Reminders</strong><br>
+                - Hydration target: 4-6 cups (you: ~2 cups)<br>
+                - Sleep target: 7-9 hours (you: ~6 hours)<br>
+                - Swelling + headaches → reduce sodium, see doctor<br>
+                - All data saved automatically in your browser
             </div>
             <div style="margin-top: 16px;">
-                <label><input type="checkbox" id="reminderHydration"> 💧 Remind me to drink water</label><br>
-                <label><input type="checkbox" id="reminderElevation"> 🦶 Remind me to elevate ankles</label>
+                <label><input type="checkbox" id="reminderHydration"> 💧 Remind me to drink water (hourly)</label><br>
+                <label><input type="checkbox" id="reminderElevation"> 🦶 Remind me to elevate ankles (evening)</label><br>
+                <label><input type="checkbox" id="reminderStretch"> 🧘 Remind me to do Achilles stretches</label>
             </div>
-            <button id="syncNowBtn" class="retro-button" style="margin-top: 16px;">☁️ Sync to Cloud (localStorage backup)</button>
+            <button id="manualBackupBtn" class="retro-button" style="margin-top: 16px;">💾 Manual Backup (Download)</button>
+            <button id="clearSettingsBtn" class="retro-button" style="margin-top: 16px; margin-left: 8px;">🗑️ Clear All Reminders</button>
         </div>
     </div>
-    <div class="status-bar"><span>🦶 Achilles data auto-saves | Click any section header to expand/collapse</span><span id="syncStatus">Ready</span></div>
+    <div class="status-bar"><span>🏥 Click any section header to expand/collapse | All data auto-saves</span><span id="syncStatus">Ready</span></div>
 </div>
 
 <script>
     // ========== DATA STRUCTURES ==========
-    let achillesData = {}; // key: YYYY-MM-DD -> { morningPain, morningTightness, eveningPain, swelling, morningNotes, eveningNotes, stretches, walkingMinutes, dailySummary }
-    let workoutData = {};  // key: YYYY-MM-DD -> { exercises: { name: boolean } }
+    let dailyLogs = {}; // key: YYYY-MM-DD -> { symptoms: { name: value }, achilles: {...}, summary, water, sleep }
+    let workoutLogs = {}; // key: YYYY-MM-DD -> { exercises: { name: boolean } }
+    let customSymptoms = []; // list of symptom names the user wants to track
     
-    // Stretch checkbox IDs mapping
-    const stretchIds = ['stretchSeatedPumps', 'stretchHeelSlides', 'stretchCalf', 'stretchElevation'];
+    // Default symptoms to track (can be added/removed)
+    const DEFAULT_SYMPTOMS = ["Swelling (general)", "Headache", "Knee cracking", "Knee buckling feeling", "Energy level"];
     
     // ========== HELPERS ==========
     function formatYMD(date) {
@@ -357,46 +356,182 @@
     
     function saveAllToLocal() {
         const allData = {
-            achillesData: achillesData,
-            workoutData: workoutData,
-            settings: {
-                reminderHydration: document.getElementById('reminderHydration')?.checked || false,
-                reminderElevation: document.getElementById('reminderElevation')?.checked || false
-            }
+            dailyLogs: dailyLogs,
+            workoutLogs: workoutLogs,
+            customSymptoms: customSymptoms,
+            version: 2
         };
-        localStorage.setItem('achilles_tracker_v6', JSON.stringify(allData));
+        localStorage.setItem('health_tracker_v2', JSON.stringify(allData));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
-        setTimeout(() => { if(document.getElementById('syncStatus')) document.getElementById('syncStatus').innerText = 'Ready'; }, 2000);
+        setTimeout(() => { if(document.getElementById('syncStatus')) document.getElementById('syncStatus').innerText = 'Ready'; }, 1500);
     }
     
     function loadAllFromLocal() {
-        let raw = localStorage.getItem('achilles_tracker_v6');
+        let raw = localStorage.getItem('health_tracker_v2');
         if (raw) {
             try {
                 let data = JSON.parse(raw);
-                achillesData = data.achillesData || {};
-                workoutData = data.workoutData || {};
-                if (data.settings) {
-                    if(document.getElementById('reminderHydration')) document.getElementById('reminderHydration').checked = data.settings.reminderHydration || false;
-                    if(document.getElementById('reminderElevation')) document.getElementById('reminderElevation').checked = data.settings.reminderElevation || false;
-                }
+                dailyLogs = data.dailyLogs || {};
+                workoutLogs = data.workoutLogs || {};
+                customSymptoms = data.customSymptoms || [];
             } catch(e) { console.error(e); }
         }
-        // Initialize with sample data if empty
-        if (Object.keys(achillesData).length === 0) {
-            let yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            achillesData[formatYMD(yesterday)] = {
-                morningPain: 4, morningTightness: 5, eveningPain: 3, swelling: 3,
-                morningNotes: "Pain first 60 seconds", eveningNotes: "Better after shower",
-                stretches: { stretchSeatedPumps: true, stretchHeelSlides: false, stretchCalf: false, stretchElevation: true },
-                walkingMinutes: 28, dailySummary: "Achilles stiff but manageable"
-            };
+        if (customSymptoms.length === 0) {
+            customSymptoms = [...DEFAULT_SYMPTOMS];
         }
     }
     
-    // ========== ACHILLES UI FUNCTIONS ==========
-    function createPainScale(containerId, currentValue, onChangeCallback) {
+    // ========== SYMPTOM UI: DYNAMIC ==========
+    function renderSymptomsForDate(ymd) {
+        let container = document.getElementById('symptomsContainer');
+        if (!container) return;
+        
+        let log = dailyLogs[ymd] || {};
+        let symptomValues = log.symptoms || {};
+        
+        let html = `<div class="health-card">
+            <div class="card-header" onclick="toggleCard('dynamicSymptoms')">
+                <span>🩺 Current Symptoms (0-10 scale)</span>
+                <span id="icon_dynamicSymptoms">▼</span>
+            </div>
+            <div id="content_dynamicSymptoms" class="card-content expanded">
+                <div class="symptom-grid" id="symptomGrid">`;
+        
+        for (let symptom of customSymptoms) {
+            let currentVal = symptomValues[symptom] !== undefined ? symptomValues[symptom] : null;
+            html += `<div class="symptom-item">
+                <strong>${escapeHtml(symptom)}</strong>
+                <div class="pain-scale" data-symptom="${escapeHtml(symptom)}">`;
+            for (let i = 0; i <= 10; i++) {
+                let active = (currentVal === i) ? 'active' : '';
+                html += `<div class="pain-btn ${active}" data-val="${i}">${i}</div>`;
+            }
+            html += `</div>
+                <div style="font-size:10px; color:#666;">0=none, 10=severe</div>
+            </div>`;
+        }
+        
+        html += `</div>
+                <button id="addSymptomDynamicBtn" class="retro-button add-symptom-btn">➕ Add new symptom</button>
+            </div>
+        </div>`;
+        
+        container.innerHTML = html;
+        
+        // Attach click handlers for pain buttons
+        document.querySelectorAll('#symptomGrid .pain-scale').forEach(scale => {
+            let symptomName = scale.dataset.symptom;
+            scale.querySelectorAll('.pain-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    let val = parseInt(btn.dataset.val);
+                    scale.querySelectorAll('.pain-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    // Save to memory
+                    let logData = dailyLogs[ymd] || {};
+                    logData.symptoms = logData.symptoms || {};
+                    logData.symptoms[symptomName] = val;
+                    dailyLogs[ymd] = logData;
+                    saveAllToLocal();
+                });
+            });
+        });
+        
+        // Add symptom button
+        let addBtn = document.getElementById('addSymptomDynamicBtn');
+        if (addBtn) {
+            addBtn.onclick = () => addNewSymptom(ymd);
+        }
+    }
+    
+    function addNewSymptom(currentYMD) {
+        let newSymptom = prompt("Enter new symptom to track (e.g., 'Lower back pain', 'Ankle swelling L', 'Dizziness'):");
+        if (newSymptom && newSymptom.trim()) {
+            customSymptoms.push(newSymptom.trim());
+            saveAllToLocal();
+            renderSymptomsForDate(currentYMD);
+            renderAchillesForDate(currentYMD); // refresh to keep sync
+        }
+    }
+    
+    // ========== ACHILLES SPECIFIC UI ==========
+    function renderAchillesForDate(ymd) {
+        let log = dailyLogs[ymd] || {};
+        let achilles = log.achilles || {};
+        
+        // Morning pain
+        createPainScaleInline('morningPainScale', achilles.morningPain, (val) => { 
+            achilles.morningPain = val; 
+            log.achilles = achilles; 
+            dailyLogs[ymd] = log; 
+            saveAllToLocal();
+            document.getElementById('morningPainVal').innerText = val;
+        });
+        // Morning tightness
+        createPainScaleInline('morningTightScale', achilles.morningTightness, (val) => { 
+            achilles.morningTightness = val; 
+            log.achilles = achilles; 
+            dailyLogs[ymd] = log; 
+            saveAllToLocal();
+            document.getElementById('morningTightVal').innerText = val;
+        });
+        // Evening pain
+        createPainScaleInline('eveningPainScale', achilles.eveningPain, (val) => { 
+            achilles.eveningPain = val; 
+            log.achilles = achilles; 
+            dailyLogs[ymd] = log; 
+            saveAllToLocal();
+            document.getElementById('eveningPainVal').innerText = val;
+        });
+        // Swelling specific to Achilles
+        createPainScaleInline('swellingScale', achilles.swelling, (val) => { 
+            achilles.swelling = val; 
+            log.achilles = achilles; 
+            dailyLogs[ymd] = log; 
+            saveAllToLocal();
+            document.getElementById('swellingVal').innerText = val;
+        });
+        
+        document.getElementById('morningNotes').value = achilles.morningNotes || '';
+        document.getElementById('eveningNotes').value = achilles.eveningNotes || '';
+        document.getElementById('dailySummary').value = log.summary || '';
+        document.getElementById('walkingMinutes').value = achilles.walkingMinutes || 28;
+        document.getElementById('waterCups').value = log.water !== undefined ? log.water : 2;
+        document.getElementById('sleepHours').value = log.sleep !== undefined ? log.sleep : 6;
+        
+        // Update displayed values
+        document.getElementById('morningPainVal').innerText = achilles.morningPain !== undefined ? achilles.morningPain : '-';
+        document.getElementById('morningTightVal').innerText = achilles.morningTightness !== undefined ? achilles.morningTightness : '-';
+        document.getElementById('eveningPainVal').innerText = achilles.eveningPain !== undefined ? achilles.eveningPain : '-';
+        document.getElementById('swellingVal').innerText = achilles.swelling !== undefined ? achilles.swelling : '-';
+        
+        // Save on input changes
+        document.getElementById('morningNotes').onchange = () => { 
+            achilles.morningNotes = document.getElementById('morningNotes').value; 
+            log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal(); 
+        };
+        document.getElementById('eveningNotes').onchange = () => { 
+            achilles.eveningNotes = document.getElementById('eveningNotes').value; 
+            log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal(); 
+        };
+        document.getElementById('dailySummary').onchange = () => { 
+            log.summary = document.getElementById('dailySummary').value; 
+            dailyLogs[ymd] = log; saveAllToLocal(); 
+        };
+        document.getElementById('walkingMinutes').onchange = () => { 
+            achilles.walkingMinutes = parseInt(document.getElementById('walkingMinutes').value) || 0; 
+            log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal(); 
+        };
+        document.getElementById('waterCups').onchange = () => { 
+            log.water = parseFloat(document.getElementById('waterCups').value) || 0; 
+            dailyLogs[ymd] = log; saveAllToLocal(); 
+        };
+        document.getElementById('sleepHours').onchange = () => { 
+            log.sleep = parseFloat(document.getElementById('sleepHours').value) || 0; 
+            dailyLogs[ymd] = log; saveAllToLocal(); 
+        };
+    }
+    
+    function createPainScaleInline(containerId, currentValue, onChange) {
         let container = document.getElementById(containerId);
         if (!container) return;
         container.innerHTML = '';
@@ -405,163 +540,143 @@
             btn.className = 'pain-btn' + (currentValue === i ? ' active' : '');
             btn.innerText = i;
             btn.onclick = () => {
-                document.querySelectorAll(`#${containerId} .pain-btn`).forEach(b => b.classList.remove('active'));
+                container.querySelectorAll('.pain-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                onChangeCallback(i);
+                onChange(i);
             };
             container.appendChild(btn);
         }
     }
     
-    function loadAchillesForDate(ymd) {
-        let data = achillesData[ymd] || {
-            morningPain: null, morningTightness: null, eveningPain: null, swelling: null,
-            morningNotes: '', eveningNotes: '', stretches: {}, walkingMinutes: 28, dailySummary: ''
-        };
-        
-        // Morning pain
-        createPainScale('morningPainScale', data.morningPain, (val) => { data.morningPain = val; saveAchillesDataToMemory(ymd, data); });
-        createPainScale('morningTightnessScale', data.morningTightness, (val) => { data.morningTightness = val; saveAchillesDataToMemory(ymd, data); });
-        createPainScale('eveningPainScale', data.eveningPain, (val) => { data.eveningPain = val; saveAchillesDataToMemory(ymd, data); });
-        createPainScale('swellingScale', data.swelling, (val) => { data.swelling = val; saveAchillesDataToMemory(ymd, data); });
-        
-        document.getElementById('morningNotes').value = data.morningNotes || '';
-        document.getElementById('morningNotes').onchange = () => { data.morningNotes = document.getElementById('morningNotes').value; saveAchillesDataToMemory(ymd, data); };
-        document.getElementById('eveningNotes').value = data.eveningNotes || '';
-        document.getElementById('eveningNotes').onchange = () => { data.eveningNotes = document.getElementById('eveningNotes').value; saveAchillesDataToMemory(ymd, data); };
-        document.getElementById('dailySummary').value = data.dailySummary || '';
-        document.getElementById('dailySummary').onchange = () => { data.dailySummary = document.getElementById('dailySummary').value; saveAchillesDataToMemory(ymd, data); };
-        document.getElementById('walkingMinutes').value = data.walkingMinutes || 28;
-        document.getElementById('walkingMinutes').onchange = () => { data.walkingMinutes = parseInt(document.getElementById('walkingMinutes').value) || 0; saveAchillesDataToMemory(ymd, data); };
-        
-        // Stretch checkboxes
-        stretchIds.forEach(id => {
-            let cb = document.getElementById(id);
-            if (cb) {
-                cb.checked = data.stretches?.[id] || false;
-                cb.onchange = () => { data.stretches = data.stretches || {}; data.stretches[id] = cb.checked; saveAchillesDataToMemory(ymd, data); };
-            }
-        });
-    }
-    
-    function saveAchillesDataToMemory(ymd, data) {
-        achillesData[ymd] = data;
-        saveAllToLocal();
-        renderRecentAchillesHistory();
-    }
-    
-    function saveCurrentAchillesDay() {
-        let ymd = document.getElementById('achillesDatePicker').value;
+    function saveCurrentDailyLog() {
+        let ymd = document.getElementById('logDatePicker').value;
         if (!ymd) ymd = getTodayYMD();
-        let data = achillesData[ymd] || {};
-        data.morningPain = parseInt(document.querySelector('#morningPainScale .pain-btn.active')?.innerText) || null;
-        data.morningTightness = parseInt(document.querySelector('#morningTightnessScale .pain-btn.active')?.innerText) || null;
-        data.eveningPain = parseInt(document.querySelector('#eveningPainScale .pain-btn.active')?.innerText) || null;
-        data.swelling = parseInt(document.querySelector('#swellingScale .pain-btn.active')?.innerText) || null;
-        data.morningNotes = document.getElementById('morningNotes').value;
-        data.eveningNotes = document.getElementById('eveningNotes').value;
-        data.dailySummary = document.getElementById('dailySummary').value;
-        data.walkingMinutes = parseInt(document.getElementById('walkingMinutes').value) || 0;
-        data.stretches = {};
-        stretchIds.forEach(id => { data.stretches[id] = document.getElementById(id)?.checked || false; });
-        achillesData[ymd] = data;
+        // Data is already saved via individual onchange handlers
+        // Just trigger a final save and alert
         saveAllToLocal();
-        renderRecentAchillesHistory();
-        alert(`✅ Achilles data saved for ${ymd}`);
+        alert(`✅ Health log saved for ${ymd}`);
+        renderFullHistory();
     }
     
-    function copyFromYesterday() {
-        let today = document.getElementById('achillesDatePicker').value;
+    function copyFromYesterdayLog() {
+        let todayPicker = document.getElementById('logDatePicker');
+        let today = todayPicker.value;
         if (!today) today = getTodayYMD();
         let yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
         let yesterdayYMD = formatYMD(yesterday);
-        if (achillesData[yesterdayYMD]) {
-            achillesData[today] = JSON.parse(JSON.stringify(achillesData[yesterdayYMD]));
+        
+        if (dailyLogs[yesterdayYMD]) {
+            dailyLogs[today] = JSON.parse(JSON.stringify(dailyLogs[yesterdayYMD]));
+            if (workoutLogs[yesterdayYMD]) {
+                workoutLogs[today] = JSON.parse(JSON.stringify(workoutLogs[yesterdayYMD]));
+            }
             saveAllToLocal();
-            loadAchillesForDate(today);
+            loadLogForDate(today);
             alert(`Copied data from ${yesterdayYMD}`);
         } else {
             alert('No data from yesterday to copy');
         }
     }
     
-    function renderRecentAchillesHistory() {
-        let container = document.getElementById('recentAchillesEntries');
-        if (!container) return;
-        let dates = Object.keys(achillesData).sort().reverse().slice(0, 7);
-        if (dates.length === 0) { container.innerHTML = '<div class="note">No data yet. Save your first day.</div>'; return; }
-        let html = '<table style="width:100%; font-size:11px; border-collapse:collapse;">';
-        html += '<tr><th>Date</th><th>AM Pain</th><th>PM Pain</th><th>Swelling</th><th>Walking</th></tr>';
-        for (let d of dates) {
-            let data = achillesData[d];
-            html += `<tr style="border-bottom:1px solid #ccc;">
-                <td>${d}</td>
-                <td>${data.morningPain ?? '?'}</td>
-                <td>${data.eveningPain ?? '?'}</td>
-                <td>${data.swelling ?? '?'}</td>
-                <td>${data.walkingMinutes ?? 0} min</td>
-            </tr>`;
-        }
-        html += '</table>';
-        container.innerHTML = html;
+    function loadLogForDate(ymd) {
+        renderSymptomsForDate(ymd);
+        renderAchillesForDate(ymd);
+        renderWorkoutForDate(ymd);
     }
     
-    function renderFullHistory() {
-        let container = document.getElementById('fullHistoryContainer');
-        if (!container) return;
-        let dates = Object.keys(achillesData).sort().reverse();
-        if (dates.length === 0) { container.innerHTML = '<div class="note">No history yet.</div>'; return; }
-        let html = '<div style="max-height:400px; overflow-y:auto;">';
-        for (let d of dates) {
-            let a = achillesData[d];
-            let w = workoutData[d];
-            let workoutDone = w ? Object.values(w.exercises || {}).filter(v=>v===true).length : 0;
-            html += `<div style="border:1px solid #808080; margin:8px 0; padding:10px; background:#f0f0f0;">
-                <strong>📅 ${d}</strong><br>
-                🦶 Achilles: AM Pain ${a.morningPain ?? '?'}/10 | PM Pain ${a.eveningPain ?? '?'}/10 | Swelling ${a.swelling ?? '?'}/10<br>
-                🚶 Walking: ${a.walkingMinutes ?? 0} min<br>
-                🧘 Stretches: ${a.stretches ? Object.values(a.stretches).filter(v=>v===true).length : 0}/4 done<br>
-                📋 Workout: ${workoutDone}/6 exercises completed<br>
-                📝 Notes: ${(a.dailySummary || '').substring(0, 80)}${(a.dailySummary || '').length > 80 ? '...' : ''}
-            </div>`;
-        }
-        html += '</div>';
-        container.innerHTML = html;
-    }
-    
-    // ========== WORKOUT TAB FUNCTIONS ==========
-    function loadWorkoutForToday() {
-        let ymd = getTodayYMD();
-        let data = workoutData[ymd] || { exercises: {} };
+    // ========== WORKOUT TAB ==========
+    function renderWorkoutForDate(ymd) {
+        let log = workoutLogs[ymd] || {};
+        let exercises = log.exercises || {};
         const workoutIds = ['wk_anklePumps', 'wk_legLifts', 'wk_gluteBridges', 'wk_isometricCalf', 'wk_tensionHold', 'wk_ankleElevation'];
         workoutIds.forEach(id => {
             let cb = document.getElementById(id);
-            if (cb) cb.checked = data.exercises?.[id] || false;
+            if (cb) cb.checked = exercises[id] || false;
         });
     }
     
     function saveCurrentWorkout() {
         let ymd = getTodayYMD();
-        let data = workoutData[ymd] || { exercises: {} };
+        let log = workoutLogs[ymd] || { exercises: {} };
         const workoutIds = ['wk_anklePumps', 'wk_legLifts', 'wk_gluteBridges', 'wk_isometricCalf', 'wk_tensionHold', 'wk_ankleElevation'];
         workoutIds.forEach(id => {
             let cb = document.getElementById(id);
-            if (cb) data.exercises[id] = cb.checked;
+            if (cb) log.exercises[id] = cb.checked;
         });
-        workoutData[ymd] = data;
+        workoutLogs[ymd] = log;
         saveAllToLocal();
         let statusSpan = document.getElementById('workoutSaveStatus');
         if (statusSpan) {
-            statusSpan.innerText = '✓ Saved ' + new Date().toLocaleTimeString();
+            statusSpan.innerText = '✓ Workout saved ' + new Date().toLocaleTimeString();
             setTimeout(() => { if(statusSpan) statusSpan.innerText = ''; }, 2000);
         }
     }
     
+    // ========== HISTORY ==========
+    function renderFullHistory() {
+        let container = document.getElementById('fullHistoryContainer');
+        if (!container) return;
+        let allDates = [...new Set([...Object.keys(dailyLogs), ...Object.keys(workoutLogs)])].sort().reverse();
+        if (allDates.length === 0) {
+            container.innerHTML = '<div class="note">No data yet. Start tracking today!</div>';
+            return;
+        }
+        
+        let html = '<table class="history-table"><thead><tr>';
+        html += '<th>Date</th><th>Symptoms (0-10)</th><th>Achilles</th><th>Workout</th><th>Water/Sleep</th>';
+        html += '</tr></thead><tbody>';
+        
+        for (let d of allDates.slice(0, 30)) {
+            let daily = dailyLogs[d] || {};
+            let achilles = daily.achilles || {};
+            let symptoms = daily.symptoms || {};
+            let workout = workoutLogs[d] || {};
+            let workoutCount = workout.exercises ? Object.values(workout.exercises).filter(v=>v===true).length : 0;
+            
+            let symptomText = Object.entries(symptoms).map(([name,val]) => `${name}: ${val}`).join(', ');
+            if (!symptomText) symptomText = '—';
+            
+            let achillesText = `AM pain: ${achilles.morningPain ?? '?'} | PM: ${achilles.eveningPain ?? '?'} | Swell: ${achilles.swelling ?? '?'}`;
+            
+            html += `<tr>
+                <td><strong>${d}</strong></td>
+                <td style="max-width:250px;">${escapeHtml(symptomText)}</td>
+                <td>${achillesText}<br>🚶 ${achilles.walkingMinutes ?? 0} min walk</td>
+                <td>${workoutCount}/6 done</td>
+                <td>💧 ${daily.water ?? '?'} cups | 😴 ${daily.sleep ?? '?'} hrs</td>
+            </tr>`;
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+    
+    // ========== EXPORT / RESET ==========
+    function exportAllData() {
+        let exportData = { dailyLogs, workoutLogs, customSymptoms, exportDate: new Date().toISOString() };
+        let blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `health_tracker_${getTodayYMD()}.json`;
+        a.click();
+        URL.revokeObjectURL(blob);
+    }
+    
+    function resetAllData() {
+        if (confirm('⚠️ DELETE ALL health data? This cannot be undone.')) {
+            localStorage.removeItem('health_tracker_v2');
+            location.reload();
+        }
+    }
+    
+    function manualBackup() {
+        exportAllData();
+    }
+    
     // ========== UI TOGGLES ==========
-    window.toggleAchillesSection = function(sectionId) {
-        let content = document.getElementById(`content_${sectionId}`);
-        let icon = document.getElementById(`icon_${sectionId}`);
+    window.toggleCard = function(cardId) {
+        let content = document.getElementById(`content_${cardId}`);
+        let icon = document.getElementById(`icon_${cardId}`);
         if (content.classList.contains('expanded')) {
             content.classList.remove('expanded');
             icon.innerText = '▶';
@@ -571,75 +686,83 @@
         }
     };
     
-    // ========== EXPORT / RESET ==========
-    function exportHistory() {
-        let exportData = { achillesData, workoutData, exportDate: new Date().toISOString() };
-        let blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
-        let a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `achilles_history_${getTodayYMD()}.json`;
-        a.click();
-        URL.revokeObjectURL(blob);
-    }
-    
-    function resetAllData() {
-        if (confirm('⚠️ WARNING: This will delete ALL Achilles and workout history. Cannot undo. Continue?')) {
-            localStorage.removeItem('achilles_tracker_v6');
-            location.reload();
-        }
-    }
-    
-    // ========== TAB SWITCHING ==========
     function switchTab(tabId) {
         document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId + 'Tab').classList.add('active');
         document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
         
-        if (tabId === 'achilles') {
-            let datePicker = document.getElementById('achillesDatePicker');
-            if (datePicker && !datePicker.value) datePicker.value = getTodayYMD();
-            loadAchillesForDate(datePicker.value);
-            renderRecentAchillesHistory();
+        if (tabId === 'daily') {
+            let picker = document.getElementById('logDatePicker');
+            if (!picker.value) picker.value = getTodayYMD();
+            loadLogForDate(picker.value);
         }
-        if (tabId === 'daily') loadWorkoutForToday();
+        if (tabId === 'workout') renderWorkoutForDate(getTodayYMD());
         if (tabId === 'history') renderFullHistory();
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
     // ========== INIT ==========
     loadAllFromLocal();
     
     // Set up date picker
-    let datePicker = document.getElementById('achillesDatePicker');
+    let datePicker = document.getElementById('logDatePicker');
     datePicker.value = getTodayYMD();
-    datePicker.addEventListener('change', () => loadAchillesForDate(datePicker.value));
+    datePicker.addEventListener('change', () => loadLogForDate(datePicker.value));
     
     // Buttons
-    document.getElementById('saveAchillesDayBtn').addEventListener('click', saveCurrentAchillesDay);
-    document.getElementById('copyPrevDayBtn').addEventListener('click', copyFromYesterday);
-    document.getElementById('saveWorkoutDayBtn').addEventListener('click', saveCurrentWorkout);
-    document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+    document.getElementById('saveDailyLogBtn').addEventListener('click', saveCurrentDailyLog);
+    document.getElementById('copyPrevLogBtn').addEventListener('click', copyFromYesterdayLog);
+    document.getElementById('saveWorkoutBtn').addEventListener('click', saveCurrentWorkout);
+    document.getElementById('exportHistoryBtn').addEventListener('click', exportAllData);
     document.getElementById('resetHistoryBtn').addEventListener('click', resetAllData);
-    document.getElementById('syncNowBtn').addEventListener('click', () => { saveAllToLocal(); alert('Data saved to browser storage.'); });
+    document.getElementById('manualBackupBtn').addEventListener('click', manualBackup);
+    document.getElementById('clearSettingsBtn').addEventListener('click', () => {
+        localStorage.removeItem('reminderHydration');
+        localStorage.removeItem('reminderElevation');
+        localStorage.removeItem('reminderStretch');
+        alert('Reminder settings cleared');
+    });
     
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
     
-    // Initial loads
-    loadAchillesForDate(datePicker.value);
-    renderRecentAchillesHistory();
-    loadWorkoutForToday();
+    // Initial load
+    loadLogForDate(datePicker.value);
+    renderFullHistory();
     
-    // Reminder check
+    // Reminders
     setInterval(() => {
         if (document.getElementById('reminderHydration')?.checked) {
-            let lastHydration = localStorage.getItem('lastHydrationReminder');
+            let last = localStorage.getItem('lastHydrationReminder');
             let now = new Date().toDateString();
-            if (lastHydration !== now && confirm('💧 Time to drink water! Target 4-6 cups today. OK to dismiss?')) {
+            if (last !== now && confirm('💧 Drink water! Target 4-6 cups today.')) {
                 localStorage.setItem('lastHydrationReminder', now);
             }
         }
-    }, 3600000); // every hour
+        if (document.getElementById('reminderElevation')?.checked) {
+            let hour = new Date().getHours();
+            if (hour === 20 || hour === 21) { // 8-9 PM
+                let last = localStorage.getItem('lastElevationReminder');
+                let today = new Date().toDateString();
+                if (last !== today) {
+                    alert('🦶 Time to elevate your ankles for 10 minutes!');
+                    localStorage.setItem('lastElevationReminder', today);
+                }
+            }
+        }
+        if (document.getElementById('reminderStretch')?.checked) {
+            let last = localStorage.getItem('lastStretchReminder');
+            let today = new Date().toDateString();
+            if (last !== today && confirm('🧘 Time for your Achilles stretches! Evening routine?')) {
+                localStorage.setItem('lastStretchReminder', today);
+            }
+        }
+    }, 3600000);
 </script>
 </body>
 </html>
