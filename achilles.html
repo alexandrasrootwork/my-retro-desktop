@@ -2,524 +2,135 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Health & Mobility Tracker</title>
+    <title>Health Tracker - Fixed</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
-            background: #c0c0c0;
-            padding: 12px;
-        }
-        .window {
-            background: #c0c0c0;
-            border: 3px solid;
-            border-top-color: #fff;
-            border-left-color: #fff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .title-bar {
-            background: #000080;
-            color: white;
-            padding: 6px 10px;
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-        }
+        body { font-family: Tahoma, sans-serif; background: #c0c0c0; padding: 20px; }
+        .window { background: #c0c0c0; border: 3px solid #fff; border-right-color: #808080; border-bottom-color: #808080; max-width: 1000px; margin: 0 auto; }
+        .title-bar { background: #000080; color: white; padding: 6px 10px; font-weight: bold; }
         .content { padding: 14px; background: #fffffa; }
-        .tab-bar {
-            display: flex;
-            gap: 2px;
-            margin-bottom: 16px;
-            border-bottom: 1px solid #808080;
-            flex-wrap: wrap;
-        }
-        .tab {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            padding: 6px 16px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .tab.active {
-            background: #fffffa;
-            border-bottom: 2px solid #fffffa;
-        }
+        .tab-bar { display: flex; gap: 2px; margin-bottom: 16px; flex-wrap: wrap; }
+        .tab { background: #c0c0c0; border: 2px solid #fff; border-right-color: #808080; border-bottom-color: #808080; padding: 6px 16px; cursor: pointer; font-weight: bold; }
+        .tab.active { background: #fffffa; border-bottom: 2px solid #fffffa; }
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
-        
-        .health-card {
-            background: #e0e0e0;
-            border: 1px solid #808080;
-            margin-bottom: 16px;
-        }
-        .card-header {
-            background: #c0c0c0;
-            padding: 10px 12px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #808080;
-            font-weight: bold;
-        }
-        .card-content { display: none; padding: 12px; background: #fff; }
-        .card-content.expanded { display: block; }
-        
-        .symptom-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin: 12px 0;
-        }
-        .symptom-item {
-            background: #f4f4f4;
-            padding: 10px;
-            border-left: 4px solid #000080;
-            min-width: 160px;
-            flex: 1;
-        }
-        .pain-scale {
-            display: flex;
-            gap: 4px;
-            margin: 8px 0;
-            flex-wrap: wrap;
-        }
-        .pain-btn {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #808080;
-            border-bottom-color: #808080;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 11px;
-            min-width: 32px;
-            text-align: center;
-        }
-        .pain-btn.active { background: #000080; color: white; }
-        
-        .retro-button {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #000;
-            border-bottom-color: #000;
-            padding: 4px 12px;
-            cursor: pointer;
-            font-family: monospace;
-            font-size: 11px;
-        }
-        .retro-button:active {
-            border: 2px solid #000;
-            border-right-color: #fff;
-            border-bottom-color: #fff;
-        }
-        
-        .exercise-item {
-            margin: 12px 0;
-            padding: 10px;
-            background: #f4f4f4;
-            border-left: 4px solid #000080;
-        }
-        .exercise-checkbox { transform: scale(1.2); margin-right: 8px; cursor: pointer; }
-        
-        .workout-library-item {
-            background: #e8e8e8;
-            padding: 10px;
-            margin: 8px 0;
-            border-left: 4px solid #000080;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        
-        .note {
-            background: #ffffcc;
-            padding: 8px;
-            font-size: 11px;
-            margin: 12px 0;
-            border-left: 4px solid #000080;
-        }
-        
-        .status-bar {
-            background: #c0c0c0;
-            border-top: 1px solid #808080;
-            padding: 5px 8px;
-            font-size: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .history-table {
-            width: 100%;
-            font-size: 11px;
-            border-collapse: collapse;
-        }
-        .history-table th, .history-table td {
-            border: 1px solid #808080;
-            padding: 6px;
-            text-align: left;
-            vertical-align: top;
-        }
-        
-        .workout-selector {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-        }
-        
+        .retro-button { background: #c0c0c0; border: 2px solid #fff; border-right-color: #000; border-bottom-color: #000; padding: 4px 12px; cursor: pointer; font-family: monospace; margin: 4px; }
+        .workout-item { background: #e8e8e8; padding: 10px; margin: 8px 0; border-left: 4px solid #000080; display: flex; justify-content: space-between; align-items: center; }
+        .note { background: #ffffcc; padding: 8px; margin: 12px 0; border-left: 4px solid #000080; font-size: 11px; }
+        textarea { width: 100%; font-family: monospace; font-size: 11px; padding: 8px; margin: 8px 0; }
         hr { margin: 12px 0; }
-        
-        .import-preview, .edit-workout-textarea {
-            background: #e8e8e8;
-            padding: 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 11px;
-        }
-        .edit-workout-textarea textarea {
-            width: 100%;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 8px;
-            margin: 8px 0;
-        }
     </style>
 </head>
 <body>
 
 <div class="window">
-    <div class="title-bar"><span>🏥 Health & Mobility Tracker</span><span>📅</span></div>
+    <div class="title-bar">🏥 Health & Mobility Tracker</div>
     <div class="content">
         <div class="tab-bar">
-            <div class="tab active" data-tab="daily">📋 Daily Log</div>
-            <div class="tab" data-tab="workout">💪 Today's Workout</div>
-            <div class="tab" data-tab="library">📚 Library & Import</div>
-            <div class="tab" data-tab="history">📊 History</div>
-            <div class="tab" data-tab="settings">⚙️ Settings</div>
+            <div class="tab active" data-tab="library">📚 Library</div>
+            <div class="tab" data-tab="test">✅ Test Tab</div>
         </div>
 
-        <!-- ========== DAILY LOG TAB ========== -->
-        <div id="dailyTab" class="tab-pane active">
-            <div class="note">
-                <strong>📅 Daily Health Log</strong> — Track symptoms, Achilles, water, sleep.
-                <button id="addSymptomBtn" class="retro-button" style="margin-left: 12px; padding: 2px 8px;">➕ Add Symptom</button>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
-                <input type="date" id="logDatePicker" style="font-size: 14px; padding: 4px;">
-                <button id="copyPrevLogBtn" class="retro-button">📋 Copy from yesterday</button>
-            </div>
-            
-            <div id="symptomsContainer"></div>
-            
-            <div class="health-card">
-                <div class="card-header" onclick="toggleCard('achillesSpecific')">
-                    <span>🦶 Achilles & Calf (Morning/Evening)</span>
-                    <span id="icon_achillesSpecific">▼</span>
-                </div>
-                <div id="content_achillesSpecific" class="card-content expanded">
-                    <div class="symptom-grid">
-                        <div class="symptom-item">
-                            <strong>Morning (first steps)</strong>
-                            <div>Pain: <span id="morningPainVal">-</span></div>
-                            <div class="pain-scale" id="morningPainScale"></div>
-                            <div>Tightness: <span id="morningTightVal">-</span></div>
-                            <div class="pain-scale" id="morningTightScale"></div>
-                            <textarea id="morningNotes" rows="2" style="width:100%; margin-top:6px;" placeholder="How long did pain last?"></textarea>
-                        </div>
-                        <div class="symptom-item">
-                            <strong>Evening</strong>
-                            <div>Pain: <span id="eveningPainVal">-</span></div>
-                            <div class="pain-scale" id="eveningPainScale"></div>
-                            <div>Swelling: <span id="swellingVal">-</span></div>
-                            <div class="pain-scale" id="swellingScale"></div>
-                            <textarea id="eveningNotes" rows="2" style="width:100%; margin-top:6px;" placeholder="Triggers? Better/worse?"></textarea>
-                        </div>
-                    </div>
-                    <label>🚶 Walking (min): <input type="number" id="walkingMinutes" value="28" style="width:80px;"></label>
-                </div>
-            </div>
-            
-            <div class="health-card">
-                <div class="card-header" onclick="toggleCard('dailySummaryCard')">
-                    <span>📝 Daily Summary</span>
-                    <span id="icon_dailySummaryCard">▼</span>
-                </div>
-                <div id="content_dailySummaryCard" class="card-content expanded">
-                    <textarea id="dailySummary" rows="2" style="width:100%;" placeholder="Overall notes, headaches, energy..."></textarea>
-                    <div style="margin-top: 8px;">
-                        <label>💧 Water (cups): <input type="number" id="waterCups" value="2" step="0.5" style="width:70px;"></label>
-                        <label style="margin-left: 16px;">😴 Sleep (hours): <input type="number" id="sleepHours" value="6" step="0.5" style="width:70px;"></label>
-                    </div>
-                    <button id="saveDailyLogBtn" class="retro-button" style="margin-top: 12px;">💾 Save Today's Log</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========== TODAY'S WORKOUT TAB ========== -->
-        <div id="workoutTab" class="tab-pane">
-            <div class="note">
-                <strong>💪 Today's Assigned Workout</strong> — Choose from your library.
-            </div>
-            
-            <div class="workout-selector">
-                <span>📋 Workout for today:</span>
-                <select id="workoutSelector" style="padding: 4px; min-width: 200px;"></select>
-                <button id="assignWorkoutToTodayBtn" class="retro-button">✅ Use this workout today</button>
-            </div>
-            
-            <div id="todayWorkoutContainer" class="health-card">
-                <div class="card-header" onclick="toggleCard('todayWorkoutCard')">
-                    <span>🏋️ Current Workout</span>
-                    <span id="icon_todayWorkoutCard">▼</span>
-                </div>
-                <div id="content_todayWorkoutCard" class="card-content expanded">
-                    <div id="todayWorkoutExercises">Select a workout above</div>
-                    <button id="saveWorkoutCompletionBtn" class="retro-button" style="margin-top: 12px;">💾 Save Completion</button>
-                    <span id="workoutSaveStatus" style="margin-left: 12px; font-size: 11px;"></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========== LIBRARY & IMPORT TAB (with single edit field) ========== -->
-        <div id="libraryTab" class="tab-pane">
+        <!-- LIBRARY TAB -->
+        <div id="libraryTab" class="tab-pane active">
             <div class="note">
                 <strong>📚 Workout Library</strong><br>
-                <strong>Import format:</strong> [Workout Name]<br>
-                - Exercise name: reps/sets<br>
-                Add video: !video(URL) after exercise name
+                Click <strong>Edit</strong> on any workout → one textarea appears. Edit the text, then Save.
             </div>
             
-            <textarea id="importTextarea" rows="4" style="width:100%; font-family: monospace; font-size: 11px;" placeholder="[Achilles Gentle Day]
-- Seated ankle pumps: 2 min
+            <textarea id="importTextarea" rows="4" style="width:100%" placeholder="[My Morning Routine]
+- Ankle pumps: 2 min
 - Heel slides: 3 min
-- Ankle elevation: 10 min
 
-[Knee Stability]
-- Seated leg lifts: 3x10 reps
-- Glute bridges slow: 3x8!video(https://youtu.be/example)"></textarea>
+[Evening Routine]
+- Leg lifts: 3x10
+- Glute bridges: 3x8"></textarea>
             
-            <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
-                <button id="importWorkoutsBtn" class="retro-button">🚀 Import to Library</button>
-                <button id="previewImportBtn" class="retro-button">👁️ Preview Import</button>
-                <button id="addEmptyWorkoutBtn" class="retro-button">➕ Create Empty Workout</button>
-            </div>
+            <button id="importBtn" class="retro-button">🚀 Import to Library</button>
+            <button id="previewBtn" class="retro-button">👁️ Preview</button>
+            <button id="newWorkoutBtn" class="retro-button">➕ New Empty Workout</button>
             
-            <div id="importPreview" class="import-preview" style="display:none; margin-top: 12px;"></div>
+            <div id="previewArea" style="background:#e8e8e8; padding:8px; margin:12px 0; display:none; font-size:11px;"></div>
             
             <hr>
+            <div><strong>Your Workouts:</strong></div>
+            <div id="libraryList" style="margin-top: 8px;"></div>
             
-            <!-- EDIT WORKOUT SECTION - SINGLE TEXTAREA -->
-            <div id="editWorkoutSection" style="display:none;" class="health-card">
-                <div class="card-header" onclick="toggleCard('editWorkoutCard')">
-                    <span>✏️ Editing: <span id="editingWorkoutName"></span></span>
-                    <span id="icon_editWorkoutCard">▼</span>
-                </div>
-                <div id="content_editWorkoutCard" class="card-content expanded">
-                    <div class="edit-workout-textarea">
-                        <div class="note" style="margin-bottom:8px;">Edit the workout text below. Format: <strong>- Exercise name: reps</strong> (one per line)</div>
-                        <textarea id="workoutEditTextarea" rows="10" style="width:100%; font-family: monospace; font-size: 11px;"></textarea>
-                        <div style="margin-top: 8px; display: flex; gap: 8px;">
-                            <button id="saveWorkoutEditBtn" class="retro-button">💾 Save Changes</button>
-                            <button id="cancelWorkoutEditBtn" class="retro-button">❌ Cancel</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 16px;">
-                <strong>📚 Your Workout Library</strong>
-                <button id="exportLibraryBtn" class="retro-button" style="padding: 2px 8px;">💾 Export Library</button>
-            </div>
-            <div id="libraryList" style="max-height: 300px; overflow-y: auto; margin-top: 8px;"></div>
-        </div>
-
-        <!-- ========== HISTORY TAB ========== -->
-        <div id="historyTab" class="tab-pane">
-            <div class="note">📊 Complete history — symptoms, Achilles, workouts, hydration, sleep</div>
-            <div id="fullHistoryContainer" style="max-height: 500px; overflow-y: auto;"></div>
-            <div style="margin-top: 16px;">
-                <button id="exportHistoryBtn" class="retro-button">📎 Export All Data (JSON)</button>
-                <button id="resetHistoryBtn" class="retro-button" style="margin-left: 8px; background: #800000; color: white;">⚠️ Reset All Data</button>
+            <!-- EDIT PANEL (hidden until needed) -->
+            <div id="editPanel" style="display:none; margin-top: 20px; border-top: 2px solid #808080; padding-top: 12px;">
+                <strong>✏️ Editing: <span id="editWorkoutName"></span></strong>
+                <textarea id="editTextarea" rows="10" style="width:100%; margin: 8px 0;"></textarea>
+                <button id="saveEditBtn" class="retro-button">💾 Save Changes</button>
+                <button id="cancelEditBtn" class="retro-button">❌ Cancel</button>
             </div>
         </div>
 
-        <!-- ========== SETTINGS TAB ========== -->
-        <div id="settingsTab" class="tab-pane">
-            <div class="note">
-                <strong>⚙️ Settings & Health Reminders</strong><br>
-                - Hydration: 4-6 cups/day (you: ~2)<br>
-                - Sleep: 7-9 hours (you: ~6)<br>
-                - Swelling + headaches → reduce sodium, see doctor
-            </div>
-            <div style="margin-top: 16px;">
-                <label><input type="checkbox" id="reminderHydration"> 💧 Remind me to drink water</label><br>
-                <label><input type="checkbox" id="reminderElevation"> 🦶 Remind me to elevate ankles</label><br>
-                <label><input type="checkbox" id="reminderStretch"> 🧘 Remind me to do stretches</label>
-            </div>
-            <button id="manualBackupBtn" class="retro-button" style="margin-top: 16px;">💾 Manual Backup (Download)</button>
+        <!-- TEST TAB (to verify page loads) -->
+        <div id="testTab" class="tab-pane">
+            <div class="note">✅ Page is working! If you see this, the tracker is functional.</div>
+            <p>Click "Library" tab above to go back.</p>
         </div>
     </div>
-    <div class="status-bar"><span>🏥 Click headers to expand | All data auto-saves</span><span id="syncStatus">Ready</span></div>
 </div>
 
 <script>
-    // ========== DATA STRUCTURES ==========
+    // Simple data store
     let workoutLibrary = [];
-    let dailyLogs = {};
-    let workoutCompletions = {};
-    let customSymptoms = [];
     
-    let currentEditingWorkoutId = null;
-    
-    const DEFAULT_SYMPTOMS = ["Swelling (general)", "Headache", "Knee cracking", "Knee buckling", "Energy level (1-10)"];
-    
-    // ========== DEFAULT WORKOUT ==========
-    function initDefaultWorkout() {
-        if (workoutLibrary.length === 0) {
-            workoutLibrary.push({
-                id: "default_evening",
-                name: "Evening Routine (Seated/Lying)",
-                exercises: [
-                    { id: "ex1", name: "Ankle pumps with resistance", reps: "2 min", videoUrl: "", description: "" },
-                    { id: "ex2", name: "Seated leg lifts", reps: "3 min (hold 5 sec)", videoUrl: "", description: "" },
-                    { id: "ex3", name: "Glute bridges (slow negatives)", reps: "4 min", videoUrl: "", description: "" },
-                    { id: "ex4", name: "Isometric calf press", reps: "3 min", videoUrl: "", description: "" },
-                    { id: "ex5", name: "Full body tension hold", reps: "2 min", videoUrl: "", description: "" },
-                    { id: "ex6", name: "Ankle elevation", reps: "10 min", videoUrl: "", description: "" }
-                ]
-            });
+    // Load from localStorage
+    function loadData() {
+        let saved = localStorage.getItem('simple_library');
+        if (saved) {
+            workoutLibrary = JSON.parse(saved);
         }
+        if (workoutLibrary.length === 0) {
+            workoutLibrary = [
+                { id: "1", name: "Evening Routine", exercises: [
+                    { id: "e1", name: "Ankle pumps", reps: "2 min", videoUrl: "", description: "" },
+                    { id: "e2", name: "Leg lifts", reps: "3 min", videoUrl: "", description: "" }
+                ]}
+            ];
+        }
+        renderLibrary();
     }
     
-    // ========== CONVERT WORKOUT TO TEXT FOR EDITING ==========
+    function saveData() {
+        localStorage.setItem('simple_library', JSON.stringify(workoutLibrary));
+    }
+    
+    // Convert workout to text for editing
     function workoutToText(workout) {
         let lines = [`[${workout.name}]`];
         for (let ex of workout.exercises) {
-            let line = `- ${ex.name}: ${ex.reps}`;
-            if (ex.videoUrl) line += ` !video(${ex.videoUrl})`;
-            lines.push(line);
+            lines.push(`- ${ex.name}: ${ex.reps}`);
         }
         return lines.join('\n');
     }
     
-    function textToWorkout(workoutId, workoutName, text) {
+    // Parse text back to exercises
+    function textToExercises(workoutName, text) {
         let lines = text.split(/\r?\n/);
         let exercises = [];
         for (let line of lines) {
             line = line.trim();
             if (line.startsWith('-')) {
                 let exText = line.substring(1).trim();
-                let videoUrl = '';
-                let vMatch = exText.match(/!video\(([^)]+)\)/);
-                if (vMatch) { videoUrl = vMatch[1]; exText = exText.replace(/!video\([^)]+\)/, '').trim(); }
                 let colonIdx = exText.indexOf(':');
                 let exName = colonIdx !== -1 ? exText.substring(0, colonIdx).trim() : exText;
                 let reps = colonIdx !== -1 ? exText.substring(colonIdx + 1).trim() : '1 set';
                 exercises.push({
-                    id: Date.now() + '_' + Math.random() + '_' + exercises.length,
+                    id: Date.now() + '_' + Math.random(),
                     name: exName,
                     reps: reps,
-                    videoUrl: videoUrl,
+                    videoUrl: "",
                     description: ""
                 });
             }
         }
-        return { name: workoutName, exercises: exercises };
+        return exercises;
     }
     
-    function openEditWorkout(workoutId) {
-        let workout = workoutLibrary.find(w => w.id === workoutId);
-        if (!workout) return;
-        currentEditingWorkoutId = workoutId;
-        let text = workoutToText(workout);
-        document.getElementById('workoutEditTextarea').value = text;
-        document.getElementById('editingWorkoutName').innerText = workout.name;
-        document.getElementById('editWorkoutSection').style.display = 'block';
-        document.getElementById('editWorkoutSection').scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    function saveWorkoutEdit() {
-        if (!currentEditingWorkoutId) return;
-        let workout = workoutLibrary.find(w => w.id === currentEditingWorkoutId);
-        if (!workout) return;
-        
-        let newText = document.getElementById('workoutEditTextarea').value;
-        let parsed = textToWorkout(currentEditingWorkoutId, workout.name, newText);
-        
-        if (parsed.exercises.length === 0) {
-            alert("No valid exercises found. Format: - Exercise name: reps");
-            return;
-        }
-        
-        workout.name = parsed.name;
-        workout.exercises = parsed.exercises;
-        saveAllToLocal();
-        renderLibraryList();
-        updateWorkoutSelector();
-        document.getElementById('editWorkoutSection').style.display = 'none';
-        currentEditingWorkoutId = null;
-        alert(`✅ Workout "${workout.name}" saved`);
-    }
-    
-    function cancelWorkoutEdit() {
-        document.getElementById('editWorkoutSection').style.display = 'none';
-        currentEditingWorkoutId = null;
-    }
-    
-    // ========== HELPERS ==========
-    function formatYMD(date) {
-        let y = date.getFullYear();
-        let m = String(date.getMonth() + 1).padStart(2, '0');
-        let d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-    }
-    
-    function getTodayYMD() {
-        return formatYMD(new Date());
-    }
-    
-    function saveAllToLocal() {
-        const allData = {
-            workoutLibrary: workoutLibrary,
-            dailyLogs: dailyLogs,
-            workoutCompletions: workoutCompletions,
-            customSymptoms: customSymptoms,
-            version: 4
-        };
-        localStorage.setItem('health_tracker_v4', JSON.stringify(allData));
-        document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
-        setTimeout(() => { if(document.getElementById('syncStatus')) document.getElementById('syncStatus').innerText = 'Ready'; }, 1500);
-    }
-    
-    function loadAllFromLocal() {
-        let raw = localStorage.getItem('health_tracker_v4');
-        if (raw) {
-            try {
-                let data = JSON.parse(raw);
-                workoutLibrary = data.workoutLibrary || [];
-                dailyLogs = data.dailyLogs || {};
-                workoutCompletions = data.workoutCompletions || {};
-                customSymptoms = data.customSymptoms || [];
-            } catch(e) { console.error(e); }
-        }
-        if (customSymptoms.length === 0) customSymptoms = [...DEFAULT_SYMPTOMS];
-        initDefaultWorkout();
-    }
-    
-    // ========== RENDER LIBRARY LIST ==========
-    function renderLibraryList() {
+    function renderLibrary() {
         let container = document.getElementById('libraryList');
         if (!container) return;
         if (workoutLibrary.length === 0) {
@@ -528,56 +139,88 @@
         }
         
         let html = '';
-        workoutLibrary.forEach((workout, idx) => {
-            html += `<div class="workout-library-item">
-                <div style="flex:1">
-                    <strong>📌 ${escapeHtml(workout.name)}</strong>
-                    <div style="font-size:10px; color:#555;">${workout.exercises.length} exercises</div>
-                </div>
+        for (let i = 0; i < workoutLibrary.length; i++) {
+            let w = workoutLibrary[i];
+            html += `<div class="workout-item">
+                <div><strong>📌 ${escapeHtml(w.name)}</strong> (${w.exercises.length} exercises)</div>
                 <div>
-                    <button class="retro-button edit-workout-btn" data-id="${workout.id}" style="padding:2px 8px;">✏️ Edit</button>
-                    <button class="retro-button delete-workout-btn" data-id="${workout.id}" style="padding:2px 8px; background:#800000; color:white;">🗑️ Delete</button>
+                    <button class="edit-btn" data-id="${w.id}">✏️ Edit</button>
+                    <button class="delete-btn" data-id="${w.id}" style="background:#800000; color:white;">🗑️ Delete</button>
                 </div>
             </div>`;
-        });
+        }
         container.innerHTML = html;
         
-        document.querySelectorAll('.edit-workout-btn').forEach(btn => {
-            btn.addEventListener('click', () => openEditWorkout(btn.dataset.id));
+        // Attach edit buttons
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                let id = btn.dataset.id;
+                let workout = workoutLibrary.find(w => w.id === id);
+                if (workout) openEditPanel(workout);
+            });
         });
         
-        document.querySelectorAll('.delete-workout-btn').forEach(btn => {
+        // Attach delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 let id = btn.dataset.id;
                 let workout = workoutLibrary.find(w => w.id === id);
                 if (confirm(`Delete "${workout?.name}"?`)) {
                     workoutLibrary = workoutLibrary.filter(w => w.id !== id);
-                    saveAllToLocal();
-                    renderLibraryList();
-                    updateWorkoutSelector();
-                    if (currentEditingWorkoutId === id) cancelWorkoutEdit();
+                    saveData();
+                    renderLibrary();
                 }
             });
         });
     }
     
-    // ========== IMPORT WORKOUTS ==========
-    function parseImportText(text) {
+    let currentEditWorkout = null;
+    
+    function openEditPanel(workout) {
+        currentEditWorkout = workout;
+        let text = workoutToText(workout);
+        document.getElementById('editTextarea').value = text;
+        document.getElementById('editWorkoutName').innerText = workout.name;
+        document.getElementById('editPanel').style.display = 'block';
+        document.getElementById('editPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function closeEditPanel() {
+        document.getElementById('editPanel').style.display = 'none';
+        currentEditWorkout = null;
+    }
+    
+    function saveEdit() {
+        if (!currentEditWorkout) return;
+        let newText = document.getElementById('editTextarea').value;
+        let newExercises = textToExercises(currentEditWorkout.name, newText);
+        
+        if (newExercises.length === 0) {
+            alert("No valid exercises found. Use format:\n- Exercise name: reps");
+            return;
+        }
+        
+        currentEditWorkout.exercises = newExercises;
+        saveData();
+        renderLibrary();
+        closeEditPanel();
+        alert(`✅ "${currentEditWorkout.name}" saved`);
+    }
+    
+    function importWorkouts() {
+        let text = document.getElementById('importTextarea').value;
         let lines = text.split(/\r?\n/);
-        let workouts = [];
+        let newWorkouts = [];
         let current = null;
         
         for (let line of lines) {
             line = line.trim();
             if (line.startsWith('[') && line.endsWith(']')) {
-                if (current) workouts.push(current);
+                if (current) newWorkouts.push(current);
                 let name = line.slice(1, -1);
                 current = { id: Date.now() + '_' + Math.random(), name: name, exercises: [] };
             } else if (line.startsWith('-') && current) {
                 let exText = line.substring(1).trim();
-                let videoUrl = '';
-                let vMatch = exText.match(/!video\(([^)]+)\)/);
-                if (vMatch) { videoUrl = vMatch[1]; exText = exText.replace(/!video\([^)]+\)/, '').trim(); }
                 let colonIdx = exText.indexOf(':');
                 let exName = colonIdx !== -1 ? exText.substring(0, colonIdx).trim() : exText;
                 let reps = colonIdx !== -1 ? exText.substring(colonIdx + 1).trim() : '1 set';
@@ -585,50 +228,60 @@
                     id: Date.now() + '_' + Math.random(),
                     name: exName,
                     reps: reps,
-                    videoUrl: videoUrl,
+                    videoUrl: "",
                     description: ""
                 });
             }
         }
-        if (current) workouts.push(current);
-        return workouts;
+        if (current) newWorkouts.push(current);
+        
+        if (newWorkouts.length === 0) {
+            alert("No valid workouts. Use [Name] and - exercise lines.");
+            return;
+        }
+        
+        workoutLibrary.push(...newWorkouts);
+        saveData();
+        renderLibrary();
+        document.getElementById('importTextarea').value = '';
+        document.getElementById('previewArea').style.display = 'none';
+        alert(`Imported ${newWorkouts.length} workouts.`);
     }
     
     function previewImport() {
         let text = document.getElementById('importTextarea').value;
-        let workouts = parseImportText(text);
-        let previewDiv = document.getElementById('importPreview');
-        if (workouts.length === 0) {
+        let lines = text.split(/\r?\n/);
+        let newWorkouts = [];
+        let current = null;
+        
+        for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith('[') && line.endsWith(']')) {
+                if (current) newWorkouts.push(current);
+                let name = line.slice(1, -1);
+                current = { name: name, exercises: [] };
+            } else if (line.startsWith('-') && current) {
+                current.exercises.push({ name: line.substring(1).trim() });
+            }
+        }
+        if (current) newWorkouts.push(current);
+        
+        let previewDiv = document.getElementById('previewArea');
+        if (newWorkouts.length === 0) {
             previewDiv.style.display = 'block';
-            previewDiv.innerHTML = '<span style="color:#800000;">No valid workouts found. Use [Name] and - exercise lines.</span>';
+            previewDiv.innerHTML = '<span style="color:#800000;">No workouts found</span>';
         } else {
             previewDiv.style.display = 'block';
             let html = '<strong>Preview:</strong><br>';
-            workouts.forEach(w => {
+            for (let w of newWorkouts) {
                 html += `<div><b>${escapeHtml(w.name)}</b> (${w.exercises.length} exercises)</div>`;
-            });
+            }
             previewDiv.innerHTML = html;
         }
     }
     
-    function importWorkouts() {
-        let text = document.getElementById('importTextarea').value;
-        let newWorkouts = parseImportText(text);
-        if (newWorkouts.length === 0) {
-            alert('No valid workouts found. Format: [Name]\n- Exercise: reps');
-            return;
-        }
-        workoutLibrary.push(...newWorkouts);
-        saveAllToLocal();
-        renderLibraryList();
-        updateWorkoutSelector();
-        document.getElementById('importTextarea').value = '';
-        document.getElementById('importPreview').style.display = 'none';
-        alert(`Imported ${newWorkouts.length} workouts.`);
-    }
-    
-    function addEmptyWorkout() {
-        let name = prompt("New workout name:", "My Workout");
+    function newEmptyWorkout() {
+        let name = prompt("Workout name:", "My Workout");
         if (!name) return;
         let newWorkout = {
             id: Date.now() + '_' + Math.random(),
@@ -636,328 +289,9 @@
             exercises: [{ id: Date.now() + '_ex', name: "Example exercise", reps: "3x10", videoUrl: "", description: "" }]
         };
         workoutLibrary.push(newWorkout);
-        saveAllToLocal();
-        renderLibraryList();
-        updateWorkoutSelector();
-        openEditWorkout(newWorkout.id);
-    }
-    
-    function exportLibrary() {
-        let dataStr = JSON.stringify(workoutLibrary, null, 2);
-        let blob = new Blob([dataStr], {type: 'application/json'});
-        let a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `workout_library_${getTodayYMD()}.json`;
-        a.click();
-        URL.revokeObjectURL(blob);
-    }
-    
-    // ========== WORKOUT SELECTOR & TODAY'S WORKOUT ==========
-    function updateWorkoutSelector() {
-        let selector = document.getElementById('workoutSelector');
-        if (!selector) return;
-        selector.innerHTML = '';
-        workoutLibrary.forEach(w => {
-            let option = document.createElement('option');
-            option.value = w.id;
-            option.textContent = w.name;
-            selector.appendChild(option);
-        });
-    }
-    
-    function getAssignedWorkoutForDate(ymd) {
-        let dayLog = dailyLogs[ymd] || {};
-        let workoutId = dayLog.assignedWorkoutId;
-        if (!workoutId && workoutLibrary.length) workoutId = workoutLibrary[0].id;
-        return workoutLibrary.find(w => w.id === workoutId);
-    }
-    
-    function setWorkoutForToday(workoutId) {
-        let ymd = getTodayYMD();
-        if (!dailyLogs[ymd]) dailyLogs[ymd] = {};
-        dailyLogs[ymd].assignedWorkoutId = workoutId;
-        saveAllToLocal();
-        renderTodayWorkout();
-        alert(`Workout assigned for today`);
-    }
-    
-    function renderTodayWorkout() {
-        let ymd = getTodayYMD();
-        let workout = getAssignedWorkoutForDate(ymd);
-        let completions = workoutCompletions[ymd] || {};
-        
-        let container = document.getElementById('todayWorkoutExercises');
-        if (!workout) {
-            container.innerHTML = '<div class="note">No workouts in library. Go to Library tab to add.</div>';
-            return;
-        }
-        
-        let html = '';
-        workout.exercises.forEach(ex => {
-            let checkKey = `${ymd}_${workout.id}_${ex.id}`;
-            let isChecked = completions[checkKey] === true;
-            html += `<div class="exercise-item">
-                <input type="checkbox" class="workout-exercise-checkbox" data-checkkey="${checkKey}" ${isChecked ? 'checked' : ''}>
-                <strong>${escapeHtml(ex.name)}</strong> — ${escapeHtml(ex.reps)}
-                <div style="font-size:10px; color:#555;">${escapeHtml(ex.description) || ''}</div>
-                ${ex.videoUrl ? `<div style="font-size:10px;"><a href="${escapeHtml(ex.videoUrl)}" target="_blank">📺 Watch video</a></div>` : ''}
-            </div>`;
-        });
-        container.innerHTML = html;
-        
-        document.querySelectorAll('.workout-exercise-checkbox').forEach(cb => {
-            cb.addEventListener('change', function() {
-                let key = this.dataset.checkkey;
-                if (!workoutCompletions[ymd]) workoutCompletions[ymd] = {};
-                workoutCompletions[ymd][key] = this.checked;
-                saveAllToLocal();
-            });
-        });
-    }
-    
-    function saveWorkoutCompletion() {
-        saveAllToLocal();
-        let statusSpan = document.getElementById('workoutSaveStatus');
-        if (statusSpan) {
-            statusSpan.innerText = '✓ Saved ' + new Date().toLocaleTimeString();
-            setTimeout(() => { if(statusSpan) statusSpan.innerText = ''; }, 2000);
-        }
-        renderTodayWorkout();
-    }
-    
-    // ========== SYMPTOM UI (abbreviated for length) ==========
-    function renderSymptomsForDate(ymd) {
-        let container = document.getElementById('symptomsContainer');
-        if (!container) return;
-        let log = dailyLogs[ymd] || {};
-        let symptomValues = log.symptoms || {};
-        
-        let html = `<div class="health-card">
-            <div class="card-header" onclick="toggleCard('dynamicSymptoms')">
-                <span>🩺 Current Symptoms (0-10)</span>
-                <span id="icon_dynamicSymptoms">▼</span>
-            </div>
-            <div id="content_dynamicSymptoms" class="card-content expanded">
-                <div class="symptom-grid" id="symptomGrid">`;
-        
-        for (let symptom of customSymptoms) {
-            let currentVal = symptomValues[symptom] !== undefined ? symptomValues[symptom] : null;
-            html += `<div class="symptom-item">
-                <strong>${escapeHtml(symptom)}</strong>
-                <div class="pain-scale" data-symptom="${escapeHtml(symptom)}">`;
-            for (let i = 0; i <= 10; i++) {
-                let active = (currentVal === i) ? 'active' : '';
-                html += `<div class="pain-btn ${active}" data-val="${i}">${i}</div>`;
-            }
-            html += `</div></div>`;
-        }
-        html += `</div><button id="addSymptomFromGrid" class="retro-button">➕ Add symptom</button>
-            </div>
-        </div>`;
-        container.innerHTML = html;
-        
-        document.querySelectorAll('#symptomGrid .pain-scale').forEach(scale => {
-            let symptomName = scale.dataset.symptom;
-            scale.querySelectorAll('.pain-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    let val = parseInt(btn.dataset.val);
-                    scale.querySelectorAll('.pain-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    let logData = dailyLogs[ymd] || {};
-                    logData.symptoms = logData.symptoms || {};
-                    logData.symptoms[symptomName] = val;
-                    dailyLogs[ymd] = logData;
-                    saveAllToLocal();
-                });
-            });
-        });
-        
-        document.getElementById('addSymptomFromGrid')?.addEventListener('click', () => addNewSymptom(ymd));
-    }
-    
-    function addNewSymptom(ymd) {
-        let newSymptom = prompt("Enter new symptom (e.g., 'Lower back pain'):");
-        if (newSymptom && newSymptom.trim()) {
-            customSymptoms.push(newSymptom.trim());
-            saveAllToLocal();
-            renderSymptomsForDate(ymd);
-        }
-    }
-    
-    // ========== ACHILLES UI ==========
-    function renderAchillesForDate(ymd) {
-        let log = dailyLogs[ymd] || {};
-        let achilles = log.achilles || {};
-        
-        createPainScale('morningPainScale', achilles.morningPain, (val) => { 
-            achilles.morningPain = val; log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal();
-            document.getElementById('morningPainVal').innerText = val;
-        });
-        createPainScale('morningTightScale', achilles.morningTightness, (val) => { 
-            achilles.morningTightness = val; log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal();
-            document.getElementById('morningTightVal').innerText = val;
-        });
-        createPainScale('eveningPainScale', achilles.eveningPain, (val) => { 
-            achilles.eveningPain = val; log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal();
-            document.getElementById('eveningPainVal').innerText = val;
-        });
-        createPainScale('swellingScale', achilles.swelling, (val) => { 
-            achilles.swelling = val; log.achilles = achilles; dailyLogs[ymd] = log; saveAllToLocal();
-            document.getElementById('swellingVal').innerText = val;
-        });
-        
-        document.getElementById('morningNotes').value = achilles.morningNotes || '';
-        document.getElementById('eveningNotes').value = achilles.eveningNotes || '';
-        document.getElementById('dailySummary').value = log.summary || '';
-        document.getElementById('walkingMinutes').value = achilles.walkingMinutes || 28;
-        document.getElementById('waterCups').value = log.water !== undefined ? log.water : 2;
-        document.getElementById('sleepHours').value = log.sleep !== undefined ? log.sleep : 6;
-        
-        document.getElementById('morningPainVal').innerText = achilles.morningPain !== undefined ? achilles.morningPain : '-';
-        document.getElementById('morningTightVal').innerText = achilles.morningTightness !== undefined ? achilles.morningTightness : '-';
-        document.getElementById('eveningPainVal').innerText = achilles.eveningPain !== undefined ? achilles.eveningPain : '-';
-        document.getElementById('swellingVal').innerText = achilles.swelling !== undefined ? achilles.swelling : '-';
-        
-        const saveField = (field, getVal) => {
-            let val = getVal();
-            if (field === 'summary') log.summary = val;
-            else if (field === 'morningNotes') achilles.morningNotes = val;
-            else if (field === 'eveningNotes') achilles.eveningNotes = val;
-            else if (field === 'walking') achilles.walkingMinutes = val;
-            else if (field === 'water') log.water = val;
-            else if (field === 'sleep') log.sleep = val;
-            dailyLogs[ymd] = log;
-            saveAllToLocal();
-        };
-        
-        document.getElementById('morningNotes').onchange = () => saveField('morningNotes', () => document.getElementById('morningNotes').value);
-        document.getElementById('eveningNotes').onchange = () => saveField('eveningNotes', () => document.getElementById('eveningNotes').value);
-        document.getElementById('dailySummary').onchange = () => saveField('summary', () => document.getElementById('dailySummary').value);
-        document.getElementById('walkingMinutes').onchange = () => saveField('walking', () => parseInt(document.getElementById('walkingMinutes').value) || 0);
-        document.getElementById('waterCups').onchange = () => saveField('water', () => parseFloat(document.getElementById('waterCups').value) || 0);
-        document.getElementById('sleepHours').onchange = () => saveField('sleep', () => parseFloat(document.getElementById('sleepHours').value) || 0);
-    }
-    
-    function createPainScale(containerId, currentValue, onChange) {
-        let container = document.getElementById(containerId);
-        if (!container) return;
-        container.innerHTML = '';
-        for (let i = 0; i <= 10; i++) {
-            let btn = document.createElement('div');
-            btn.className = 'pain-btn' + (currentValue === i ? ' active' : '');
-            btn.innerText = i;
-            btn.onclick = () => {
-                container.querySelectorAll('.pain-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                onChange(i);
-            };
-            container.appendChild(btn);
-        }
-    }
-    
-    function saveCurrentDailyLog() {
-        saveAllToLocal();
-        let ymd = document.getElementById('logDatePicker').value || getTodayYMD();
-        alert(`✅ Health log saved for ${ymd}`);
-        renderFullHistory();
-    }
-    
-    function copyFromYesterdayLog() {
-        let todayPicker = document.getElementById('logDatePicker');
-        let today = todayPicker.value || getTodayYMD();
-        let yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        let yesterdayYMD = formatYMD(yesterday);
-        
-        if (dailyLogs[yesterdayYMD]) {
-            dailyLogs[today] = JSON.parse(JSON.stringify(dailyLogs[yesterdayYMD]));
-            saveAllToLocal();
-            loadLogForDate(today);
-            alert(`Copied from ${yesterdayYMD}`);
-        } else {
-            alert('No data from yesterday');
-        }
-    }
-    
-    function loadLogForDate(ymd) {
-        renderSymptomsForDate(ymd);
-        renderAchillesForDate(ymd);
-    }
-    
-    function renderFullHistory() {
-        let container = document.getElementById('fullHistoryContainer');
-        if (!container) return;
-        let allDates = [...new Set([...Object.keys(dailyLogs), ...Object.keys(workoutCompletions)])].sort().reverse();
-        if (allDates.length === 0) {
-            container.innerHTML = '<div class="note">No data yet.</div>';
-            return;
-        }
-        
-        let html = '<table class="history-table"><thead><tr><th>Date</th><th>Symptoms</th><th>Achilles</th><th>Workout</th><th>Water/Sleep</th></tr></thead><tbody>';
-        for (let d of allDates.slice(0, 30)) {
-            let daily = dailyLogs[d] || {};
-            let achilles = daily.achilles || {};
-            let symptoms = daily.symptoms || {};
-            let symptomText = Object.entries(symptoms).map(([n,v]) => `${n}: ${v}`).join(', ') || '—';
-            let completionsForDay = workoutCompletions[d] || {};
-            let completedCount = Object.values(completionsForDay).filter(v=>v===true).length;
-            
-            html += `<tr><td><strong>${d}</strong></td><td style="max-width:200px;">${escapeHtml(symptomText)}</td><td>AM pain: ${achilles.morningPain ?? '?'}<br>PM: ${achilles.eveningPain ?? '?'}<br>Swell: ${achilles.swelling ?? '?'}</td><td>${completedCount} exercises done</td><td>💧 ${daily.water ?? '?'} cups | 😴 ${daily.sleep ?? '?'} hrs</td></tr>`;
-        }
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    }
-    
-    function exportAllData() {
-        let exportData = { workoutLibrary, dailyLogs, workoutCompletions, customSymptoms, exportDate: new Date().toISOString() };
-        let blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
-        let a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `health_tracker_backup_${getTodayYMD()}.json`;
-        a.click();
-        URL.revokeObjectURL(blob);
-    }
-    
-    function resetAllData() {
-        if (confirm('⚠️ DELETE ALL data? Cannot undo.')) {
-            localStorage.removeItem('health_tracker_v4');
-            location.reload();
-        }
-    }
-    
-    function manualBackup() {
-        exportAllData();
-    }
-    
-    window.toggleCard = function(cardId) {
-        let content = document.getElementById(`content_${cardId}`);
-        let icon = document.getElementById(`icon_${cardId}`);
-        if (content.classList.contains('expanded')) {
-            content.classList.remove('expanded');
-            icon.innerText = '▶';
-        } else {
-            content.classList.add('expanded');
-            icon.innerText = '▼';
-        }
-    };
-    
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId + 'Tab').classList.add('active');
-        document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-        
-        if (tabId === 'daily') {
-            let picker = document.getElementById('logDatePicker');
-            if (!picker.value) picker.value = getTodayYMD();
-            loadLogForDate(picker.value);
-        }
-        if (tabId === 'workout') {
-            updateWorkoutSelector();
-            renderTodayWorkout();
-        }
-        if (tabId === 'library') renderLibraryList();
-        if (tabId === 'history') renderFullHistory();
+        saveData();
+        renderLibrary();
+        openEditPanel(newWorkout);
     }
     
     function escapeHtml(str) {
@@ -965,68 +299,25 @@
         return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     }
     
-    // ========== INIT ==========
-    loadAllFromLocal();
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId + 'Tab').classList.add('active');
+        document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+    }
     
-    // Daily tab
-    let datePicker = document.getElementById('logDatePicker');
-    datePicker.value = getTodayYMD();
-    datePicker.addEventListener('change', () => loadLogForDate(datePicker.value));
-    document.getElementById('saveDailyLogBtn').addEventListener('click', saveCurrentDailyLog);
-    document.getElementById('copyPrevLogBtn').addEventListener('click', copyFromYesterdayLog);
-    document.getElementById('addSymptomBtn').addEventListener('click', () => addNewSymptom(datePicker.value));
+    // Initialize
+    loadData();
     
-    // Workout tab
-    document.getElementById('assignWorkoutToTodayBtn').addEventListener('click', () => {
-        let selector = document.getElementById('workoutSelector');
-        let workoutId = selector.value;
-        if (workoutId) setWorkoutForToday(workoutId);
+    document.getElementById('importBtn').addEventListener('click', importWorkouts);
+    document.getElementById('previewBtn').addEventListener('click', previewImport);
+    document.getElementById('newWorkoutBtn').addEventListener('click', newEmptyWorkout);
+    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+    document.getElementById('cancelEditBtn').addEventListener('click', closeEditPanel);
+    
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
-    document.getElementById('saveWorkoutCompletionBtn').addEventListener('click', saveWorkoutCompletion);
-    
-    // Library tab
-    document.getElementById('importWorkoutsBtn').addEventListener('click', importWorkouts);
-    document.getElementById('previewImportBtn').addEventListener('click', previewImport);
-    document.getElementById('addEmptyWorkoutBtn').addEventListener('click', addEmptyWorkout);
-    document.getElementById('exportLibraryBtn').addEventListener('click', exportLibrary);
-    document.getElementById('saveWorkoutEditBtn').addEventListener('click', saveWorkoutEdit);
-    document.getElementById('cancelWorkoutEditBtn').addEventListener('click', cancelWorkoutEdit);
-    
-    // History & Settings
-    document.getElementById('exportHistoryBtn').addEventListener('click', exportAllData);
-    document.getElementById('resetHistoryBtn').addEventListener('click', resetAllData);
-    document.getElementById('manualBackupBtn').addEventListener('click', manualBackup);
-    
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
-    
-    // Initial loads
-    loadLogForDate(datePicker.value);
-    updateWorkoutSelector();
-    renderLibraryList();
-    renderFullHistory();
-    
-    // Reminders
-    setInterval(() => {
-        if (document.getElementById('reminderHydration')?.checked) {
-            let last = localStorage.getItem('lastHydrationReminder');
-            let now = new Date().toDateString();
-            if (last !== now && confirm('💧 Drink water! Target 4-6 cups.')) {
-                localStorage.setItem('lastHydrationReminder', now);
-            }
-        }
-        if (document.getElementById('reminderElevation')?.checked) {
-            let hour = new Date().getHours();
-            if (hour === 20 || hour === 21) {
-                let last = localStorage.getItem('lastElevationReminder');
-                let today = new Date().toDateString();
-                if (last !== today) {
-                    alert('🦶 Elevate your ankles for 10 minutes!');
-                    localStorage.setItem('lastElevationReminder', today);
-                }
-            }
-        }
-    }, 3600000);
 </script>
 </body>
 </html>
