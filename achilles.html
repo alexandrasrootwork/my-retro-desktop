@@ -187,6 +187,14 @@
             font-family: monospace;
             font-size: 10px;
         }
+        
+        .edit-textarea {
+            width: 100%;
+            font-family: monospace;
+            font-size: 11px;
+            padding: 8px;
+            margin: 8px 0;
+        }
     </style>
 </head>
 <body>
@@ -216,7 +224,6 @@
             
             <div id="symptomsContainer"></div>
             
-            <!-- Achilles specific -->
             <div class="health-card">
                 <div class="card-header" onclick="toggleCard('achillesSpecific')">
                     <span>🦶 Achilles & Calf (Morning/Evening)</span>
@@ -261,7 +268,7 @@
             </div>
         </div>
 
-        <!-- ========== TODAY'S WORKOUT TAB (uses library) ========== -->
+        <!-- ========== TODAY'S WORKOUT TAB ========== -->
         <div id="workoutTab" class="tab-pane">
             <div class="note">
                 <strong>💪 Today's Assigned Workout</strong> — You can change which workout to do today.
@@ -320,6 +327,27 @@
                 <button id="exportLibraryBtn" class="retro-button" style="padding: 2px 8px;">💾 Export Library</button>
             </div>
             <div id="libraryList" style="max-height: 400px; overflow-y: auto; margin-top: 8px;"></div>
+            
+            <!-- EDIT PANEL - Single textarea for editing -->
+            <div id="editWorkoutPanel" style="display:none; margin-top: 20px; border-top: 2px solid #808080; padding-top: 12px;">
+                <div class="health-card">
+                    <div class="card-header" onclick="toggleCard('editPanelCard')">
+                        <span>✏️ Editing: <span id="editWorkoutName"></span></span>
+                        <span id="icon_editPanelCard">▼</span>
+                    </div>
+                    <div id="content_editPanelCard" class="card-content expanded">
+                        <div class="note">Edit the workout below using the same format as import:<br>
+                        <strong>[Workout Name]</strong><br>
+                        <strong>- Exercise name: reps</strong><br>
+                        Add video: !video(URL)</div>
+                        <textarea id="workoutEditTextarea" rows="12" class="edit-textarea"></textarea>
+                        <div style="margin-top: 12px; display: flex; gap: 8px;">
+                            <button id="saveWorkoutEditBtn" class="retro-button">💾 Save Changes</button>
+                            <button id="cancelWorkoutEditBtn" class="retro-button">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- ========== HISTORY TAB ========== -->
@@ -353,12 +381,13 @@
 
 <script>
     // ========== DATA STRUCTURES ==========
-    let workoutLibrary = [];      // { id, name, exercises: [{ id, name, reps, videoUrl, description }] }
-    let dailyLogs = {};           // key: YYYY-MM-DD -> { symptoms, achilles, summary, water, sleep, assignedWorkoutId }
-    let workoutCompletions = {};  // key: YYYY-MM-DD_workoutId_exerciseId -> boolean (or per day)
+    let workoutLibrary = [];
+    let dailyLogs = {};
+    let workoutCompletions = {};
     let customSymptoms = [];
     
     const DEFAULT_SYMPTOMS = ["Swelling (general)", "Headache", "Knee cracking", "Knee buckling", "Energy level (1-10)"];
+    let currentEditingWorkout = null;
     
     // ========== DEFAULT WORKOUT ==========
     function initDefaultWorkout() {
@@ -367,12 +396,12 @@
                 id: "default_evening",
                 name: "Evening Routine (Seated/Lying)",
                 exercises: [
-                    { id: "ex1", name: "Ankle pumps with resistance", reps: "2 min", videoUrl: "", description: "Press heels, point/flex hard" },
-                    { id: "ex2", name: "Seated leg lifts", reps: "3 min (hold 5 sec)", videoUrl: "", description: "Long sitting, lift leg 2 inches" },
-                    { id: "ex3", name: "Glute bridges (slow negatives)", reps: "4 min", videoUrl: "", description: "Lift 2 sec, lower 5 sec" },
-                    { id: "ex4", name: "Isometric calf press", reps: "3 min", videoUrl: "", description: "Press heels into floor, hold 10 sec" },
-                    { id: "ex5", name: "Full body tension hold", reps: "2 min", videoUrl: "", description: "10 sec on, 5 sec off" },
-                    { id: "ex6", name: "Ankle elevation", reps: "10 min", videoUrl: "", description: "Calves on pillow/duvet" }
+                    { id: "ex1", name: "Ankle pumps with resistance", reps: "2 min", videoUrl: "", description: "" },
+                    { id: "ex2", name: "Seated leg lifts", reps: "3 min (hold 5 sec)", videoUrl: "", description: "" },
+                    { id: "ex3", name: "Glute bridges (slow negatives)", reps: "4 min", videoUrl: "", description: "" },
+                    { id: "ex4", name: "Isometric calf press", reps: "3 min", videoUrl: "", description: "" },
+                    { id: "ex5", name: "Full body tension hold", reps: "2 min", videoUrl: "", description: "" },
+                    { id: "ex6", name: "Ankle elevation", reps: "10 min", videoUrl: "", description: "" }
                 ]
             });
         }
@@ -396,15 +425,15 @@
             dailyLogs: dailyLogs,
             workoutCompletions: workoutCompletions,
             customSymptoms: customSymptoms,
-            version: 3
+            version: 4
         };
-        localStorage.setItem('health_tracker_v3', JSON.stringify(allData));
+        localStorage.setItem('health_tracker_v4', JSON.stringify(allData));
         document.getElementById('syncStatus').innerText = 'Saved ' + new Date().toLocaleTimeString();
         setTimeout(() => { if(document.getElementById('syncStatus')) document.getElementById('syncStatus').innerText = 'Ready'; }, 1500);
     }
     
     function loadAllFromLocal() {
-        let raw = localStorage.getItem('health_tracker_v3');
+        let raw = localStorage.getItem('health_tracker_v4');
         if (raw) {
             try {
                 let data = JSON.parse(raw);
@@ -418,6 +447,85 @@
         initDefaultWorkout();
     }
     
+    // ========== WORKOUT TO TEXT & EDIT FUNCTIONS ==========
+    function workoutToEditText(workout) {
+        let lines = [`[${workout.name}]`];
+        for (let ex of workout.exercises) {
+            let line = `- ${ex.name}: ${ex.reps}`;
+            if (ex.videoUrl) {
+                line += ` !video(${ex.videoUrl})`;
+            }
+            lines.push(line);
+        }
+        return lines.join('\n');
+    }
+    
+    function openEditWorkout(workout) {
+        currentEditingWorkout = workout;
+        let text = workoutToEditText(workout);
+        document.getElementById('workoutEditTextarea').value = text;
+        document.getElementById('editWorkoutName').innerText = workout.name;
+        document.getElementById('editWorkoutPanel').style.display = 'block';
+        document.getElementById('editWorkoutPanel').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function saveWorkoutEdit() {
+        if (!currentEditingWorkout) return;
+        
+        let newText = document.getElementById('workoutEditTextarea').value;
+        let lines = newText.split(/\r?\n/);
+        let newExercises = [];
+        let newName = currentEditingWorkout.name;
+        
+        let firstLine = lines[0]?.trim();
+        if (firstLine && firstLine.startsWith('[') && firstLine.endsWith(']')) {
+            newName = firstLine.slice(1, -1);
+            lines = lines.slice(1);
+        }
+        
+        for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith('-')) {
+                let exText = line.substring(1).trim();
+                let videoUrl = '';
+                let vMatch = exText.match(/!video\(([^)]+)\)/);
+                if (vMatch) {
+                    videoUrl = vMatch[1];
+                    exText = exText.replace(/!video\([^)]+\)/, '').trim();
+                }
+                let colonIdx = exText.indexOf(':');
+                let exName = colonIdx !== -1 ? exText.substring(0, colonIdx).trim() : exText;
+                let reps = colonIdx !== -1 ? exText.substring(colonIdx + 1).trim() : '1 set';
+                newExercises.push({
+                    id: Date.now() + '_' + Math.random(),
+                    name: exName,
+                    reps: reps,
+                    videoUrl: videoUrl,
+                    description: ""
+                });
+            }
+        }
+        
+        if (newExercises.length === 0) {
+            alert("No valid exercises found. Use format:\n- Exercise name: reps");
+            return;
+        }
+        
+        currentEditingWorkout.name = newName;
+        currentEditingWorkout.exercises = newExercises;
+        saveAllToLocal();
+        renderLibraryList();
+        updateWorkoutSelector();
+        document.getElementById('editWorkoutPanel').style.display = 'none';
+        currentEditingWorkout = null;
+        alert(`✅ Workout "${newName}" saved`);
+    }
+    
+    function cancelWorkoutEdit() {
+        document.getElementById('editWorkoutPanel').style.display = 'none';
+        currentEditingWorkout = null;
+    }
+    
     // ========== RENDER LIBRARY LIST ==========
     function renderLibraryList() {
         let container = document.getElementById('libraryList');
@@ -428,66 +536,41 @@
         }
         
         let html = '';
-        workoutLibrary.forEach((workout, idx) => {
+        workoutLibrary.forEach((workout) => {
             html += `<div class="workout-library-item">
                 <div style="flex:1">
                     <strong>📌 ${escapeHtml(workout.name)}</strong>
                     <div style="font-size:10px; color:#555;">${workout.exercises.length} exercises</div>
                 </div>
                 <div>
-                    <button class="retro-button edit-workout-btn" data-idx="${idx}" style="padding:2px 8px;">✏️ Edit</button>
-                    <button class="retro-button delete-workout-btn" data-idx="${idx}" style="padding:2px 8px; background:#800000; color:white;">🗑️ Delete</button>
+                    <button class="retro-button edit-workout-btn" data-id="${workout.id}" style="padding:2px 8px;">✏️ Edit</button>
+                    <button class="retro-button delete-workout-btn" data-id="${workout.id}" style="padding:2px 8px; background:#800000; color:white;">🗑️ Delete</button>
                 </div>
             </div>`;
         });
         container.innerHTML = html;
         
-        // Edit button
         document.querySelectorAll('.edit-workout-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                let idx = parseInt(btn.dataset.idx);
-                editWorkout(idx);
+                let id = btn.dataset.id;
+                let workout = workoutLibrary.find(w => w.id === id);
+                if (workout) openEditWorkout(workout);
             });
         });
         
         document.querySelectorAll('.delete-workout-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                let idx = parseInt(btn.dataset.idx);
-                if (confirm(`Delete "${workoutLibrary[idx].name}"?`)) {
-                    workoutLibrary.splice(idx, 1);
+                let id = btn.dataset.id;
+                let workout = workoutLibrary.find(w => w.id === id);
+                if (confirm(`Delete "${workout?.name}"?`)) {
+                    workoutLibrary = workoutLibrary.filter(w => w.id !== id);
                     saveAllToLocal();
                     renderLibraryList();
                     updateWorkoutSelector();
+                    if (currentEditingWorkout?.id === id) cancelWorkoutEdit();
                 }
             });
         });
-    }
-    
-    function editWorkout(idx) {
-        let w = workoutLibrary[idx];
-        let newName = prompt("Workout name:", w.name);
-        if (newName && newName.trim()) w.name = newName.trim();
-        
-        // Simple exercise editor
-        let editMore = confirm("Edit exercises? OK to edit list (will prompt for each)");
-        if (editMore) {
-            let newExercises = [];
-            for (let i = 0; i < w.exercises.length; i++) {
-                let ex = w.exercises[i];
-                let newExName = prompt(`Exercise ${i+1} name:`, ex.name);
-                if (newExName) ex.name = newExName;
-                let newReps = prompt(`Reps/sets for ${ex.name}:`, ex.reps);
-                if (newReps) ex.reps = newReps;
-                let newDesc = prompt(`Description (optional):`, ex.description || "");
-                ex.description = newDesc || "";
-                newExercises.push(ex);
-            }
-            w.exercises = newExercises;
-        }
-        saveAllToLocal();
-        renderLibraryList();
-        updateWorkoutSelector();
-        alert(`Updated "${w.name}"`);
     }
     
     // ========== IMPORT WORKOUTS ==========
@@ -568,7 +651,7 @@
         saveAllToLocal();
         renderLibraryList();
         updateWorkoutSelector();
-        alert(`Added "${name}". Edit it to add more exercises.`);
+        openEditWorkout(newWorkout);
     }
     
     function exportLibrary() {
@@ -586,7 +669,7 @@
         let selector = document.getElementById('workoutSelector');
         if (!selector) return;
         selector.innerHTML = '';
-        workoutLibrary.forEach((w, idx) => {
+        workoutLibrary.forEach(w => {
             let option = document.createElement('option');
             option.value = w.id;
             option.textContent = w.name;
@@ -597,10 +680,7 @@
     function getAssignedWorkoutForDate(ymd) {
         let dayLog = dailyLogs[ymd] || {};
         let workoutId = dayLog.assignedWorkoutId;
-        if (!workoutId) {
-            // default to first workout in library
-            workoutId = workoutLibrary[0]?.id;
-        }
+        if (!workoutId && workoutLibrary.length) workoutId = workoutLibrary[0].id;
         return workoutLibrary.find(w => w.id === workoutId);
     }
     
@@ -625,7 +705,7 @@
         }
         
         let html = '';
-        workout.exercises.forEach((ex, exIdx) => {
+        workout.exercises.forEach(ex => {
             let checkKey = `${ymd}_${workout.id}_${ex.id}`;
             let isChecked = completions[checkKey] === true;
             html += `<div class="exercise-item">
@@ -637,7 +717,6 @@
         });
         container.innerHTML = html;
         
-        // Attach checkbox listeners
         document.querySelectorAll('.workout-exercise-checkbox').forEach(cb => {
             cb.addEventListener('change', function() {
                 let key = this.dataset.checkkey;
@@ -751,8 +830,8 @@
         document.getElementById('eveningPainVal').innerText = achilles.eveningPain !== undefined ? achilles.eveningPain : '-';
         document.getElementById('swellingVal').innerText = achilles.swelling !== undefined ? achilles.swelling : '-';
         
-        const saveField = (field, valueFn) => {
-            let val = valueFn();
+        const saveField = (field, getVal) => {
+            let val = getVal();
             if (field === 'summary') log.summary = val;
             else if (field === 'morningNotes') achilles.morningNotes = val;
             else if (field === 'eveningNotes') achilles.eveningNotes = val;
@@ -833,7 +912,6 @@
             let achilles = daily.achilles || {};
             let symptoms = daily.symptoms || {};
             let symptomText = Object.entries(symptoms).map(([n,v]) => `${n}: ${v}`).join(', ') || '—';
-            
             let completionsForDay = workoutCompletions[d] || {};
             let completedCount = Object.values(completionsForDay).filter(v=>v===true).length;
             
@@ -862,7 +940,7 @@
     
     function resetAllData() {
         if (confirm('⚠️ DELETE ALL data? Cannot undo.')) {
-            localStorage.removeItem('health_tracker_v3');
+            localStorage.removeItem('health_tracker_v4');
             location.reload();
         }
     }
@@ -899,9 +977,7 @@
             updateWorkoutSelector();
             renderTodayWorkout();
         }
-        if (tabId === 'library') {
-            renderLibraryList();
-        }
+        if (tabId === 'library') renderLibraryList();
         if (tabId === 'history') renderFullHistory();
     }
     
@@ -934,6 +1010,8 @@
     document.getElementById('previewImportBtn').addEventListener('click', previewImport);
     document.getElementById('addEmptyWorkoutBtn').addEventListener('click', addEmptyWorkout);
     document.getElementById('exportLibraryBtn').addEventListener('click', exportLibrary);
+    document.getElementById('saveWorkoutEditBtn').addEventListener('click', saveWorkoutEdit);
+    document.getElementById('cancelWorkoutEditBtn').addEventListener('click', cancelWorkoutEdit);
     
     // History & Settings
     document.getElementById('exportHistoryBtn').addEventListener('click', exportAllData);
