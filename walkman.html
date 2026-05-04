@@ -3,831 +3,965 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Walkman Pro - Music Library</title>
+    <title>Retro Walkman - Music Library</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
         body {
             background: #c0c0c0;
-            font-family: "MS Sans Serif", Tahoma, sans-serif;
-            padding: 16px;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "MS Sans Serif", Tahoma, sans-serif;
+            padding: 20px;
         }
-        .app-container {
-            max-width: 1400px;
-            margin: 0 auto;
+        .walkman {
             background: #2a2a2a;
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 6px 6px 0px #1a1a1a;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 750px;
+            box-shadow: 8px 8px 0px #1a1a1a, inset 1px 1px 0px #4a4a4a;
+            border: 1px solid #1a1a1a;
         }
-        /* Header / Title Bar */
-        .title-bar {
-            background: #000080;
-            color: white;
-            padding: 8px 12px;
+        .cassette-window {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+            border: 2px inset #0a0a0a;
+        }
+        .cassette-label {
+            background: #f5deb3;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #333;
+            min-height: 60px;
+            word-break: break-word;
+        }
+        .reels { display: flex; justify-content: center; gap: 40px; margin: 15px 0; }
+        .reel {
+            width: 45px; height: 45px; background: #333; border-radius: 50%;
+            border: 3px solid #555; position: relative;
+            animation: spin 2s linear infinite; animation-play-state: paused;
+        }
+        .reel::after { content: ''; position: absolute; top: 12px; left: 12px; width: 15px; height: 15px; background: #888; border-radius: 50%; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .reel.spinning { animation-play-state: running; }
+        .display {
+            background: #003300; color: #00ff00; font-family: monospace; font-size: 16px;
+            padding: 8px 12px; text-align: center; margin-bottom: 15px; border-radius: 6px;
+            letter-spacing: 2px; text-shadow: 0 0 5px #00ff00; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+        }
+        .buttons { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .walkman-btn {
+            background: #444; border: none; color: white; font-size: 20px; padding: 12px 18px;
+            cursor: pointer; border-radius: 8px; box-shadow: 0 3px 0 #1a1a1a;
+            font-family: monospace; font-weight: bold;
+        }
+        .walkman-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #1a1a1a; }
+        .play-btn { background: #2d5a2d; }
+        .pause-btn { background: #8b4513; }
+        .stop-btn { background: #8b0000; }
+        .prev-btn, .next-btn { background: #2a4a6e; }
+        .volume-control {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+            background: #333; padding: 8px; border-radius: 20px;
+        }
+        .volume-control span { color: white; font-size: 12px; }
+        input[type="range"] { flex: 1; height: 4px; -webkit-appearance: none; background: #555; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: #00ff00; cursor: pointer; }
+        .library {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .library-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 8px 8px 0 0;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
+            color: #ccc;
+            font-size: 11px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #444;
             flex-wrap: wrap;
             gap: 8px;
         }
-        /* Main Layout - 3 Columns */
-        .main-layout {
+        .nav-bar {
             display: flex;
-            gap: 16px;
+            gap: 8px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
+            align-items: center;
         }
-        .sidebar {
-            width: 260px;
-            background: #1e1e1e;
-            border-radius: 12px;
-            padding: 12px;
-            flex-shrink: 0;
+        .nav-btn {
+            background: #2a4a6e;
+            border: none;
+            padding: 4px 10px;
+            color: white;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 10px;
+            border-radius: 4px;
         }
-        .library-view {
+        .nav-btn.active {
+            background: #2d5a2d;
+        }
+        .current-folder {
+            color: #0f0;
+            font-size: 10px;
+            font-family: monospace;
             flex: 1;
-            background: #1e1e1e;
-            border-radius: 12px;
-            padding: 12px;
-            min-width: 250px;
+            text-align: right;
         }
-        .player-panel {
-            width: 320px;
-            background: #1e1e1e;
-            border-radius: 12px;
-            padding: 12px;
-            flex-shrink: 0;
-        }
-        /* Navigation */
-        .nav-section {
-            margin-bottom: 20px;
-        }
-        .nav-title {
+        .section-title {
             color: #aaa;
             font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin: 10px 0 5px;
             border-left: 2px solid #2d5a2d;
             padding-left: 8px;
         }
-        .nav-item {
-            padding: 6px 10px;
-            margin: 2px 0;
-            cursor: pointer;
-            border-radius: 6px;
-            color: #ccc;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .repo-settings {
+            background: #252525;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 12px;
         }
-        .nav-item:hover { background: #333; }
-        .nav-item.active { background: #2d5a2d; color: white; }
-        /* Playlist Create */
-        .create-playlist {
-            margin-top: 16px;
-            display: flex;
-            gap: 6px;
-        }
-        .create-playlist input {
-            flex: 1;
+        .repo-settings input, .repo-settings select {
             background: #333;
             border: 1px solid #555;
             color: white;
             padding: 6px;
+            font-family: monospace;
+            font-size: 11px;
             border-radius: 4px;
-            font-size: 10px;
         }
-        .retro-btn {
+        .retro-button {
             background: #2a4a6e;
             border: none;
-            padding: 6px 10px;
+            padding: 6px 12px;
             color: white;
             cursor: pointer;
-            border-radius: 4px;
-            font-size: 10px;
             font-family: monospace;
-        }
-        .retro-btn.success { background: #2d5a2d; }
-        .retro-btn.danger { background: #8b0000; }
-        .retro-btn.warning { background: #b8860b; }
-        /* Search Bar */
-        .search-bar {
-            margin-bottom: 12px;
-        }
-        .search-bar input {
-            width: 100%;
-            background: #333;
-            border: 1px solid #555;
-            color: white;
-            padding: 8px;
-            border-radius: 6px;
             font-size: 11px;
+            border-radius: 4px;
         }
-        /* Song/File Grid */
-        .items-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .song-item, .folder-item {
+        .retro-button.danger { background: #8b0000; }
+        .retro-button.success { background: #2d5a2d; }
+        .retro-button.warning { background: #b8860b; }
+        .song-item {
             background: #2a2a2a;
-            padding: 10px 12px;
+            padding: 8px 10px;
+            margin: 6px 0;
             border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            transition: 0.1s;
+            color: #ddd;
+            font-size: 12px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        .song-item:hover, .folder-item:hover { background: #3a3a3a; transform: translateX(2px); }
+        .song-item:hover { background: #3a3a3a; }
+        .song-item.active { background: #2d5a2d; color: white; }
         .song-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            overflow: hidden;
-        }
-        .song-title { color: #ddd; font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .song-meta { color: #888; font-size: 9px; display: flex; gap: 12px; }
-        .song-actions { display: flex; gap: 6px; align-items: center; }
-        .favorite-star { font-size: 14px; cursor: pointer; color: #ffaa00; text-shadow: 0 0 2px #ffaa00; }
-        .favorite-star.inactive { color: #666; text-shadow: none; }
-        /* Now Playing */
-        .now-playing-card {
-            background: #0a0a0a;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
-            text-align: center;
-        }
-        .cover-art {
-            width: 80px;
-            height: 80px;
-            background: #1a3a1a;
-            border-radius: 8px;
-            margin: 0 auto 10px;
+            flex: 1;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 40px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
-        .song-title-playing { color: #0f0; font-size: 13px; font-weight: bold; margin: 6px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .artist-name { color: #888; font-size: 10px; margin-bottom: 12px; }
-        .progress-bar-big {
-            width: 100%;
+        .song-name { font-weight: bold; }
+        .song-artist { font-size: 10px; color: #aaa; }
+        .active .song-artist { color: #cfc; }
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.6;
+        }
+        .star-btn.starred { opacity: 1; color: #ffcc00; text-shadow: 0 0 2px #ffcc00; }
+        .folder-item {
+            background: #252525;
+            padding: 6px 10px;
+            margin: 4px 0;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            color: #88ccff;
+            font-size: 12px;
+        }
+        .folder-item:hover { background: #353535; }
+        .progress-bar { width: 100%; height: 4px; background: #444; border-radius: 2px; margin: 10px 0; cursor: pointer; }
+        .progress-fill { height: 100%; background: #00ff00; border-radius: 2px; width: 0%; }
+        .time-info { display: flex; justify-content: space-between; font-size: 10px; color: #00ff00; font-family: monospace; margin-top: 4px; }
+        .sync-status {
+            position: fixed; bottom: 10px; right: 10px; background: #c0c0c0;
+            border: 2px solid #fff; border-right-color: #000; border-bottom-color: #000;
+            padding: 4px 10px; font-size: 10px; z-index: 1000; font-family: monospace; cursor: pointer;
+        }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #c0c0c0; border: 2px solid #fff; border-right-color: #000; border-bottom-color: #000;
+            width: 400px; max-width: 90%;
+        }
+        .modal-title-bar { background: #000080; color: white; padding: 6px 8px; display: flex; justify-content: space-between; cursor: move; }
+        .modal-body { padding: 15px; }
+        .modal-body input, .modal-body select { width: 100%; margin-bottom: 10px; padding: 5px; }
+        .status-msg {
+            background: #333;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: monospace;
+            margin-top: 8px;
+            text-align: center;
+        }
+        .flex-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .progress-bar-upload {
             height: 4px;
             background: #444;
             border-radius: 2px;
-            margin: 10px 0;
-            cursor: pointer;
+            margin: 8px 0;
+            display: none;
         }
-        .progress-fill-big {
-            height: 100%;
-            background: #0f0;
-            border-radius: 2px;
-            width: 0%;
-        }
-        .time-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 9px;
-            color: #0f0;
-            font-family: monospace;
-        }
-        .player-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin: 12px 0;
-        }
-        .player-btn {
-            background: #333;
-            border: none;
-            color: white;
-            font-size: 16px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .player-btn.play { background: #2d5a2d; padding: 8px 20px; }
-        .volume-slider {
-            width: 100%;
-            margin-top: 8px;
-        }
-        /* Album View */
-        .album-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .album-card {
-            background: #2a2a2a;
-            width: 100px;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .album-art { font-size: 40px; }
-        .album-name { font-size: 10px; color: #ddd; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        /* Folder Browser */
-        .breadcrumb {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
-            font-size: 10px;
-            color: #aaa;
-        }
-        .breadcrumb span { cursor: pointer; color: #2a4a6e; }
-        /* Tabs inside library */
-        .view-tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #444;
-        }
-        .view-tab {
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 11px;
-            color: #aaa;
-        }
-        .view-tab.active { color: #0f0; border-bottom: 2px solid #0f0; }
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1e1e1e; }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
-        @media (max-width: 900px) {
-            .sidebar { width: 200px; }
-            .player-panel { width: 280px; }
-        }
-        @media (max-width: 700px) {
-            .main-layout { flex-direction: column; }
-            .sidebar, .library-view, .player-panel { width: 100%; }
+        .progress-fill-upload { height: 100%; background: #2d5a2d; border-radius: 2px; width: 0%; }
+        @media (max-width: 600px) {
+            .walkman { padding: 12px; }
+            .walkman-btn { padding: 8px 12px; font-size: 16px; }
+            .display { font-size: 13px; }
+            .song-item { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
-<div class="app-container">
-    <div class="title-bar">
-        <span>📼 WALKMAN PRO — Music Library</span>
-        <span id="connectionIndicator">⚫ Not connected</span>
+<div class="walkman">
+    <div class="cassette-window">
+        <div class="cassette-label" id="cassetteLabel">🎵 No Tape</div>
+        <div class="reels">
+            <div class="reel" id="reelLeft"></div>
+            <div class="reel" id="reelRight"></div>
+        </div>
     </div>
-
-    <div class="main-layout">
-        <!-- LEFT SIDEBAR - Navigation -->
-        <div class="sidebar">
-            <div class="nav-section">
-                <div class="nav-title">LIBRARY</div>
-                <div class="nav-item" data-view="songs">🎵 All Songs</div>
-                <div class="nav-item" data-view="albums">💿 Albums</div>
-                <div class="nav-item" data-view="folders">📁 Folders</div>
-                <div class="nav-item" data-view="favorites">❤️ Favorites</div>
+    <div class="display" id="nowPlaying">STOPPED</div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="time-info"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+    <div class="buttons">
+        <button class="walkman-btn prev-btn" id="prevBtn">⏮</button>
+        <button class="walkman-btn play-btn" id="playBtn">▶</button>
+        <button class="walkman-btn pause-btn" id="pauseBtn">⏸</button>
+        <button class="walkman-btn stop-btn" id="stopBtn">⏹</button>
+        <button class="walkman-btn next-btn" id="nextBtn">⏭</button>
+    </div>
+    <div class="volume-control"><span>🔊 VOL</span><input type="range" id="volumeSlider" min="0" max="100" value="70"></div>
+    
+    <div class="library">
+        <div class="library-header">
+            <span>📼 GITHUB MUSIC WALKMAN</span>
+            <span id="songCount">0 songs</span>
+        </div>
+        
+        <!-- GitHub Repo Settings -->
+        <div class="repo-settings">
+            <div class="flex-row" style="margin-bottom: 8px;">
+                <input type="text" id="githubRepo" placeholder="username/repo" style="flex:2;">
+                <input type="text" id="githubFolder" value="Music" placeholder="folder" style="flex:1;">
+                <select id="githubBranch" style="width: 100px;">
+                    <option value="main">main</option>
+                    <option value="master">master</option>
+                </select>
             </div>
-            <div class="nav-section">
-                <div class="nav-title">MY PLAYLISTS</div>
-                <div id="playlistList"></div>
-                <div class="create-playlist">
-                    <input type="text" id="newPlaylistName" placeholder="New playlist name">
-                    <button id="createPlaylistBtn" class="retro-btn">+</button>
-                </div>
-            </div>
-            <div class="nav-section">
-                <div class="nav-title">GITHUB SETUP</div>
-                <input type="text" id="githubRepoInput" placeholder="username/repo" style="width:100%; margin-bottom:6px; background:#333; border:1px solid #555; color:white; padding:5px; border-radius:4px;">
-                <input type="text" id="githubFolderInput" placeholder="Music folder (e.g., Music)" value="Music" style="width:100%; margin-bottom:6px; background:#333; border:1px solid #555; color:white; padding:5px; border-radius:4px;">
-                <input type="password" id="githubTokenInput" placeholder="GitHub Token (for uploads)" style="width:100%; margin-bottom:6px; background:#333; border:1px solid #555; color:white; padding:5px; border-radius:4px;">
-                <button id="connectGithubBtn" class="retro-btn success" style="width:100%;">🔌 Connect & Scan</button>
-                <button id="uploadFolderBtn" class="retro-btn" style="width:100%; margin-top:6px;">📁 Upload MP3s</button>
-                <div id="uploadProgress" style="margin-top:6px; font-size:9px; color:#aaa;"></div>
+            <div class="flex-row">
+                <input type="password" id="githubToken" placeholder="GitHub Token (repo scope)" style="flex:3;">
+                <button id="testConnectionBtn" class="retro-button">🔌 Test</button>
             </div>
         </div>
-
-        <!-- CENTER - Library View -->
-        <div class="library-view">
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="🔍 Search songs, artists, albums...">
-            </div>
-            <div class="view-tabs" id="viewTabs" style="display:none;">
-                <div class="view-tab active" data-subview="list">📋 List</div>
-                <div class="view-tab" data-subview="grid">🎨 Grid</div>
-            </div>
-            <div id="libraryContent">Loading...</div>
+        
+        <!-- Navigation: Library / Favorites -->
+        <div class="nav-bar">
+            <button id="viewLibraryBtn" class="nav-btn active">📀 All Music</button>
+            <button id="viewFavoritesBtn" class="nav-btn">⭐ Favorites</button>
+            <button id="createFolderBtn" class="nav-btn">📁 + New Folder</button>
+            <button id="refreshBtn" class="nav-btn">🔄 Refresh</button>
+            <span class="current-folder" id="currentFolderDisplay">📂 Music/</span>
         </div>
-
-        <!-- RIGHT - Player Panel -->
-        <div class="player-panel">
-            <div class="now-playing-card">
-                <div class="cover-art">🎵</div>
-                <div class="song-title-playing" id="nowPlayingTitle">No song playing</div>
-                <div class="artist-name" id="nowPlayingArtist">—</div>
-                <div class="progress-bar-big" id="progressBarBig">
-                    <div class="progress-fill-big" id="progressFillBig"></div>
-                </div>
-                <div class="time-row">
-                    <span id="currentTimeDisplay">0:00</span>
-                    <span id="totalTimeDisplay">0:00</span>
-                </div>
-                <div class="player-buttons">
-                    <button class="player-btn" id="prevBtnPlayer">⏮</button>
-                    <button class="player-btn play" id="playBtnPlayer">▶</button>
-                    <button class="player-btn" id="pauseBtnPlayer">⏸</button>
-                    <button class="player-btn" id="stopBtnPlayer">⏹</button>
-                    <button class="player-btn" id="nextBtnPlayer">⏭</button>
-                </div>
-                <input type="range" id="volumeSliderPlayer" min="0" max="100" value="70" class="volume-slider">
-                <div style="font-size:9px; color:#666; text-align:center; margin-top:8px;">Click a song to play</div>
-            </div>
-            <div class="nav-section">
-                <div class="nav-title">CURRENT QUEUE</div>
-                <div id="queueList" style="max-height:150px; overflow-y:auto;"></div>
-            </div>
+        
+        <!-- Folder Browser -->
+        <div id="folderBrowser" style="margin-bottom: 10px;"></div>
+        
+        <!-- Song List -->
+        <div id="songList"></div>
+        
+        <!-- Upload Area -->
+        <div class="section-title">📤 UPLOAD TO CURRENT FOLDER</div>
+        <div class="flex-row" style="margin: 8px 0;">
+            <label class="retro-button success" style="cursor: pointer;">
+                🎵 Upload MP3
+                <input type="file" id="uploadFileInput" accept="audio/*" style="display: none;">
+            </label>
+            <label class="retro-button" style="cursor: pointer;">
+                📁 Multiple Files
+                <input type="file" id="uploadMultiInput" accept="audio/*" multiple style="display: none;">
+            </label>
+            <button id="scanGithubBtn" class="retro-button">🔄 Scan GitHub</button>
         </div>
+        <div id="uploadProgress" class="progress-bar-upload"><div class="progress-fill-upload" id="uploadProgressFill"></div></div>
+        <div id="uploadStatus" class="status-msg" style="margin-top: 6px; font-size: 9px;">Ready</div>
     </div>
 </div>
 
+<div class="sync-status" id="syncStatusIndicator">☁️ Ready</div>
+
 <script>
-    // ========== DATA STRUCTURES ==========
-    let musicLibrary = [];        // { id, name, path, url, artist, album, duration, isFavorite }
-    let folders = [];             // list of folder paths
-    let albums = new Map();       // album name -> list of songs
-    let playlists = new Map();    // playlist name -> song ids
-    let favorites = new Set();    // song ids marked as favorite
+    // ========== CONFIGURATION ==========
+    let githubToken = localStorage.getItem('walkman_upload_token') || "";
+    let githubRepo = localStorage.getItem('walkman_github_repo') || "";
+    let githubBaseFolder = localStorage.getItem('walkman_github_folder') || "Music";
+    let githubBranch = localStorage.getItem('walkman_github_branch') || "main";
     
-    let currentView = "songs";    // songs, albums, folders, favorites
-    let currentFolder = "";       // for folder browsing
-    let currentAlbum = "";
-    let currentPlaylist = "";
-    let queue = [];
-    let queueIndex = 0;
-    
+    // App state
+    let musicLibrary = [];        // { id, name, artist, url, path, folder, starred }
+    let currentView = "library";  // "library" or "favorites"
+    let currentFolder = "";       // relative path within Music folder (e.g., "Rock" or "Rock/Subfolder")
+    let folders = [];             // list of folders found
+    let currentIndex = 0;
     let audio = new Audio();
     let isPlaying = false;
     
-    // GitHub connection
-    let githubToken = localStorage.getItem('walkman_github_token') || "";
-    let githubRepo = localStorage.getItem('walkman_github_repo') || "alexandrasrootwork/my-music";
-    let githubFolder = localStorage.getItem('walkman_github_folder') || "Music";
-    
     // DOM elements
-    const repoInput = document.getElementById('githubRepoInput');
-    const folderInput = document.getElementById('githubFolderInput');
-    const tokenInput = document.getElementById('githubTokenInput');
-    const connectBtn = document.getElementById('connectGithubBtn');
-    const uploadBtn = document.getElementById('uploadFolderBtn');
-    const searchInput = document.getElementById('searchInput');
+    const repoInput = document.getElementById('githubRepo');
+    const folderInput = document.getElementById('githubFolder');
+    const branchSelect = document.getElementById('githubBranch');
+    const tokenInput = document.getElementById('githubToken');
     
-    repoInput.value = githubRepo;
-    folderInput.value = githubFolder;
+    // Load saved settings
+    if (githubRepo) repoInput.value = githubRepo;
+    if (githubBaseFolder) folderInput.value = githubBaseFolder;
+    branchSelect.value = githubBranch;
     if (githubToken) tokenInput.value = "••••••••";
     
     function saveSettings() {
-        const newToken = tokenInput.value;
-        if (newToken && newToken !== "••••••••") {
-            githubToken = newToken;
-            localStorage.setItem('walkman_github_token', githubToken);
+        githubRepo = repoInput.value.trim();
+        githubBaseFolder = folderInput.value.trim();
+        githubBranch = branchSelect.value;
+        if (tokenInput.value && tokenInput.value !== "••••••••") {
+            githubToken = tokenInput.value;
+            localStorage.setItem('walkman_upload_token', githubToken);
         }
-        githubRepo = repoInput.value;
-        githubFolder = folderInput.value;
         localStorage.setItem('walkman_github_repo', githubRepo);
-        localStorage.setItem('walkman_github_folder', githubFolder);
-        document.getElementById('connectionIndicator').innerText = githubRepo ? `📡 ${githubRepo}` : "⚫ Not connected";
+        localStorage.setItem('walkman_github_folder', githubBaseFolder);
+        localStorage.setItem('walkman_github_branch', githubBranch);
     }
     
-    // ========== SCAN GITHUB FOR MUSIC ==========
-    async function scanGithubMusic() {
+    // ========== HELPER FUNCTIONS ==========
+    function showStatus(msg, isError = false) {
+        const div = document.getElementById('uploadStatus');
+        div.textContent = msg;
+        div.style.color = isError ? '#ff6666' : '#00ff00';
+        setTimeout(() => {
+            if (document.getElementById('uploadStatus').textContent === msg) {
+                div.textContent = 'Ready';
+                div.style.color = '#aaa';
+            }
+        }, 3000);
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    }
+    
+    function parseMetadata(filename) {
+        // Try to extract artist from "Artist - Song Name.mp3" format
+        let name = filename.replace(/\.[^/.]+$/, '');
+        let artist = "";
+        if (name.includes(" - ")) {
+            const parts = name.split(" - ");
+            artist = parts[0];
+            name = parts.slice(1).join(" - ");
+        }
+        return { name: name.length > 40 ? name.substring(0,37)+'...' : name, artist: artist.substring(0,30) };
+    }
+    
+    // ========== GITHUB API FUNCTIONS ==========
+    async function getFolderContents(folderPath = "") {
+        if (!githubRepo) return [];
         saveSettings();
-        if (!githubRepo) { alert("Enter GitHub repo (username/repo)"); return; }
         
-        const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${githubFolder}?ref=main`;
-        document.getElementById('libraryContent').innerHTML = '<div style="color:#aaa;">Scanning GitHub...</div>';
+        const fullPath = githubBaseFolder ? (folderPath ? `${githubBaseFolder}/${folderPath}` : githubBaseFolder) : folderPath;
+        const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${fullPath}?ref=${githubBranch}`;
         
         try {
             const response = await fetch(apiUrl, {
                 headers: githubToken ? { 'Authorization': `token ${githubToken}` } : {}
             });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            
+            if (!response.ok) return [];
             const items = await response.json();
-            const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.flac'];
+            if (!Array.isArray(items)) return [];
             
-            const songs = [];
-            const folderSet = new Set();
+            const audioFiles = [];
+            const subfolders = [];
             
             for (let item of items) {
                 if (item.type === 'dir') {
-                    folderSet.add(item.path);
-                    // Could recursively scan, but for simplicity, just top level
-                } else if (item.type === 'file') {
-                    const ext = item.name.substring(item.name.lastIndexOf('.')).toLowerCase();
-                    if (audioExtensions.includes(ext)) {
-                        const rawUrl = `https://raw.githubusercontent.com/${githubRepo}/main/${item.path}`;
-                        let name = item.name.replace(/\.[^/.]+$/, '');
-                        let artist = "Unknown";
-                        let album = "Single";
-                        // Try to parse metadata from filename: Artist - Song.mp3 or Song.mp3
-                        if (name.includes(' - ')) {
-                            const parts = name.split(' - ');
-                            artist = parts[0];
-                            name = parts.slice(1).join(' - ');
-                        }
-                        songs.push({
-                            id: Date.now() + Math.random() * 10000,
-                            name: name,
-                            path: item.path,
-                            url: rawUrl,
-                            artist: artist,
-                            album: album,
-                            duration: null,
-                            isFavorite: favorites.has(item.path)
-                        });
-                    }
+                    subfolders.push({ name: item.name, path: folderPath ? `${folderPath}/${item.name}` : item.name });
+                } else if (item.type === 'file' && item.name.match(/\.(mp3|wav|ogg|m4a|flac)$/i)) {
+                    const rawUrl = `https://raw.githubusercontent.com/${githubRepo}/${githubBranch}/${item.path}`;
+                    const metadata = parseMetadata(item.name);
+                    audioFiles.push({
+                        id: item.sha,
+                        name: metadata.name,
+                        artist: metadata.artist,
+                        url: rawUrl,
+                        path: item.path,
+                        folder: folderPath,
+                        starred: localStorage.getItem(`starred_${item.path}`) === 'true'
+                    });
                 }
             }
-            
-            musicLibrary = songs;
-            // Build albums
-            albums.clear();
-            for (let song of musicLibrary) {
-                if (!albums.has(song.album)) albums.set(song.album, []);
-                albums.get(song.album).push(song);
-            }
-            
-            savePlaylistsToLocal();
-            renderLibrary();
-            updateConnectionStatus(true);
-            
+            return { songs: audioFiles, folders: subfolders };
         } catch(err) {
-            document.getElementById('libraryContent').innerHTML = `<div style="color:#f66;">Failed: ${err.message}<br>Make sure repo is public or token has access.</div>`;
-            updateConnectionStatus(false);
+            console.error('Scan error:', err);
+            return { songs: [], folders: [] };
         }
     }
     
-    // ========== UPLOAD FILE TO GITHUB ==========
-    async function uploadFileToGitHub(file, targetPath) {
-        if (!githubRepo || !githubToken) { alert("Set GitHub repo and token first"); return null; }
+    async function scanEntireLibrary() {
+        if (!githubRepo) {
+            showStatus("❌ Enter GitHub repo first", true);
+            return;
+        }
+        showStatus("🔍 Scanning GitHub library...");
+        
+        async function scanFolder(relPath = "") {
+            const result = await getFolderContents(relPath);
+            let allSongs = [...result.songs];
+            for (let sub of result.folders) {
+                const subResult = await scanFolder(sub.path);
+                allSongs = allSongs.concat(subResult);
+            }
+            return allSongs;
+        }
+        
+        const allSongs = await scanFolder("");
+        musicLibrary = allSongs;
+        
+        // Build folder list
+        const folderSet = new Set();
+        musicLibrary.forEach(song => {
+            if (song.folder) folderSet.add(song.folder);
+        });
+        folders = Array.from(folderSet).sort();
+        
+        savePlaylist();
+        renderCurrentView();
+        showStatus(`✅ Loaded ${musicLibrary.length} songs`);
+    }
+    
+    async function uploadToCurrentFolder(file) {
+        if (!githubRepo || !githubToken) {
+            showStatus("❌ Set GitHub repo and token first", true);
+            return null;
+        }
+        saveSettings();
+        
+        const folderPath = currentFolder ? `${githubBaseFolder}/${currentFolder}` : githubBaseFolder;
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const filePath = `${folderPath}/${safeName}`;
+        const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${filePath}`;
         
         const reader = new FileReader();
         return new Promise((resolve, reject) => {
             reader.onload = async function(e) {
                 const base64Content = e.target.result.split(',')[1];
-                const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${targetPath}`;
-                
                 let sha = null;
                 try {
-                    const checkRes = await fetch(apiUrl, { headers: { 'Authorization': `token ${githubToken}` } });
-                    if (checkRes.ok) { const existing = await checkRes.json(); sha = existing.sha; }
+                    const checkRes = await fetch(apiUrl, {
+                        headers: { 'Authorization': `token ${githubToken}` }
+                    });
+                    if (checkRes.ok) {
+                        const existing = await checkRes.json();
+                        sha = existing.sha;
+                    }
                 } catch(e) {}
                 
                 const body = {
-                    message: sha ? `Update ${file.name}` : `Add ${file.name}`,
+                    message: sha ? `Update ${safeName}` : `Add ${safeName}`,
                     content: base64Content,
-                    branch: 'main'
+                    branch: githubBranch
                 };
                 if (sha) body.sha = sha;
                 
                 try {
                     const response = await fetch(apiUrl, {
                         method: 'PUT',
-                        headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
+                        headers: {
+                            'Authorization': `token ${githubToken}`,
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(body)
                     });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const data = await response.json();
-                    resolve({ success: true, url: `https://raw.githubusercontent.com/${githubRepo}/main/${targetPath}` });
-                } catch(err) { reject(err); }
+                    const rawUrl = `https://raw.githubusercontent.com/${githubRepo}/${githubBranch}/${filePath}`;
+                    resolve({ success: true, url: rawUrl, name: safeName, path: filePath });
+                } catch(err) {
+                    reject(err);
+                }
             };
-            reader.onerror = () => reject(new Error('File read failed'));
+            reader.onerror = () => reject(new Error('Failed to read file'));
             reader.readAsDataURL(file);
         });
     }
     
-    async function uploadMultipleFiles() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'audio/*';
-        input.multiple = true;
-        input.onchange = async (e) => {
-            const files = Array.from(e.target.files);
-            const folderPath = prompt("Upload to folder (e.g., Music/ or Music/AlbumName):", githubFolder);
-            if (!folderPath) return;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const targetPath = `${folderPath}/${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-                document.getElementById('uploadProgress').innerHTML = `📤 Uploading ${i+1}/${files.length}: ${file.name}`;
-                try {
-                    await uploadFileToGitHub(file, targetPath);
-                } catch(err) {
-                    console.error(err);
-                }
+    async function createNewFolder(folderName) {
+        if (!githubRepo || !githubToken) {
+            showStatus("❌ Set GitHub repo and token first", true);
+            return false;
+        }
+        saveSettings();
+        
+        const cleanName = folderName.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        const folderPath = currentFolder ? `${githubBaseFolder}/${currentFolder}/${cleanName}` : `${githubBaseFolder}/${cleanName}`;
+        const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${folderPath}/.gitkeep`;
+        
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Create folder ${cleanName}`,
+                    content: btoa(""),
+                    branch: githubBranch
+                })
+            });
+            if (response.ok) {
+                showStatus(`✅ Folder "${cleanName}" created`);
+                await scanEntireLibrary();
+                return true;
+            } else {
+                throw new Error(`HTTP ${response.status}`);
             }
-            document.getElementById('uploadProgress').innerHTML = "✅ Upload complete! Re-scanning...";
-            await scanGithubMusic();
-            setTimeout(() => { document.getElementById('uploadProgress').innerHTML = ""; }, 3000);
-        };
-        input.click();
-    }
-    
-    // ========== PLAYLIST MANAGEMENT ==========
-    function savePlaylistsToLocal() {
-        const playlistsObj = {};
-        for (let [name, songIds] of playlists.entries()) {
-            playlistsObj[name] = Array.from(songIds);
+        } catch(err) {
+            showStatus(`❌ Failed to create folder: ${err.message}`, true);
+            return false;
         }
-        localStorage.setItem('walkman_playlists', JSON.stringify(playlistsObj));
-        localStorage.setItem('walkman_favorites', JSON.stringify(Array.from(favorites)));
-        localStorage.setItem('walkman_music_library', JSON.stringify(musicLibrary.map(s => ({ id: s.id, name: s.name, artist: s.artist, album: s.album, url: s.url, path: s.path }))));
     }
     
-    function loadPlaylistsFromLocal() {
-        const savedPlaylists = localStorage.getItem('walkman_playlists');
-        if (savedPlaylists) {
-            const obj = JSON.parse(savedPlaylists);
-            playlists.clear();
-            for (let [name, ids] of Object.entries(obj)) {
-                playlists.set(name, new Set(ids));
+    async function testConnection() {
+        saveSettings();
+        if (!githubRepo) {
+            showStatus("Enter repo name", true);
+            return;
+        }
+        try {
+            const response = await fetch(`https://api.github.com/repos/${githubRepo}`, {
+                headers: githubToken ? { 'Authorization': `token ${githubToken}` } : {}
+            });
+            if (response.ok) {
+                showStatus(`✅ Connected to ${githubRepo}`);
+            } else {
+                showStatus(`❌ Repo not found (${response.status})`, true);
             }
-        }
-        const savedFavs = localStorage.getItem('walkman_favorites');
-        if (savedFavs) {
-            favorites.clear();
-            const favArr = JSON.parse(savedFavs);
-            favArr.forEach(f => favorites.add(f));
-        }
-        const savedLib = localStorage.getItem('walkman_music_library');
-        if (savedLib && musicLibrary.length === 0) {
-            const libArr = JSON.parse(savedLib);
-            musicLibrary = libArr;
-        }
-        renderPlaylistList();
-    }
-    
-    function createPlaylist(name) {
-        if (!name || playlists.has(name)) return;
-        playlists.set(name, new Set());
-        savePlaylistsToLocal();
-        renderPlaylistList();
-    }
-    
-    function deletePlaylist(name) {
-        if (confirm(`Delete playlist "${name}"?`)) {
-            playlists.delete(name);
-            if (currentPlaylist === name) currentPlaylist = "";
-            savePlaylistsToLocal();
-            renderPlaylistList();
-            renderLibrary();
+        } catch(err) {
+            showStatus(`❌ Connection failed`, true);
         }
     }
     
-    function addToPlaylist(playlistName, songId) {
-        if (playlists.has(playlistName)) {
-            playlists.get(playlistName).add(songId);
-            savePlaylistsToLocal();
-        }
-    }
-    
-    function removeFromPlaylist(playlistName, songId) {
-        if (playlists.has(playlistName)) {
-            playlists.get(playlistName).delete(songId);
-            savePlaylistsToLocal();
-            renderLibrary();
-        }
-    }
-    
-    function toggleFavorite(songId, path) {
-        if (favorites.has(path)) favorites.delete(path);
-        else favorites.add(path);
-        // Update in library
+    // ========== FAVORITES ==========
+    function toggleStar(songId, path) {
         const song = musicLibrary.find(s => s.id === songId);
-        if (song) song.isFavorite = favorites.has(song.path);
-        savePlaylistsToLocal();
-        renderLibrary();
-    }
-    
-    function renderPlaylistList() {
-        const container = document.getElementById('playlistList');
-        let html = '';
-        for (let [name, songs] of playlists.entries()) {
-            html += `<div class="nav-item" data-playlist="${name}" style="justify-content:space-between;">
-                        <span>📀 ${name}</span>
-                        <button class="del-playlist" data-name="${name}" style="background:none; border:none; color:#f66; cursor:pointer;">✗</button>
-                    </div>`;
-        }
-        container.innerHTML = html || '<div style="color:#555; font-size:10px;">No playlists yet</div>';
-        document.querySelectorAll('[data-playlist]').forEach(el => {
-            el.addEventListener('click', (e) => {
-                if (e.target.classList.contains('del-playlist')) return;
-                currentPlaylist = el.dataset.playlist;
-                currentView = "playlist";
-                renderLibrary();
-            });
-        });
-        document.querySelectorAll('.del-playlist').forEach(btn => {
-            btn.addEventListener('click', (e) => { e.stopPropagation(); deletePlaylist(btn.dataset.name); });
-        });
-    }
-    
-    // ========== RENDER LIBRARY ==========
-    function renderLibrary() {
-        const searchTerm = searchInput.value.toLowerCase();
-        let items = [];
-        
-        if (currentView === "songs") {
-            items = musicLibrary.filter(s => s.name.toLowerCase().includes(searchTerm) || s.artist.toLowerCase().includes(searchTerm));
-            renderSongsList(items);
-        } else if (currentView === "favorites") {
-            items = musicLibrary.filter(s => favorites.has(s.path));
-            renderSongsList(items);
-        } else if (currentView === "playlist" && currentPlaylist) {
-            const songIds = playlists.get(currentPlaylist) || new Set();
-            items = musicLibrary.filter(s => songIds.has(s.id));
-            renderSongsList(items);
-        } else if (currentView === "albums") {
-            const albumList = Array.from(albums.keys()).filter(a => a.toLowerCase().includes(searchTerm));
-            renderAlbumsList(albumList);
-        } else if (currentView === "folders") {
-            // Simple folder view from musicLibrary paths
-            const foldersSet = new Set();
-            musicLibrary.forEach(s => {
-                const parts = s.path.split('/');
-                if (parts.length > 1) foldersSet.add(parts[0]);
-                else foldersSet.add('root');
-            });
-            renderFoldersList(Array.from(foldersSet));
+        if (song) {
+            song.starred = !song.starred;
+            localStorage.setItem(`starred_${path}`, song.starred);
+            savePlaylist();
+            renderCurrentView();
+            if (currentView === "favorites") renderCurrentView();
         }
     }
     
-    function renderSongsList(songs) {
-        const container = document.getElementById('libraryContent');
-        if (!songs.length) { container.innerHTML = '<div style="color:#aaa;">No songs found</div>'; return; }
+    // ========== RENDERING ==========
+    function renderFolderBrowser() {
+        const container = document.getElementById('folderBrowser');
+        if (!container) return;
         
-        let html = '<div class="items-grid">';
-        songs.forEach(song => {
-            const isFav = favorites.has(song.path);
-            html += `<div class="song-item" data-id="${song.id}" data-url="${song.url}" data-name="${song.name}" data-artist="${song.artist}">
-                        <div class="song-info">
-                            <div class="song-title">${escapeHtml(song.name)}</div>
-                            <div class="song-meta"><span>${escapeHtml(song.artist)}</span><span>${escapeHtml(song.album)}</span></div>
-                        </div>
-                        <div class="song-actions">
-                            <span class="favorite-star ${isFav ? '' : 'inactive'}" data-id="${song.id}" data-path="${song.path}">${isFav ? '★' : '☆'}</span>
-                            <button class="add-to-playlist-btn" data-id="${song.id}" style="background:#2a4a6e; border:none; color:white; padding:2px 6px; border-radius:4px; cursor:pointer;">➕</button>
-                        </div>
-                    </div>`;
+        const parts = currentFolder ? currentFolder.split('/') : [];
+        let html = `<div style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;">`;
+        html += `<button class="nav-btn" data-folder="">📁 Root</button>`;
+        let cumulativePath = "";
+        for (let i = 0; i < parts.length; i++) {
+            cumulativePath += (i > 0 ? "/" : "") + parts[i];
+            html += `<span style="color:#888;">/</span>`;
+            html += `<button class="nav-btn" data-folder="${cumulativePath}">📁 ${escapeHtml(parts[i])}</button>`;
+        }
+        html += `</div>`;
+        
+        // Show subfolders
+        const subfolders = folders.filter(f => {
+            if (!currentFolder) return !f.includes('/');
+            return f.startsWith(currentFolder + '/') && f !== currentFolder && !f.slice(currentFolder.length+1).includes('/');
         });
-        html += '</div>';
+        
+        if (subfolders.length > 0) {
+            html += `<div style="margin-top: 6px; padding: 4px; background: #252525; border-radius: 6px;">`;
+            html += `<span style="font-size: 9px; color: #aaa;">📂 Subfolders:</span>`;
+            for (let sub of subfolders) {
+                const subName = sub.replace(currentFolder ? currentFolder + '/' : '', '');
+                html += `<button class="nav-btn" data-folder="${sub}" style="margin-left: 8px;">📁 ${escapeHtml(subName)}</button>`;
+            }
+            html += `</div>`;
+        }
         container.innerHTML = html;
         
-        document.querySelectorAll('.song-item').forEach(el => {
-            el.addEventListener('click', (e) => {
-                if (e.target.classList.contains('favorite-star') || e.target.classList.contains('add-to-playlist-btn')) return;
-                const url = el.dataset.url;
-                const name = el.dataset.name;
-                const artist = el.dataset.artist;
-                playSong(url, name, artist);
+        document.querySelectorAll('#folderBrowser .nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentFolder = btn.dataset.folder || "";
+                renderCurrentView();
             });
         });
-        document.querySelectorAll('.favorite-star').forEach(star => {
-            star.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const id = parseInt(star.dataset.id);
-                const path = star.dataset.path;
-                toggleFavorite(id, path);
+    }
+    
+    function renderCurrentView() {
+        renderFolderBrowser();
+        document.getElementById('currentFolderDisplay').innerText = `📂 ${currentFolder || 'Music/'}`;
+        
+        let songsToShow = currentView === "favorites" ? musicLibrary.filter(s => s.starred) : musicLibrary;
+        
+        // Filter by current folder
+        if (currentFolder) {
+            songsToShow = songsToShow.filter(s => s.folder === currentFolder);
+        } else {
+            songsToShow = songsToShow.filter(s => !s.folder || !s.folder.includes('/'));
+        }
+        
+        const container = document.getElementById('songList');
+        if (songsToShow.length === 0) {
+            container.innerHTML = `<div style="color:#666; text-align:center; padding:20px;">🎵 No songs in ${currentFolder || 'this folder'}</div>`;
+            document.getElementById('songCount').innerText = musicLibrary.length + ' songs';
+            return;
+        }
+        
+        let html = '';
+        songsToShow.forEach((song, idx) => {
+            const isActive = (musicLibrary.indexOf(song) === currentIndex && currentView !== "favorites");
+            html += `<div class="song-item ${isActive ? 'active' : ''}" data-id="${song.id}">
+                <div class="song-info">
+                    <span class="song-name">${escapeHtml(song.name)}</span>
+                    ${song.artist ? `<span class="song-artist">${escapeHtml(song.artist)}</span>` : ''}
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button class="star-btn ${song.starred ? 'starred' : ''}" data-id="${song.id}" data-path="${song.path}">${song.starred ? '★' : '☆'}</button>
+                    <button class="delete-song" data-id="${song.id}" data-path="${song.path}">🗑️</button>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+        document.getElementById('songCount').innerText = musicLibrary.length + ' songs';
+        
+        // Attach click handlers
+        document.querySelectorAll('.song-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.classList.contains('star-btn') || e.target.classList.contains('delete-song')) return;
+                const id = parseInt(item.dataset.id);
+                const songIndex = musicLibrary.findIndex(s => s.id === id);
+                if (songIndex !== -1) playSongAtIndex(songIndex);
             });
         });
-        document.querySelectorAll('.add-to-playlist-btn').forEach(btn => {
+        
+        document.querySelectorAll('.star-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const songId = parseInt(btn.dataset.id);
-                const playlistName = prompt("Add to which playlist?");
-                if (playlistName && playlists.has(playlistName)) {
-                    addToPlaylist(playlistName, songId);
-                    alert(`Added to "${playlistName}"`);
-                } else if (playlistName) {
-                    createPlaylist(playlistName);
-                    addToPlaylist(playlistName, songId);
+                const id = parseInt(btn.dataset.id);
+                const song = musicLibrary.find(s => s.id === id);
+                if (song) toggleStar(id, song.path);
+            });
+        });
+        
+        document.querySelectorAll('.delete-song').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const path = btn.dataset.path;
+                if (confirm('Delete this song from GitHub? This cannot be undone.')) {
+                    await deleteFromGitHub(path);
                 }
             });
         });
     }
     
-    function renderAlbumsList(albumNames) {
-        let html = '<div class="album-grid">';
-        albumNames.forEach(album => {
-            const songCount = albums.get(album).length;
-            html += `<div class="album-card" data-album="${album}">
-                        <div class="album-art">💿</div>
-                        <div class="album-name">${escapeHtml(album)}</div>
-                        <div style="font-size:8px; color:#666;">${songCount} songs</div>
-                    </div>`;
-        });
-        html += '</div>';
-        document.getElementById('libraryContent').innerHTML = html;
-        document.querySelectorAll('.album-card').forEach(card => {
-            card.addEventListener('click', () => {
-                currentAlbum = card.dataset.album;
-                renderSongsList(albums.get(currentAlbum));
+    async function deleteFromGitHub(path) {
+        if (!githubRepo || !githubToken) {
+            showStatus("❌ GitHub token required", true);
+            return;
+        }
+        
+        const apiUrl = `https://api.github.com/repos/${githubRepo}/contents/${path}`;
+        try {
+            const getRes = await fetch(apiUrl, {
+                headers: { 'Authorization': `token ${githubToken}` }
             });
-        });
+            if (!getRes.ok) throw new Error('File not found');
+            const fileData = await getRes.json();
+            
+            const deleteRes = await fetch(apiUrl, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Delete ${path}`,
+                    sha: fileData.sha,
+                    branch: githubBranch
+                })
+            });
+            
+            if (deleteRes.ok) {
+                showStatus(`✅ Deleted ${path.split('/').pop()}`);
+                await scanEntireLibrary();
+            } else {
+                throw new Error(`HTTP ${deleteRes.status}`);
+            }
+        } catch(err) {
+            showStatus(`❌ Delete failed: ${err.message}`, true);
+        }
     }
     
-    function renderFoldersList(folderNames) {
-        let html = '<div class="items-grid">';
-        folderNames.forEach(folder => {
-            html += `<div class="folder-item" data-folder="${folder}">
-                        <span>📁 ${folder === 'root' ? 'Root' : folder}</span>
-                        <span>→</span>
-                    </div>`;
-        });
-        html += '</div>';
-        document.getElementById('libraryContent').innerHTML = html;
-        document.querySelectorAll('.folder-item').forEach(f => {
-            f.addEventListener('click', () => {
-                const folder = f.dataset.folder;
-                const songsInFolder = musicLibrary.filter(s => s.path.startsWith(folder) || (folder === 'root' && !s.path.includes('/')));
-                renderSongsList(songsInFolder);
-            });
-        });
+    // ========== UPLOAD HANDLERS ==========
+    async function uploadSingleFile(file) {
+        if (!githubRepo || !githubToken) {
+            showStatus("❌ Enter GitHub repo and token first", true);
+            return;
+        }
+        showStatus(`📤 Uploading ${file.name}...`);
+        try {
+            const result = await uploadToCurrentFolder(file);
+            if (result) {
+                showStatus(`✅ Uploaded: ${result.name}`);
+                await scanEntireLibrary();
+            }
+        } catch(err) {
+            showStatus(`❌ Failed: ${err.message}`, true);
+        }
     }
     
-    // ========== PLAYER ==========
-    function playSong(url, name, artist) {
+    async function uploadMultipleFiles(files) {
+        if (!githubRepo || !githubToken) {
+            showStatus("❌ Enter GitHub repo and token first", true);
+            return;
+        }
+        let success = 0;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            if (!file.type.startsWith('audio/')) continue;
+            showStatus(`📤 ${i+1}/${files.length}: ${file.name}`);
+            try {
+                await uploadToCurrentFolder(file);
+                success++;
+                await new Promise(r => setTimeout(r, 500));
+            } catch(err) { console.error(err); }
+        }
+        showStatus(`✅ Uploaded ${success} songs`);
+        await scanEntireLibrary();
+    }
+    
+    // ========== PLAYLIST SAVE/LOAD ==========
+    function savePlaylist() {
+        localStorage.setItem('walkman_playlist_v2', JSON.stringify(musicLibrary.map(s => ({
+            id: s.id, name: s.name, artist: s.artist, url: s.url, path: s.path, folder: s.folder, starred: s.starred
+        }))));
+    }
+    
+    function loadPlaylist() {
+        const saved = localStorage.getItem('walkman_playlist_v2');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                musicLibrary = parsed;
+                // Restore starred status from localStorage if needed
+                musicLibrary.forEach(s => {
+                    const starred = localStorage.getItem(`starred_${s.path}`);
+                    if (starred !== null) s.starred = starred === 'true';
+                });
+            } catch(e) {}
+        }
+        renderCurrentView();
+    }
+    
+    // ========== PLAYER FUNCTIONS ==========
+    function playSongAtIndex(idx) {
+        if (idx < 0 || idx >= musicLibrary.length) return;
+        currentIndex = idx;
+        const song = musicLibrary[currentIndex];
+        
         audio.pause();
-        audio = new Audio(url);
-        audio.volume = document.getElementById('volumeSliderPlayer').value / 100;
+        audio = new Audio(song.url);
+        audio.volume = document.getElementById('volumeSlider').value / 100;
         audio.crossOrigin = "anonymous";
         
-        document.getElementById('nowPlayingTitle').innerText = name;
-        document.getElementById('nowPlayingArtist').innerText = artist || "Unknown";
+        document.getElementById('nowPlaying').innerText = song.name + (song.artist ? ` — ${song.artist}` : '');
+        document.getElementById('cassetteLabel').innerHTML = `🎵 ${escapeHtml(song.name)}<br>${escapeHtml(song.artist || '')}`;
         
-        audio.addEventListener('timeupdate', () => {
-            if (audio.duration) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                document.getElementById('progressFillBig').style.width = percent + '%';
-                const cm = Math.floor(audio.currentTime / 60);
-                const cs = Math.floor(audio.currentTime % 60);
-                const tm = Math.floor(audio.duration / 60);
-                const ts = Math.floor(audio.duration % 60);
-                document.getElementById('currentTimeDisplay').innerText = `${cm}:${cs.toString().padStart(2,'0')}`;
-                document.getElementById('totalTimeDisplay').innerText = `${tm}:${ts.toString().padStart(2,'0')}`;
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('loadedmetadata', () => {
+            if (audio.duration && isFinite(audio.duration)) {
+                const m = Math.floor(audio.duration / 60);
+                const s = Math.floor(audio.duration % 60);
+                document.getElementById('totalTime').innerText = `${m}:${s.toString().padStart(2,'0')}`;
             }
         });
-        audio.addEventListener('ended', () => { isPlaying = false; });
-        
-        audio.play();
-        isPlaying = true;
-    }
-    
-    function playCurrent() { if (audio.src) { audio.play(); isPlaying = true; } }
-    function pauseCurrent() { audio.pause(); isPlaying = false; }
-    function stopCurrent() { audio.pause(); audio.currentTime = 0; isPlaying = false; document.getElementById('progressFillBig').style.width = '0%'; }
-    function setVolume() { audio.volume = document.getElementById('volumeSliderPlayer').value / 100; }
-    
-    document.getElementById('playBtnPlayer').onclick = playCurrent;
-    document.getElementById('pauseBtnPlayer').onclick = pauseCurrent;
-    document.getElementById('stopBtnPlayer').onclick = stopCurrent;
-    document.getElementById('volumeSliderPlayer').oninput = setVolume;
-    document.getElementById('progressBarBig').addEventListener('click', (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const percent = (e.clientX - rect.left) / rect.width;
-        if (audio.duration) audio.currentTime = percent * audio.duration;
-    });
-    
-    // Navigation
-    document.querySelectorAll('.nav-item[data-view]').forEach(nav => {
-        nav.addEventListener('click', () => {
-            currentView = nav.dataset.view;
-            currentPlaylist = "";
-            renderLibrary();
+        audio.addEventListener('ended', () => {
+            if (currentIndex + 1 < musicLibrary.length) playSongAtIndex(currentIndex + 1);
+            else stopPlayback();
         });
-    });
-    
-    connectBtn.onclick = scanGithubMusic;
-    uploadBtn.onclick = uploadMultipleFiles;
-    document.getElementById('createPlaylistBtn').onclick = () => {
-        const name = document.getElementById('newPlaylistName').value.trim();
-        if (name) { createPlaylist(name); document.getElementById('newPlaylistName').value = ""; }
-    };
-    searchInput.oninput = () => renderLibrary();
-    
-    function updateConnectionStatus(ok) {
-        const el = document.getElementById('connectionIndicator');
-        if (ok) { el.innerText = `✅ Connected to ${githubRepo}`; el.style.color = "#0f0"; }
-        else { el.innerText = `⚠️ Not connected`; el.style.color = "#f66"; }
+        
+        audio.play().then(() => {
+            isPlaying = true;
+            startReels();
+        }).catch(e => {
+            console.error('Play error:', e);
+        });
+        
+        renderCurrentView();
     }
     
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+    function updateProgress() {
+        if (audio.duration && isFinite(audio.duration)) {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            const m = Math.floor(audio.currentTime / 60);
+            const s = Math.floor(audio.currentTime % 60);
+            document.getElementById('currentTime').innerText = `${m}:${s.toString().padStart(2,'0')}`;
+        }
+    }
     
-    loadPlaylistsFromLocal();
-    if (githubRepo) scanGithubMusic();
-    else renderLibrary();
+    function seekTo(e) {
+        const rect = document.getElementById('progressBar').getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        if (audio.duration && isFinite(audio.duration)) audio.currentTime = percent * audio.duration;
+    }
+    
+    function playCurrent() {
+        if (musicLibrary.length === 0) { showStatus("No music", true); return; }
+        if (audio.src) { audio.play(); isPlaying = true; startReels(); }
+        else playSongAtIndex(currentIndex);
+    }
+    function pauseCurrent() { audio.pause(); isPlaying = false; stopReels(); }
+    function stopPlayback() {
+        audio.pause(); audio.currentTime = 0; isPlaying = false;
+        document.getElementById('nowPlaying').innerText = 'STOPPED';
+        document.getElementById('cassetteLabel').innerHTML = '🎵 No Tape';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('currentTime').innerText = '0:00';
+        stopReels();
+    }
+    function nextSong() { if (musicLibrary.length) playSongAtIndex((currentIndex + 1) % musicLibrary.length); }
+    function prevSong() { if (musicLibrary.length) playSongAtIndex((currentIndex - 1 + musicLibrary.length) % musicLibrary.length); }
+    function startReels() {
+        document.getElementById('reelLeft').classList.add('spinning');
+        document.getElementById('reelRight').classList.add('spinning');
+    }
+    function stopReels() {
+        document.getElementById('reelLeft').classList.remove('spinning');
+        document.getElementById('reelRight').classList.remove('spinning');
+    }
+    function setVolume() { audio.volume = document.getElementById('volumeSlider').value / 100; }
+    
+    // ========== SYNC MODAL ==========
+    function openSyncModal() { document.getElementById('syncModal').style.display = 'flex'; }
+    function closeSyncModal() { document.getElementById('syncModal').style.display = 'none'; }
+    
+    // ========== EVENT LISTENERS ==========
+    document.getElementById('playBtn').addEventListener('click', playCurrent);
+    document.getElementById('pauseBtn').addEventListener('click', pauseCurrent);
+    document.getElementById('stopBtn').addEventListener('click', stopPlayback);
+    document.getElementById('nextBtn').addEventListener('click', nextSong);
+    document.getElementById('prevBtn').addEventListener('click', prevSong);
+    document.getElementById('volumeSlider').addEventListener('input', setVolume);
+    document.getElementById('progressBar').addEventListener('click', seekTo);
+    document.getElementById('testConnectionBtn').addEventListener('click', testConnection);
+    document.getElementById('scanGithubBtn').addEventListener('click', scanEntireLibrary);
+    document.getElementById('refreshBtn').addEventListener('click', scanEntireLibrary);
+    document.getElementById('viewLibraryBtn').addEventListener('click', () => { currentView = "library"; renderCurrentView(); });
+    document.getElementById('viewFavoritesBtn').addEventListener('click', () => { currentView = "favorites"; renderCurrentView(); });
+    document.getElementById('createFolderBtn').addEventListener('click', () => {
+        const folderName = prompt("New folder name:", "NewFolder");
+        if (folderName) createNewFolder(folderName);
+    });
+    document.getElementById('syncStatusIndicator').addEventListener('click', openSyncModal);
+    document.getElementById('closeSyncModal').addEventListener('click', closeSyncModal);
+    
+    document.getElementById('uploadFileInput').addEventListener('change', (e) => {
+        if (e.target.files[0]) uploadSingleFile(e.target.files[0]);
+        e.target.value = '';
+    });
+    document.getElementById('uploadMultiInput').addEventListener('change', (e) => {
+        if (e.target.files.length) uploadMultipleFiles(e.target.files);
+        e.target.value = '';
+    });
+    
+    // Add sync modal
+    if (!document.getElementById('syncModalContent')) {
+        const syncModalHtml = `
+        <div class="modal" id="syncModal">
+            <div class="modal-content" id="syncModalContent">
+                <div class="modal-title-bar" id="syncTitleBar"><span>☁️ Settings</span><span style="cursor:pointer" id="closeSyncModal2">✗</span></div>
+                <div class="modal-body">
+                    <p style="margin-bottom:10px;">Your music is stored in your GitHub repo. Playlist saves locally.</p>
+                    <button id="exportPlaylistBtn" class="retro-button">💾 Export Playlist (JSON)</button>
+                    <button id="clearStorageBtn" class="retro-button danger" style="margin-left:8px;">🗑️ Clear Local Data</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', syncModalHtml);
+        document.getElementById('closeSyncModal2').onclick = closeSyncModal;
+        document.getElementById('exportPlaylistBtn')?.addEventListener('click', () => {
+            const data = JSON.stringify(musicLibrary, null, 2);
+            const blob = new Blob([data], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `walkman_playlist_${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+        });
+        document.getElementById('clearStorageBtn')?.addEventListener('click', () => {
+            if (confirm('Clear local playlist cache? Your GitHub files remain safe.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        });
+    }
+    
+    function makeDraggable(popupId, handleId) {
+        const popup = document.getElementById(popupId);
+        const handle = document.getElementById(handleId);
+        if (!popup || !handle) return;
+        let pos1=0,pos2=0,pos3=0,pos4=0;
+        handle.onmousedown = dragMouseDown;
+        function dragMouseDown(e) { e.preventDefault(); pos3 = e.clientX; pos4 = e.clientY; document.onmouseup = closeDrag; document.onmousemove = elementDrag; }
+        function elementDrag(e) { e.preventDefault(); pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY; pos3 = e.clientX; pos4 = e.clientY; popup.style.top = (popup.offsetTop - pos2) + 'px'; popup.style.left = (popup.offsetLeft - pos1) + 'px'; popup.style.transform = 'none'; }
+        function closeDrag() { document.onmouseup = null; document.onmousemove = null; }
+    }
+    makeDraggable('syncModal', 'syncTitleBar');
+    
+    // ========== INIT ==========
+    loadPlaylist();
+    if (githubRepo) scanEntireLibrary();
 </script>
 </body>
 </html>
