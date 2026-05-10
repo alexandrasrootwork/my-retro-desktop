@@ -583,7 +583,7 @@
             const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
             const monthlyContribution = goal.userMonthlyContribution || 0;
             const projection = computeProjection(goal, monthlyContribution);
-            const deadlineInfo = goal.targetDate ? `📅 deadline: ${goal.targetDate}` : `<span style="color: #b3f7b3;">⚡ asap mode</span>`;
+            const deadlineInfo = goal.targetDate ? `<span style="color: #b3f7b3;">📅 deadline: ${goal.targetDate}</span>` : `<span style="color: #b3f7b3;">⚡ asap mode</span>`;            
             const neededPerMonth = (goal.targetAmount && goal.targetDate && goal.targetDate !== '') ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
             const noteId = `goalNote_${goal.id}`;
             const card = document.createElement('div');
