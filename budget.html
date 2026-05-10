@@ -1,5 +1,3 @@
-Here is the complete HTML code for your goal tracker, with editable goal costs and a collapsible notes section for each goal and expense, while keeping the original design intact.
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -600,8 +598,8 @@ Here is the complete HTML code for your goal tracker, with editable goal costs a
                 </div>
                 <div class="progress-bar-bg"><div class="progress-fill" style="width: ${Math.min(100,percent)}%;"></div></div>
                 <div class="goal-stats">
-                    <span>💰 left: <span style="color: #9fca9f;">£${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span></span>
-                    <span>🏁 target: <span style="color: #9fca9f;">£${goal.targetAmount}</span></span>
+                    <span>💰 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span>
+                    <span>🏁 target: £${goal.targetAmount}</span>
                 </div>
                 <div class="goal-input-group">
                     <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}">
@@ -852,4 +850,3 @@ Here is the complete HTML code for your goal tracker, with editable goal costs a
 </script>
 </body>
 </html>
-```
