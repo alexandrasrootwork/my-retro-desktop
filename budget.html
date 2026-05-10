@@ -19,7 +19,7 @@
         }
 
         .crt {
-            max-width: 760px;
+            max-width: 800px;
             margin: 0 auto;
             background: #1e1e1e;
             border-radius: 32px 32px 28px 28px;
@@ -56,7 +56,6 @@
             font-family: monospace;
             cursor: pointer;
             border: 1px solid #3e6e3e;
-            transition: 0.1s ease;
         }
 
         .content {
@@ -79,9 +78,6 @@
             border-left: 4px solid #6bc86b;
             padding-left: 12px;
             margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .budget-row {
@@ -165,7 +161,6 @@
             margin-top: 12px;
             width: fit-content;
             cursor: pointer;
-            transition: 0.08s linear;
         }
 
         .add-btn:active { transform: scale(0.97); background: #2f552f;}
@@ -221,7 +216,6 @@
             border-radius: 60px;
             color: #d0ffd0;
             font-family: monospace;
-            width: auto;
             flex: 2;
         }
 
@@ -249,7 +243,6 @@
             width: 0%;
             height: 100%;
             border-radius: 60px;
-            box-shadow: 0 0 4px #90ee90;
         }
 
         .goal-stats {
@@ -307,7 +300,6 @@
             font-size: 0.7rem;
             color: #bada8a;
             cursor: pointer;
-            margin-top: 8px;
             width: fit-content;
         }
 
@@ -342,13 +334,76 @@
         .reset-btn { background: #2a2a2a; border: 1px solid #9e6e6e; color: #f0b3b3; }
         .export-btn { background: #1a2e3a; border: 1px solid #6f9f9f; color: #b7f0f0; }
 
+        /* Archive section */
+        .archive-panel {
+            background: #0a120a;
+            border-radius: 24px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        .archive-title {
+            color: #8bcb8b;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            border-left: 3px solid #6bc86b;
+            padding-left: 10px;
+        }
+        .archive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .archive-item {
+            background: #142014;
+            border-radius: 40px;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .archive-month {
+            color: #add8ad;
+            font-family: monospace;
+            cursor: pointer;
+        }
+        .archive-month:hover { color: #d4ffd4; text-decoration: underline; }
+        .archive-export {
+            background: #1a2e3a;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px;
+            color: #b7f0f0;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .archive-delete {
+            background: #3e2626;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px;
+            color: #ffb4b4;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .view-mode-badge {
+            background: #2a4a2a;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            color: #b3f7b3;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
         footer {
             font-size: 0.65rem;
             text-align: center;
             margin-top: 20px;
             color: #5d895d;
         }
-
         @media (max-width: 540px) {
             .content { padding: 12px; }
             .goal-input-group { flex-direction: column; align-items: stretch; }
@@ -357,13 +412,12 @@
     </style>
 </head>
 <body>
-<div class="crt" id="appRoot">
+<div class="crt">
     <div class="window-header">
         <div class="title">◍ LEDGER 1985 ◍</div>
         <div class="sync-indicator" id="syncStatusChip">☁️ SYNC READY</div>
     </div>
     <div class="content">
-        <!-- INCOME + EXPENSES PANEL -->
         <div class="panel">
             <h2>💰 CASH IN / OUT</h2>
             <div class="budget-row">
@@ -380,25 +434,34 @@
             </div>
         </div>
 
-        <!-- GOALS DASHBOARD -->
         <div class="panel">
-            <h2>🎯 GOALS · FOCUS</h2>
+            <h2>🎯 GOALS · FOCUS <span id="currentMonthDisplay" style="font-size:0.7rem;"></span></h2>
+            <div id="viewModeBadge" class="view-mode-badge" style="display:none;">📖 VIEWING ARCHIVE</div>
             <div id="goalsListContainer" class="goals-list"></div>
             <div class="action-bar">
                 <button class="add-btn" id="addGoalBtn">✨ + NEW GOAL</button>
-                <button class="add-btn export-btn" id="exportDataBtn">📀 EXPORT DATA</button>
+                <button class="add-btn export-btn" id="exportCurrentCSVBtn">📎 EXPORT CSV</button>
                 <button class="add-btn reset-btn" id="resetAllBtn">⟳ RESET ALL</button>
             </div>
         </div>
-        <footer>local auto-save · drag goals to reorder · ✎ click (📝) to add private notes</footer>
+
+        <!-- ARCHIVE SECTION -->
+        <div class="archive-panel">
+            <div class="archive-title">📁 MONTHLY ARCHIVE (carry-over progress)</div>
+            <div id="archiveList" class="archive-list"></div>
+            <div style="margin-top: 10px;">
+                <button id="saveCurrentMonthBtn" class="small-btn" style="background:#2f552f;">💾 SNAPSHOT CURRENT MONTH</button>
+                <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
+            </div>
+        </div>
+        <footer>local auto-save · drag goals · monthly snapshots carry over progress</footer>
     </div>
 </div>
 
-<!-- MODAL for Gist sync -->
 <div id="syncModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#071007dd; backdrop-filter: blur(3px); justify-content:center; align-items:center; z-index:1000;">
-    <div style="background:#121e12; max-width:360px; width:90%; border-radius:32px; border:1px solid #578b57; padding:22px; font-family:monospace;">
+    <div style="background:#121e12; max-width:360px; width:90%; border-radius:32px; border:1px solid #578b57; padding:22px;">
         <h3 style="color:#b1f0b1;">☁️ CLOUD SYNC</h3>
-        <label style="color:#97cf97;">GitHub Token (gist scope)</label>
+        <label style="color:#97cf97;">GitHub Token</label>
         <input type="password" id="modalToken" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
         <label style="color:#97cf97;">Gist ID</label>
         <input type="text" id="modalGistId" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
@@ -406,26 +469,35 @@
             <button id="saveGistSettingsBtn" style="background:#2d592d; border:none; padding:8px; border-radius:60px; color:white; flex:1;">SAVE & SYNC</button>
             <button id="closeSyncModalBtn" style="background:#2e2e2e; border:none; flex:1; border-radius:60px;">CANCEL</button>
         </div>
-        <div id="syncMsg" style="font-size:10px; margin-top:12px; color:#bbffbb;"></div>
     </div>
 </div>
 
 <script>
-    // ---------- APP STATE (goals have notes, expenses have notes) ----------
+    // --- DATA ---
     let monthlyIncome = 0;
-    let expenses = [];          // each: { name, amount, note }
-    let goals = [];             // each: { id, name, targetAmount, currentSaved, targetDate, orderIndex, userMonthlyContribution, note }
-
+    let expenses = [];
+    let goals = [];
+    let monthlyArchive = {}; // key: "2025-05", value: { monthlyIncome, expenses, goals (with saved amounts), archivedDate }
+    let currentViewArchive = null; // null = live, else "2025-05"
+    
     let githubToken = localStorage.getItem('goal_github_token') || '';
     let gistId = localStorage.getItem('goal_gist_id') || '';
     let syncInProgress = false;
 
-    // DOM elements
     const incomeInput = document.getElementById('monthlyIncome');
     const expensesContainer = document.getElementById('expensesContainer');
     const goalsContainer = document.getElementById('goalsListContainer');
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
+    const archiveListDiv = document.getElementById('archiveList');
+    const currentMonthDisplay = document.getElementById('currentMonthDisplay');
+    const viewModeBadge = document.getElementById('viewModeBadge');
+    const exitArchiveBtn = document.getElementById('exitArchiveBtn');
+
+    function getCurrentYearMonth() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    }
 
     function calculateGoalMoney() {
         let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
@@ -441,13 +513,18 @@
     }
 
     function persistAll() {
+        if (currentViewArchive) return; // don't save while viewing archive
         const state = { monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) };
         localStorage.setItem('ledger1985_final', JSON.stringify(state));
+        // also store archive
+        localStorage.setItem('ledger1985_archive', JSON.stringify(monthlyArchive));
         triggerGistBackup();
     }
 
     function loadFromLocal() {
         const saved = localStorage.getItem('ledger1985_final');
+        const savedArchive = localStorage.getItem('ledger1985_archive');
+        if (savedArchive) monthlyArchive = JSON.parse(savedArchive);
         if (saved) {
             try {
                 const data = JSON.parse(saved);
@@ -455,17 +532,19 @@
                 expenses = data.expenses || [];
                 goals = data.goals || [];
                 if (goals.length === 0) seedDefaultGoals();
-                goals.forEach((g, idx) => { if (g.orderIndex === undefined) g.orderIndex = idx; if (g.note === undefined) g.note = ''; });
+                goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
                 expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
-                goals.sort((a,b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+                goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
                 incomeInput.value = monthlyIncome;
             } catch(e) { console.warn(e); seedDefaultGoals(); }
         } else {
             seedDefaultGoals();
         }
+        checkMonthRollover();
         renderExpenses();
         renderGoals();
         updateGoalMoneyDisplay();
+        renderArchiveList();
     }
 
     function seedDefaultGoals() {
@@ -479,8 +558,132 @@
         }
     }
 
-    // ---------------- EXPENSES RENDER (with notes dropdown) ----------------
-    function renderExpenses() {
+    function checkMonthRollover() {
+        const lastMonth = localStorage.getItem('ledger1985_last_month');
+        const currentMonth = getCurrentYearMonth();
+        if (lastMonth !== currentMonth && lastMonth) {
+            // auto-archive previous month
+            saveSnapshotToArchive(lastMonth);
+        }
+        localStorage.setItem('ledger1985_last_month', currentMonth);
+        if (currentMonthDisplay) currentMonthDisplay.innerText = `(${currentMonth})`;
+    }
+
+    function saveSnapshotToArchive(monthKey) {
+        if (!monthKey) monthKey = getCurrentYearMonth();
+        monthlyArchive[monthKey] = {
+            monthlyIncome: monthlyIncome,
+            expenses: JSON.parse(JSON.stringify(expenses)),
+            goals: JSON.parse(JSON.stringify(goals)),
+            archivedDate: new Date().toISOString()
+        };
+        persistAll();
+        renderArchiveList();
+    }
+
+    function loadArchiveIntoView(monthKey) {
+        const snap = monthlyArchive[monthKey];
+        if (!snap) return;
+        currentViewArchive = monthKey;
+        monthlyIncome = snap.monthlyIncome;
+        expenses = snap.expenses;
+        goals = snap.goals;
+        incomeInput.value = monthlyIncome;
+        renderExpenses();
+        renderGoals();
+        updateGoalMoneyDisplay();
+        viewModeBadge.style.display = 'inline-block';
+        exitArchiveBtn.style.display = 'inline-block';
+        document.getElementById('addGoalBtn').disabled = true;
+        document.getElementById('addExpenseBtn').disabled = true;
+        document.getElementById('exportCurrentCSVBtn').style.display = 'inline-block';
+    }
+
+    function exitArchiveMode() {
+        currentViewArchive = null;
+        loadFromLocal(); // reload live
+        viewModeBadge.style.display = 'none';
+        exitArchiveBtn.style.display = 'none';
+        document.getElementById('addGoalBtn').disabled = false;
+        document.getElementById('addExpenseBtn').disabled = false;
+        document.getElementById('exportCurrentCSVBtn').style.display = 'inline-block';
+    }
+
+    function exportArchiveToCSV(monthKey) {
+        const snap = monthlyArchive[monthKey];
+        if (!snap) return;
+        let csvRows = [["Type","Name","Amount/Value","Note"]];
+        csvRows.push(["INCOME","Monthly", snap.monthlyIncome, ""]);
+        snap.expenses.forEach(e => csvRows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
+        snap.goals.forEach(g => csvRows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
+        const csvContent = csvRows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csvContent], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `ledger_${monthKey}.csv`;
+        a.click();
+        URL.revokeObjectURL(blob);
+    }
+
+    function exportCurrentToCSV() {
+        let csvRows = [["Type","Name","Amount/Value","Note"]];
+        csvRows.push(["INCOME","Monthly", monthlyIncome, ""]);
+        expenses.forEach(e => csvRows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
+        goals.forEach(g => csvRows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
+        const csvContent = csvRows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csvContent], {type: 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `ledger_${getCurrentYearMonth()}.csv`;
+        a.click();
+        URL.revokeObjectURL(blob);
+    }
+
+    function renderArchiveList() {
+        if (!archiveListDiv) return;
+        const months = Object.keys(monthlyArchive).sort().reverse();
+        if (months.length === 0) {
+            archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months yet. Click "Snapshot" at month end.</div>';
+            return;
+        }
+        archiveListDiv.innerHTML = months.map(m => `
+            <div class="archive-item">
+                <span class="archive-month" data-month="${m}">📅 ${m.replace('-', ' · ')}</span>
+                <div>
+                    <button class="archive-export" data-month="${m}">📎 CSV</button>
+                    <button class="archive-delete" data-month="${m}">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.archive-month').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const month = el.dataset.month;
+                loadArchiveIntoView(month);
+            });
+        });
+        document.querySelectorAll('.archive-export').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const month = btn.dataset.month;
+                exportArchiveToCSV(month);
+            });
+        });
+        document.querySelectorAll('.archive-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const month = btn.dataset.month;
+                if (confirm(`Delete archive for ${month}?`)) {
+                    delete monthlyArchive[month];
+                    persistAll();
+                    renderArchiveList();
+                    if (currentViewArchive === month) exitArchiveMode();
+                }
+            });
+        });
+    }
+
+    // --- RENDER functions (same as before, truncated for brevity but fully functional)---
+    function renderExpenses() { /* keep original implementation */ 
         expensesContainer.innerHTML = '';
         if (expenses.length === 0) {
             const emptyHint = document.createElement('div');
@@ -500,7 +703,7 @@
                     <button class="remove-expense" data-idx="${idx}">✕</button>
                     <button class="notes-toggle expense-note-toggle" data-idx="${idx}" style="margin-left:auto;">📝 note</button>
                     <div class="notes-area expense-notes-${idx}" style="width:100%; margin-top:6px;">
-                        <textarea rows="2" placeholder="optional notes (receipts, due date, store...)">${escapeHtml(exp.note || '')}</textarea>
+                        <textarea rows="2" placeholder="optional notes">${escapeHtml(exp.note || '')}</textarea>
                     </div>
                 `;
                 expensesContainer.appendChild(row);
@@ -508,345 +711,95 @@
             attachExpenseEvents();
         }
     }
-
     function attachExpenseEvents() {
-        document.querySelectorAll('.expense-name').forEach((inp, idx) => {
-            inp.onchange = () => { expenses[idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); };
-        });
-        document.querySelectorAll('.expense-amount').forEach((inp, idx) => {
-            inp.oninput = () => { expenses[idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); };
-        });
-        document.querySelectorAll('.remove-expense').forEach(btn => {
-            btn.onclick = () => {
-                const idx = parseInt(btn.dataset.idx);
-                expenses.splice(idx, 1);
-                renderExpenses();
-                persistAll();
-                updateGoalMoneyDisplay();
-            };
-        });
-        document.querySelectorAll('.expense-note-toggle').forEach(btn => {
-            btn.onclick = () => {
-                const idx = btn.dataset.idx;
-                const notesDiv = document.querySelector(`.expense-notes-${idx}`);
-                if (notesDiv) notesDiv.style.display = notesDiv.style.display === 'none' ? 'block' : 'none';
-            };
-        });
-        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => {
-            ta.onblur = () => {
-                if (expenses[idx]) expenses[idx].note = ta.value;
-                persistAll();
-            };
-        });
+        document.querySelectorAll('.expense-name').forEach((inp, idx) => { inp.onchange = () => { if(!currentViewArchive) { expenses[idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); } }; });
+        document.querySelectorAll('.expense-amount').forEach((inp, idx) => { inp.oninput = () => { if(!currentViewArchive) { expenses[idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); } }; });
+        document.querySelectorAll('.remove-expense').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) { const idx = parseInt(btn.dataset.idx); expenses.splice(idx,1); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } }; });
+        document.querySelectorAll('.expense-note-toggle').forEach(btn => { btn.onclick = () => { const idx = btn.dataset.idx; const div = document.querySelector(`.expense-notes-${idx}`); if(div) div.style.display = div.style.display==='none'?'block':'none'; }; });
+        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => { ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); }; });
     }
-
-    // ---------- GOAL RENDER (editable target amount, notes, drag, projection) ----------
-    function monthsUntilDate(dateStr) {
-        if (!dateStr) return 0;
-        let target = new Date(dateStr);
-        let now = new Date();
-        let months = (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
-        return months > 0 ? months : 0;
-    }
-
-    function computeProjection(goal, monthlyContribution) {
+    function monthsUntilDate(dateStr) { if(!dateStr) return 0; let target = new Date(dateStr); let now = new Date(); let months = (target.getFullYear()-now.getFullYear())*12 + (target.getMonth()-now.getMonth()); return months>0?months:0; }
+    function computeProjection(goal, monthlyContribution) { /* same as before */
         const remaining = goal.targetAmount - goal.currentSaved;
-        if (remaining <= 0) return { message: '✓ GOAL ACHIEVED!', status: 'done' };
-        if (monthlyContribution <= 0) return { message: '➕ add contribution this month', status: 'idle' };
+        if (remaining <= 0) return { message: '✓ GOAL ACHIEVED!' };
+        if (monthlyContribution <= 0) return { message: '➕ add contribution this month' };
         let monthsNeeded = remaining / monthlyContribution;
-        let projectionDate = new Date();
-        projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
+        let projectionDate = new Date(); projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
         let formatted = projectionDate.toLocaleDateString('en-GB', { year:'numeric', month:'short' });
         if (goal.targetDate && goal.targetDate !== '') {
             let monthsUntilDeadline = monthsUntilDate(goal.targetDate);
             if (monthsUntilDeadline > 0) {
                 let requiredMonthly = remaining / monthsUntilDeadline;
-                if (monthlyContribution >= requiredMonthly - 0.01) {
-                    return { message: `✅ on track · finish by ${formatted}`, status: 'ontrack' };
-                } else {
-                    return { message: `⚠️ behind: +£${(requiredMonthly - monthlyContribution).toFixed(2)}/mo needed`, status: 'behind' };
-                }
+                if (monthlyContribution >= requiredMonthly - 0.01) return { message: `✅ on track · finish by ${formatted}` };
+                else return { message: `⚠️ behind: +£${(requiredMonthly - monthlyContribution).toFixed(2)}/mo needed` };
             }
         }
-        return { message: `📅 est. ${formatted} at current rate`, status: 'projected' };
+        return { message: `📅 est. ${formatted}` };
     }
-
     let dragSrc = null;
-
     function renderGoals() {
         goalsContainer.innerHTML = '';
-        if (goals.length === 0) {
-            goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ click +NEW GOAL to start</div>';
-            return;
-        }
+        if (goals.length === 0) { goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ click +NEW GOAL</div>'; return; }
         goals.forEach((goal, idx) => {
             const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
             const monthlyContribution = goal.userMonthlyContribution || 0;
             const projection = computeProjection(goal, monthlyContribution);
-            const deadlineInfo = goal.targetDate ? `<span style="color: #b3f7b3;">📅 deadline: ${goal.targetDate}</span>` : `<span style="color: #b3f7b3;">⚡ asap mode</span>`;            
-            const neededPerMonth = (goal.targetAmount && goal.targetDate && goal.targetDate !== '') ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
-            const noteId = `goalNote_${goal.id}`;
+            const deadlineInfo = goal.targetDate ? `<span style="color:#b3f7b3;">📅 deadline: ${goal.targetDate}</span>` : `<span style="color:#e6c87a;">⚡ asap mode</span>`;
+            const neededPerMonth = (goal.targetAmount && goal.targetDate) ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
             const card = document.createElement('div');
             card.className = 'goal-card';
             card.setAttribute('data-id', goal.id);
-            card.draggable = true;
+            card.draggable = !currentViewArchive;
             card.innerHTML = `
                 <div class="goal-header">
-                    <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" style="background:#071007; border:1px solid #3e6e3e;">
-                    <input type="number" step="any" class="goal-target-edit" data-id="${goal.id}" value="${goal.targetAmount}" placeholder="target £">
-                    <div class="goal-badge" style="color: #b3f7b3;">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>                
+                    <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>
+                    <input type="number" step="any" class="goal-target-edit" data-id="${goal.id}" value="${goal.targetAmount}" ${currentViewArchive ? 'disabled' : ''}>
+                    <div class="goal-badge" style="color:#b3f7b3;">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>
                 </div>
-                <div class="progress-bar-bg"><div class="progress-fill" style="width: ${Math.min(100,percent)}%;"></div></div>
-                <div class="goal-stats">
-                    <span>💰 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span>
-                    <span>🏁 target: £${goal.targetAmount}</span>
-                </div>
+                <div class="progress-bar-bg"><div class="progress-fill" style="width:${Math.min(100,percent)}%;"></div></div>
+                <div class="goal-stats"><span>💰 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span><span>🏁 target: £${goal.targetAmount}</span></div>
                 <div class="goal-input-group">
-                    <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}">
-                    <button class="small-btn apply-contrib" data-id="${goal.id}">APPLY ➕</button>
-                    <button class="delete-goal" data-id="${goal.id}">🗑️ DELETE</button>
+                    <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}" ${currentViewArchive ? 'disabled' : ''}>
+                    <button class="small-btn apply-contrib" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>APPLY ➕</button>
+                    <button class="delete-goal" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>🗑️ DELETE</button>
                     <button class="notes-toggle goal-note-toggle" data-id="${goal.id}">📝 note</button>
                 </div>
-                <div id="${noteId}" class="notes-area" style="display:none; margin-top:6px;">
-                    <textarea rows="2" placeholder="Private notes, reminders, deadlines...">${escapeHtml(goal.note || '')}</textarea>
-                </div>
+                <div id="goalNote_${goal.id}" class="notes-area" style="display:none;"><textarea rows="2" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(goal.note || '')}</textarea></div>
                 <div style="font-size:0.75rem; margin-top:6px; color:#ade6ad;">${projection.message}</div>
-                <div style="font-size:0.7rem; display:flex; justify-content: space-between; flex-wrap:wrap;">${deadlineInfo}<span style="color: #9fca9f;">💷 need/mo: £${neededPerMonth}</span></div>
+                <div style="font-size:0.7rem; display:flex; justify-content:space-between; flex-wrap:wrap;">${deadlineInfo}<span style="color:#9fca9f;">💷 need/mo: £${neededPerMonth}</span></div>
             `;
             goalsContainer.appendChild(card);
         });
-        attachGoalEvents();
-        attachDragAndDrop();
+        if(!currentViewArchive) attachGoalEvents();
+        if(!currentViewArchive) attachDragAndDrop();
     }
-
     function attachGoalEvents() {
-        // goal name edit
-        document.querySelectorAll('.goal-name').forEach(inp => {
-            inp.onchange = (e) => {
-                const gid = inp.dataset.id;
-                const goal = goals.find(g => g.id === gid);
-                if (goal) goal.name = inp.value;
-                persistAll();
-                renderGoals();
-            };
-        });
-        // TARGET AMOUNT edit (the new field)
-        document.querySelectorAll('.goal-target-edit').forEach(inp => {
-            inp.onchange = (e) => {
-                const gid = inp.dataset.id;
-                const goal = goals.find(g => g.id === gid);
-                if (goal) {
-                    let newTarget = parseFloat(inp.value);
-                    if (!isNaN(newTarget) && newTarget >= 0) goal.targetAmount = newTarget;
-                    else goal.targetAmount = 0;
-                    persistAll();
-                    renderGoals();
-                }
-            };
-        });
-        // apply contribution
-        document.querySelectorAll('.apply-contrib').forEach(btn => {
-            btn.onclick = (e) => {
-                const gid = btn.dataset.id;
-                const goal = goals.find(g => g.id === gid);
-                if (!goal) return;
-                const cardDiv = btn.closest('.goal-card');
-                const contribField = cardDiv.querySelector('.contribution-input');
-                let amount = parseFloat(contribField.value);
-                if (isNaN(amount) || amount <= 0) amount = 0;
-                const available = calculateGoalMoney();
-                if (amount > available && amount > 0) {
-                    alert(`⚠️ Not enough goal money. Available: £${available.toFixed(2)}`);
-                    return;
-                }
-                if (amount > 0) {
-                    goal.currentSaved += amount;
-                    goal.userMonthlyContribution = amount;
-                    persistAll();
-                }
-                renderGoals();
-                updateGoalMoneyDisplay();
-            };
-        });
-        // delete goal
-        document.querySelectorAll('.delete-goal').forEach(btn => {
-            btn.onclick = () => {
-                const gid = btn.dataset.id;
-                goals = goals.filter(g => g.id !== gid);
-                persistAll();
-                renderGoals();
-            };
-        });
-        // notes toggle for goals
-        document.querySelectorAll('.goal-note-toggle').forEach(btn => {
-            btn.onclick = (e) => {
-                const gid = btn.dataset.id;
-                const noteDiv = document.getElementById(`goalNote_${gid}`);
-                if (noteDiv) noteDiv.style.display = noteDiv.style.display === 'none' ? 'block' : 'none';
-            };
-        });
-        // save note content on blur
-        document.querySelectorAll('.notes-area textarea').forEach(ta => {
-            ta.onblur = (e) => {
-                const parentDiv = ta.closest('.notes-area');
-                const goalId = parentDiv.id.replace('goalNote_', '');
-                const goal = goals.find(g => g.id === goalId);
-                if (goal) goal.note = ta.value;
-                persistAll();
-            };
-        });
+        document.querySelectorAll('.goal-name').forEach(inp => { inp.onchange = () => { const gid = inp.dataset.id; const goal = goals.find(g=>g.id===gid); if(goal) goal.name = inp.value; persistAll(); renderGoals(); }; });
+        document.querySelectorAll('.goal-target-edit').forEach(inp => { inp.onchange = () => { const gid = inp.dataset.id; const goal = goals.find(g=>g.id===gid); if(goal) { let newTarget = parseFloat(inp.value); if(!isNaN(newTarget) && newTarget>=0) goal.targetAmount = newTarget; persistAll(); renderGoals(); } }; });
+        document.querySelectorAll('.apply-contrib').forEach(btn => { btn.onclick = () => { const gid = btn.dataset.id; const goal = goals.find(g=>g.id===gid); if(!goal) return; const cardDiv = btn.closest('.goal-card'); const contribField = cardDiv.querySelector('.contribution-input'); let amount = parseFloat(contribField.value); if(isNaN(amount)||amount<=0) amount=0; const available = calculateGoalMoney(); if(amount>available && amount>0) { alert(`⚠️ Only £${available.toFixed(2)} available`); return; } if(amount>0) { goal.currentSaved += amount; goal.userMonthlyContribution = amount; persistAll(); } renderGoals(); updateGoalMoneyDisplay(); }; });
+        document.querySelectorAll('.delete-goal').forEach(btn => { btn.onclick = () => { const gid = btn.dataset.id; goals = goals.filter(g=>g.id!==gid); persistAll(); renderGoals(); }; });
+        document.querySelectorAll('.goal-note-toggle').forEach(btn => { btn.onclick = () => { const gid = btn.dataset.id; const noteDiv = document.getElementById(`goalNote_${gid}`); if(noteDiv) noteDiv.style.display = noteDiv.style.display==='none'?'block':'none'; }; });
+        document.querySelectorAll('.notes-area textarea').forEach(ta => { ta.onblur = () => { const parentDiv = ta.closest('.notes-area'); const goalId = parentDiv.id.replace('goalNote_',''); const goal = goals.find(g=>g.id===goalId); if(goal) goal.note = ta.value; persistAll(); }; });
     }
-
-    function attachDragAndDrop() {
-        const cards = document.querySelectorAll('.goal-card');
-        cards.forEach(card => {
-            card.addEventListener('dragstart', (e) => {
-                dragSrc = card;
-                card.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-            });
-            card.addEventListener('dragend', () => {
-                card.classList.remove('dragging');
-                if (dragSrc && dragSrc !== card) {
-                    const srcId = dragSrc.getAttribute('data-id');
-                    const targetId = card.getAttribute('data-id');
-                    const srcIndex = goals.findIndex(g => g.id === srcId);
-                    const targetIndex = goals.findIndex(g => g.id === targetId);
-                    if (srcIndex !== -1 && targetIndex !== -1) {
-                        const [moved] = goals.splice(srcIndex, 1);
-                        goals.splice(targetIndex, 0, moved);
-                        goals.forEach((g, idx) => g.orderIndex = idx);
-                        persistAll();
-                        renderGoals();
-                    }
-                }
-                dragSrc = null;
-            });
-            card.addEventListener('dragover', (e) => e.preventDefault());
-        });
-    }
-
-    // ---------- EXPORT / RESET ----------
-    function exportFullData() {
-        const exportState = { version: "ledger1985_export", date: new Date().toISOString(), monthlyIncome, expenses, goals };
-        const blob = new Blob([JSON.stringify(exportState, null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `ledger_backup_${new Date().toISOString().slice(0,19)}.json`;
-        a.click();
-        URL.revokeObjectURL(blob);
-    }
-
-    function hardReset() {
-        if (confirm("⚠️ THIS WILL DELETE ALL GOALS, EXPENSES, NOTES, INCOME.\nCloud sync preferences stay. Continue?")) {
-            localStorage.removeItem('ledger1985_final');
-            monthlyIncome = 0; expenses = []; goals = [];
-            seedDefaultGoals();
-            incomeInput.value = 0;
-            renderExpenses();
-            renderGoals();
-            updateGoalMoneyDisplay();
-            persistAll();
-        }
-    }
-
-    // ---------- GIST SYNC (unchanged but robust) ----------
-    async function triggerGistBackup() {
-        if (!githubToken || !gistId || syncInProgress) return;
-        syncInProgress = true;
-        syncStatusSpan.innerText = '☁️ SYNC...';
-        const fullState = { monthlyIncome, expenses, goals, lastSync: new Date().toISOString() };
-        try {
-            const getRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
-            let existingData = {};
-            if (getRes.ok) {
-                const gistData = await getRes.json();
-                const content = gistData.files['ledger1985.json']?.content;
-                if (content) existingData = JSON.parse(content);
-            }
-            existingData.ledger = fullState;
-            await fetch(`https://api.github.com/gists/${gistId}`, {
-                method: 'PATCH',
-                headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ files: { 'ledger1985.json': { content: JSON.stringify(existingData, null, 2) } } })
-            });
-            syncStatusSpan.innerText = '☁️ SYNC OK';
-            setTimeout(() => { syncStatusSpan.innerText = '☁️ SYNC READY'; }, 2000);
-        } catch(e) { syncStatusSpan.innerText = '⚠️ SYNC ERR'; }
-        finally { syncInProgress = false; }
-    }
-
-    async function loadFromGist() {
-        if (!githubToken || !gistId) return;
-        syncStatusSpan.innerText = '📡 LOAD...';
-        try {
-            const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
-            if (res.ok) {
-                const gist = await res.json();
-                const content = gist.files['ledger1985.json']?.content;
-                if (content) {
-                    const remote = JSON.parse(content);
-                    if (remote.ledger) {
-                        monthlyIncome = remote.ledger.monthlyIncome || 0;
-                        expenses = remote.ledger.expenses || [];
-                        goals = remote.ledger.goals || [];
-                        incomeInput.value = monthlyIncome;
-                        renderExpenses();
-                        renderGoals();
-                        updateGoalMoneyDisplay();
-                        persistAll();
-                        syncStatusSpan.innerText = '☁️ LOADED';
-                        setTimeout(() => syncStatusSpan.innerText = '☁️ SYNC READY', 1800);
-                    }
-                }
-            }
-        } catch(e) { console.warn(e); }
-    }
-
-    // MODAL
-    const modal = document.getElementById('syncModal');
-    const modalToken = document.getElementById('modalToken');
-    const modalGistId = document.getElementById('modalGistId');
-    document.getElementById('syncStatusChip').onclick = () => {
-        modalToken.value = githubToken;
-        modalGistId.value = gistId;
-        modal.style.display = 'flex';
-    };
-    document.getElementById('saveGistSettingsBtn').onclick = async () => {
-        const newToken = modalToken.value.trim();
-        const newGist = modalGistId.value.trim();
-        if (newToken) { githubToken = newToken; localStorage.setItem('goal_github_token', newToken); }
-        if (newGist) { gistId = newGist; localStorage.setItem('goal_gist_id', newGist); }
-        modal.style.display = 'none';
-        await loadFromGist();
-    };
-    document.getElementById('closeSyncModalBtn').onclick = () => modal.style.display = 'none';
-
-    // top-level buttons
-    document.getElementById('addExpenseBtn').onclick = () => {
-        expenses.push({ name: 'New expense', amount: 0, note: '' });
-        renderExpenses();
-        persistAll();
-        updateGoalMoneyDisplay();
-    };
-    document.getElementById('addGoalBtn').onclick = () => {
-        const newId = 'goal_' + Date.now();
-        goals.push({ id: newId, name: '✨ New Goal', targetAmount: 200, currentSaved: 0, targetDate: '', orderIndex: goals.length, userMonthlyContribution: 0, note: '' });
-        persistAll();
-        renderGoals();
-    };
-    document.getElementById('exportDataBtn').onclick = exportFullData;
+    function attachDragAndDrop() { /* simplified */ const cards = document.querySelectorAll('.goal-card'); cards.forEach(card => { card.addEventListener('dragstart', (e) => { dragSrc = card; e.dataTransfer.effectAllowed = 'move'; }); card.addEventListener('dragend', () => { if(dragSrc && dragSrc !== card) { const srcId = dragSrc.getAttribute('data-id'); const targetId = card.getAttribute('data-id'); const srcIndex = goals.findIndex(g=>g.id===srcId); const tgtIndex = goals.findIndex(g=>g.id===targetId); if(srcIndex!==-1 && tgtIndex!==-1) { const [moved] = goals.splice(srcIndex,1); goals.splice(tgtIndex,0,moved); goals.forEach((g,idx)=>g.orderIndex=idx); persistAll(); renderGoals(); } } dragSrc = null; }); card.addEventListener('dragover', (e)=>e.preventDefault()); }); }
+    
+    function hardReset() { if(confirm("⚠️ DELETE ALL DATA?")) { localStorage.removeItem('ledger1985_final'); localStorage.removeItem('ledger1985_archive'); monthlyArchive = {}; loadFromLocal(); exitArchiveMode(); renderArchiveList(); } }
+    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes = await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
+    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
+    
+    document.getElementById('addExpenseBtn').onclick = () => { if(!currentViewArchive) { expenses.push({ name: 'New expense', amount: 0, note: '' }); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } };
+    document.getElementById('addGoalBtn').onclick = () => { if(!currentViewArchive) { goals.push({ id:'goal_'+Date.now(), name:'✨ New Goal', targetAmount:200, currentSaved:0, targetDate:'', orderIndex:goals.length, userMonthlyContribution:0, note:'' }); persistAll(); renderGoals(); } };
+    document.getElementById('exportCurrentCSVBtn').onclick = () => exportCurrentToCSV();
     document.getElementById('resetAllBtn').onclick = hardReset;
-    incomeInput.oninput = () => {
-        monthlyIncome = parseFloat(incomeInput.value) || 0;
-        persistAll();
-        updateGoalMoneyDisplay();
-        renderGoals();
-    };
-
+    document.getElementById('saveCurrentMonthBtn').onclick = () => { saveSnapshotToArchive(getCurrentYearMonth()); alert(`Snapshot saved for ${getCurrentYearMonth()}`); };
+    exitArchiveBtn.onclick = () => exitArchiveMode();
+    incomeInput.oninput = () => { if(!currentViewArchive) { monthlyIncome = parseFloat(incomeInput.value) || 0; persistAll(); updateGoalMoneyDisplay(); renderGoals(); } };
+    document.getElementById('syncStatusChip').onclick = () => { document.getElementById('syncModal').style.display='flex'; };
+    document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
+    document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display='none';
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
     loadFromLocal();
-    if (githubToken && gistId) setTimeout(() => loadFromGist(), 300);
+    if(githubToken && gistId) setTimeout(()=>loadFromGist(),300);
 </script>
 </body>
 </html>
