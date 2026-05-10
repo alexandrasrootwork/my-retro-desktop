@@ -600,8 +600,8 @@ Here is the complete HTML code for your goal tracker, with editable goal costs a
                 </div>
                 <div class="progress-bar-bg"><div class="progress-fill" style="width: ${Math.min(100,percent)}%;"></div></div>
                 <div class="goal-stats">
-                    <span>💰 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span>
-                    <span>🏁 target: £${goal.targetAmount}</span>
+                    <span>💰 left: <span style="color: #9fca9f;">£${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span></span>
+                    <span>🏁 target: <span style="color: #9fca9f;">£${goal.targetAmount}</span></span>
                 </div>
                 <div class="goal-input-group">
                     <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}">
