@@ -5,19 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Ledger 1985 · Goal Forge</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: radial-gradient(circle at 20% 30%, #1a2a1a, #0a120a);
             font-family: 'Courier New', 'Fira Code', 'VT323', monospace;
             padding: 16px 12px 40px;
             min-height: 100vh;
         }
-
         .crt {
             max-width: 800px;
             margin: 0 auto;
@@ -26,7 +20,6 @@
             box-shadow: 0 16px 32px rgba(0,0,0,0.6), inset 0 1px 0px rgba(255,255,255,0.06);
             border: 1px solid #2c3e2c;
         }
-
         .window-header {
             background: #2a2a2a;
             padding: 12px 18px;
@@ -38,30 +31,9 @@
             flex-wrap: wrap;
             gap: 8px;
         }
-
-        .title {
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            font-size: 1.2rem;
-            color: #8bcb8b;
-            text-shadow: 0 0 3px #1f9a1f;
-        }
-
-        .sync-indicator {
-            font-size: 10px;
-            background: #0f0f0f;
-            padding: 4px 10px;
-            border-radius: 40px;
-            color: #7ab87a;
-            font-family: monospace;
-            cursor: pointer;
-            border: 1px solid #3e6e3e;
-        }
-
-        .content {
-            padding: 20px 18px 26px;
-        }
-
+        .title { font-weight: bold; letter-spacing: 1.5px; font-size: 1.2rem; color: #8bcb8b; text-shadow: 0 0 3px #1f9a1f; }
+        .sync-indicator { font-size: 10px; background: #0f0f0f; padding: 4px 10px; border-radius: 40px; color: #7ab87a; font-family: monospace; cursor: pointer; border: 1px solid #3e6e3e; }
+        .content { padding: 20px 18px 26px; }
         .panel {
             background: #0e1a0e;
             border: 1px solid #2b5e2b;
@@ -70,345 +42,48 @@
             margin-bottom: 28px;
             box-shadow: inset 0 0 8px #1f3a1f, 0 2px 4px rgba(0,0,0,0.4);
         }
-
-        .panel h2 {
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-            color: #b3f7b3;
-            border-left: 4px solid #6bc86b;
-            padding-left: 12px;
-            margin-bottom: 18px;
-        }
-
-        .budget-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-            align-items: center;
-            background: #071007;
-            padding: 8px 12px;
-            border-radius: 60px;
-        }
-
-        .budget-row label {
-            flex: 2;
-            min-width: 100px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #9dcf9d;
-        }
-
-        .budget-row input {
-            flex: 3;
-            background: #030903;
-            border: 1px solid #3c6e3c;
-            padding: 10px 12px;
-            font-family: monospace;
-            font-size: 1rem;
-            color: #d2ffd2;
-            border-radius: 40px;
-            outline: none;
-        }
-
-        .expense-item {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .expense-name {
-            flex: 2;
-            background: #0d170d;
-            border: 1px solid #2f582f;
-            padding: 8px 12px;
-            border-radius: 40px;
-            color: #add8ad;
-            font-family: monospace;
-        }
-
-        .expense-amount {
-            flex: 1;
-            background: #030903;
-            border: 1px solid #3e6b3e;
-            padding: 8px 12px;
-            border-radius: 40px;
-            color: #e2ffe2;
-            font-family: monospace;
-        }
-
-        .remove-expense {
-            background: #2e1e1e;
-            border: none;
-            color: #ffa0a0;
-            font-weight: bold;
-            width: 36px;
-            border-radius: 60px;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        .add-btn {
-            background: #1f3a1f;
-            border: 1px solid #5ba05b;
-            padding: 8px 18px;
-            border-radius: 60px;
-            font-family: monospace;
-            font-weight: bold;
-            color: #bef5be;
-            margin-top: 12px;
-            width: fit-content;
-            cursor: pointer;
-        }
-
-        .add-btn:active { transform: scale(0.97); background: #2f552f;}
-
-        .goal-money-card {
-            background: #102010;
-            border-radius: 40px;
-            padding: 12px 18px;
-            text-align: center;
-            margin: 18px 0 8px;
-        }
-
-        .goal-money-number {
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #e6ffe6;
-            letter-spacing: 2px;
-        }
-
-        .goals-list {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .goal-card {
-            background: #0f1a0f;
-            border-radius: 28px;
-            border-left: 8px solid #7bc97b;
-            padding: 14px 16px;
-            transition: all 0.1s;
-            cursor: grab;
-        }
-
-        .goal-card.dragging { opacity: 0.5; cursor: grabbing;}
-
-        .goal-header {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            align-items: baseline;
-            margin-bottom: 8px;
-            gap: 8px;
-        }
-
-        .goal-name {
-            font-weight: bold;
-            font-size: 1rem;
-            background: #071007;
-            border: 1px solid #2f582f;
-            padding: 6px 12px;
-            border-radius: 60px;
-            color: #d0ffd0;
-            font-family: monospace;
-            flex: 2;
-        }
-
-        .goal-target-edit {
-            background: #071007;
-            border: 1px solid #3c723c;
-            padding: 6px 10px;
-            border-radius: 40px;
-            color: #f0fff0;
-            width: 110px;
-            font-family: monospace;
-            text-align: center;
-        }
-
-        .progress-bar-bg {
-            background: #1d2a1d;
-            border-radius: 60px;
-            height: 18px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: #6bd96b;
-            width: 0%;
-            height: 100%;
-            border-radius: 60px;
-        }
-
-        .goal-stats {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-            font-size: 0.75rem;
-            color: #b1d0b1;
-            margin: 8px 0;
-        }
-
-        .goal-input-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin: 12px 0 6px;
-            align-items: center;
-        }
-
-        .contribution-input {
-            background: #030d03;
-            border: 1px solid #477a47;
-            padding: 8px 10px;
-            border-radius: 60px;
-            color: #ceffce;
-            font-family: monospace;
-            flex: 1;
-        }
-
-        .small-btn {
-            background: #2b472b;
-            border: none;
-            border-radius: 60px;
-            padding: 6px 14px;
-            font-family: monospace;
-            font-weight: bold;
-            color: #bcfdbc;
-            cursor: pointer;
-        }
-
-        .delete-goal {
-            background: #3e2626;
-            color: #ffb4b4;
-            border: none;
-            border-radius: 60px;
-            padding: 6px 14px;
-            cursor: pointer;
-        }
-
-        .notes-toggle {
-            background: #1f2a1f;
-            border: none;
-            border-radius: 60px;
-            padding: 4px 12px;
-            font-size: 0.7rem;
-            color: #bada8a;
-            cursor: pointer;
-            width: fit-content;
-        }
-
-        .notes-area {
-            margin-top: 8px;
-            background: #092009;
-            border-radius: 20px;
-            padding: 8px 12px;
-            display: none;
-        }
-
-        .notes-area textarea {
-            width: 100%;
-            background: #030f03;
-            border: 1px solid #4f7a4f;
-            color: #cef5ce;
-            font-family: monospace;
-            padding: 8px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            resize: vertical;
-        }
-
-        .action-bar {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 12px;
-        }
-
+        .panel h2 { font-size: 1.2rem; letter-spacing: 1px; color: #b3f7b3; border-left: 4px solid #6bc86b; padding-left: 12px; margin-bottom: 18px; }
+        .budget-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: center; background: #071007; padding: 8px 12px; border-radius: 60px; }
+        .budget-row label { flex: 2; min-width: 100px; font-size: 0.85rem; font-weight: bold; color: #9dcf9d; }
+        .budget-row input { flex: 3; background: #030903; border: 1px solid #3c6e3c; padding: 10px 12px; font-family: monospace; font-size: 1rem; color: #d2ffd2; border-radius: 40px; outline: none; }
+        .expense-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        .expense-name { flex: 2; background: #0d170d; border: 1px solid #2f582f; padding: 8px 12px; border-radius: 40px; color: #add8ad; font-family: monospace; }
+        .expense-amount { flex: 1; background: #030903; border: 1px solid #3e6b3e; padding: 8px 12px; border-radius: 40px; color: #e2ffe2; font-family: monospace; }
+        .remove-expense { background: #2e1e1e; border: none; color: #ffa0a0; font-weight: bold; width: 36px; border-radius: 60px; cursor: pointer; font-size: 1.2rem; }
+        .add-btn { background: #1f3a1f; border: 1px solid #5ba05b; padding: 8px 18px; border-radius: 60px; font-family: monospace; font-weight: bold; color: #bef5be; margin-top: 12px; width: fit-content; cursor: pointer; }
+        .add-btn:active { transform: scale(0.97); background: #2f552f; }
+        .goal-money-card { background: #102010; border-radius: 40px; padding: 12px 18px; text-align: center; margin: 18px 0 8px; }
+        .goal-money-number { font-size: 2.2rem; font-weight: bold; color: #e6ffe6; letter-spacing: 2px; }
+        .goals-list { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .goal-card { background: #0f1a0f; border-radius: 28px; border-left: 8px solid #7bc97b; padding: 14px 16px; transition: all 0.1s; cursor: grab; }
+        .goal-card.dragging { opacity: 0.5; cursor: grabbing; }
+        .goal-header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; margin-bottom: 8px; gap: 8px; }
+        .goal-name { font-weight: bold; font-size: 1rem; background: #071007; border: 1px solid #2f582f; padding: 6px 12px; border-radius: 60px; color: #d0ffd0; font-family: monospace; flex: 2; }
+        .goal-target-edit { background: #071007; border: 1px solid #3c723c; padding: 6px 10px; border-radius: 40px; color: #f0fff0; width: 110px; font-family: monospace; text-align: center; }
+        .progress-bar-bg { background: #1d2a1d; border-radius: 60px; height: 18px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { background: #6bd96b; width: 0%; height: 100%; border-radius: 60px; }
+        .goal-stats { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.75rem; color: #b1d0b1; margin: 8px 0; }
+        .goal-input-group { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; align-items: center; }
+        .contribution-input { background: #030d03; border: 1px solid #477a47; padding: 8px 10px; border-radius: 60px; color: #ceffce; font-family: monospace; flex: 1; }
+        .small-btn { background: #2b472b; border: none; border-radius: 60px; padding: 6px 14px; font-family: monospace; font-weight: bold; color: #bcfdbc; cursor: pointer; }
+        .delete-goal { background: #3e2626; color: #ffb4b4; border: none; border-radius: 60px; padding: 6px 14px; cursor: pointer; }
+        .notes-toggle { background: #1f2a1f; border: none; border-radius: 60px; padding: 4px 12px; font-size: 0.7rem; color: #bada8a; cursor: pointer; width: fit-content; }
+        .notes-area { margin-top: 8px; background: #092009; border-radius: 20px; padding: 8px 12px; display: none; }
+        .notes-area textarea { width: 100%; background: #030f03; border: 1px solid #4f7a4f; color: #cef5ce; font-family: monospace; padding: 8px; border-radius: 20px; font-size: 0.7rem; resize: vertical; }
+        .action-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 12px; }
         .reset-btn { background: #2a2a2a; border: 1px solid #9e6e6e; color: #f0b3b3; }
         .export-btn { background: #1a2e3a; border: 1px solid #6f9f9f; color: #b7f0f0; }
-
-        /* Archive section */
-        .archive-panel {
-            background: #0a120a;
-            border-radius: 24px;
-            padding: 16px;
-            margin-top: 20px;
-        }
-        .archive-title {
-            color: #8bcb8b;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            border-left: 3px solid #6bc86b;
-            padding-left: 10px;
-        }
-        .archive-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .archive-item {
-            background: #142014;
-            border-radius: 40px;
-            padding: 8px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .archive-month {
-            color: #add8ad;
-            font-family: monospace;
-            cursor: pointer;
-        }
+        .archive-panel { background: #0a120a; border-radius: 24px; padding: 16px; margin-top: 20px; }
+        .archive-title { color: #8bcb8b; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #6bc86b; padding-left: 10px; }
+        .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+        .archive-item { background: #142014; border-radius: 40px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; }
         .archive-month:hover { color: #d4ffd4; text-decoration: underline; }
-        .archive-export {
-            background: #1a2e3a;
-            border: none;
-            border-radius: 40px;
-            padding: 4px 12px;
-            color: #b7f0f0;
-            cursor: pointer;
-            font-size: 0.7rem;
-        }
-        .archive-delete {
-            background: #3e2626;
-            border: none;
-            border-radius: 40px;
-            padding: 4px 12px;
-            color: #ffb4b4;
-            cursor: pointer;
-            font-size: 0.7rem;
-        }
-        .view-mode-badge {
-            background: #2a4a2a;
-            border-radius: 40px;
-            padding: 4px 12px;
-            font-size: 0.7rem;
-            color: #b3f7b3;
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-        footer {
-            font-size: 0.65rem;
-            text-align: center;
-            margin-top: 20px;
-            color: #5d895d;
-        }
-        @media (max-width: 540px) {
-            .content { padding: 12px; }
-            .goal-input-group { flex-direction: column; align-items: stretch; }
-            .goal-header { flex-direction: column; }
-        }
+        .archive-export { background: #1a2e3a; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
+        .archive-delete { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
+        .view-mode-badge { background: #2a4a2a; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; color: #b3f7b3; margin-bottom: 12px; display: inline-block; }
+        footer { font-size: 0.65rem; text-align: center; margin-top: 20px; color: #5d895d; }
+        @media (max-width: 540px) { .content { padding: 12px; } .goal-input-group { flex-direction: column; align-items: stretch; } .goal-header { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -445,7 +120,6 @@
             </div>
         </div>
 
-        <!-- ARCHIVE SECTION -->
         <div class="archive-panel">
             <div class="archive-title">📁 MONTHLY ARCHIVE (carry-over progress)</div>
             <div id="archiveList" class="archive-list"></div>
@@ -473,7 +147,7 @@
 </div>
 
 <script>
-    // --- DATA ---
+    // ========== DATA ==========
     let monthlyIncome = 0;
     let expenses = [];
     let goals = [];
@@ -484,6 +158,7 @@
     let gistId = localStorage.getItem('goal_gist_id') || '';
     let syncInProgress = false;
 
+    // DOM elements
     const incomeInput = document.getElementById('monthlyIncome');
     const expensesContainer = document.getElementById('expensesContainer');
     const goalsContainer = document.getElementById('goalsListContainer');
@@ -502,20 +177,16 @@
     function calculateGoalMoney() {
         let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         let incomeVal = parseFloat(monthlyIncome) || 0;
-        let remaining = incomeVal - totalExpenses;
-        return remaining > 0 ? remaining : 0;
+        return incomeVal - totalExpenses > 0 ? incomeVal - totalExpenses : 0;
     }
 
     function updateGoalMoneyDisplay() {
-        let available = calculateGoalMoney();
-        goalMoneySpan.innerText = `£${available.toFixed(2)}`;
-        return available;
+        goalMoneySpan.innerText = `£${calculateGoalMoney().toFixed(2)}`;
     }
 
     function persistAll() {
         if (currentViewArchive) return;
-        const state = { monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) };
-        localStorage.setItem('ledger1985_final', JSON.stringify(state));
+        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) }));
         localStorage.setItem('ledger1985_archive', JSON.stringify(monthlyArchive));
         triggerGistBackup();
     }
@@ -525,28 +196,15 @@
         const savedArchive = localStorage.getItem('ledger1985_archive');
         if (savedArchive) monthlyArchive = JSON.parse(savedArchive);
         if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                monthlyIncome = data.monthlyIncome || 0;
-                expenses = data.expenses || [];
-                goals = data.goals || [];
-                if (goals.length === 0) seedDefaultGoals();
-                goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
-                expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
-                goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
-                incomeInput.value = monthlyIncome;
-            } catch(e) { console.warn(e); seedDefaultGoals(); }
-        } else {
-            seedDefaultGoals();
+            const data = JSON.parse(saved);
+            monthlyIncome = data.monthlyIncome || 0;
+            expenses = data.expenses || [];
+            goals = data.goals || [];
+            goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
+            expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
+            goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
+            incomeInput.value = monthlyIncome;
         }
-        checkMonthRollover();
-        renderExpenses();
-        renderGoals();
-        updateGoalMoneyDisplay();
-        renderArchiveList();
-    }
-
-    function seedDefaultGoals() {
         if (goals.length === 0) {
             goals = [
                 { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
@@ -555,13 +213,18 @@
                 { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
             ];
         }
+        checkMonthRollover();
+        renderExpenses();
+        renderGoals();
+        updateGoalMoneyDisplay();
+        renderArchiveList();
     }
 
     function checkMonthRollover() {
         const lastMonth = localStorage.getItem('ledger1985_last_month');
         const currentMonth = getCurrentYearMonth();
         if (lastMonth && lastMonth !== currentMonth) {
-            saveSnapshotToArchive(lastMonth);
+            monthlyArchive[lastMonth] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
         }
         localStorage.setItem('ledger1985_last_month', currentMonth);
         if (currentMonthDisplay) currentMonthDisplay.innerText = `(${currentMonth})`;
@@ -569,14 +232,10 @@
 
     function saveSnapshotToArchive(monthKey) {
         if (!monthKey) monthKey = getCurrentYearMonth();
-        monthlyArchive[monthKey] = {
-            monthlyIncome: monthlyIncome,
-            expenses: JSON.parse(JSON.stringify(expenses)),
-            goals: JSON.parse(JSON.stringify(goals)),
-            archivedDate: new Date().toISOString()
-        };
+        monthlyArchive[monthKey] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
         persistAll();
         renderArchiveList();
+        alert(`Snapshot saved for ${monthKey}`);
     }
 
     function loadArchiveIntoView(monthKey) {
@@ -601,20 +260,21 @@
         exitArchiveBtn.style.display = 'none';
     }
 
-    // ========== WORKING CSV EXPORT ==========
+    // ========== CSV EXPORT - FIXED ==========
     function exportCurrentToCSV() {
+        console.log("EXPORT FUNCTION CALLED");
         try {
             const yearMonth = getCurrentYearMonth();
-            let csvRows = [["Type","Name","Amount/Value","Note"]];
-            csvRows.push(["INCOME","Monthly", monthlyIncome, ""]);
-            expenses.forEach(e => csvRows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
-            goals.forEach(g => csvRows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
+            let rows = [];
+            rows.push(["Type", "Name", "Amount/Value", "Note"]);
+            rows.push(["INCOME", "Monthly", monthlyIncome, ""]);
+            expenses.forEach(e => rows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
+            goals.forEach(g => rows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
             
-            let csvContent = csvRows.map(row => 
+            let csvContent = rows.map(row => 
                 row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
             ).join("\n");
             
-            // Add BOM for Excel UTF-8 support
             const blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -625,138 +285,86 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             
-            // Visual feedback
             const btn = document.getElementById('exportCurrentCSVBtn');
             const originalText = btn.innerHTML;
             btn.innerHTML = '✓ CSV SAVED!';
             setTimeout(() => { btn.innerHTML = originalText; }, 1500);
         } catch(e) {
-            console.error('CSV export error:', e);
+            console.error('CSV error:', e);
             alert('Export failed: ' + e.message);
         }
     }
 
     function exportArchiveToCSV(monthKey) {
-        try {
-            const snap = monthlyArchive[monthKey];
-            if (!snap) {
-                alert('No data found for ' + monthKey);
-                return;
-            }
-            let csvRows = [["Type","Name","Amount/Value","Note"]];
-            csvRows.push(["INCOME","Monthly", snap.monthlyIncome, ""]);
-            snap.expenses.forEach(e => csvRows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
-            snap.goals.forEach(g => csvRows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
-            
-            let csvContent = csvRows.map(row => 
-                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
-            ).join("\n");
-            
-            const blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ledger_${monthKey}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } catch(e) {
-            console.error('Archive export error:', e);
-            alert('Export failed: ' + e.message);
-        }
+        const snap = monthlyArchive[monthKey];
+        if (!snap) { alert('No data'); return; }
+        let rows = [["Type", "Name", "Amount/Value", "Note"]];
+        rows.push(["INCOME", "Monthly", snap.monthlyIncome, ""]);
+        snap.expenses.forEach(e => rows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
+        snap.goals.forEach(g => rows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
+        let csvContent = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `ledger_${monthKey}.csv`;
+        a.click();
+        URL.revokeObjectURL(blob.url);
     }
 
-    function renderArchiveList() {
-        if (!archiveListDiv) return;
-        const months = Object.keys(monthlyArchive).sort().reverse();
-        if (months.length === 0) {
-            archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months yet. Click "Snapshot" at month end.</div>';
-            return;
-        }
-        archiveListDiv.innerHTML = months.map(m => `
-            <div class="archive-item">
-                <span class="archive-month" data-month="${m}">📅 ${m.replace('-', ' · ')}</span>
-                <div>
-                    <button class="archive-export" data-month="${m}">📎 CSV</button>
-                    <button class="archive-delete" data-month="${m}">🗑️</button>
-                </div>
-            </div>
-        `).join('');
-        
-        document.querySelectorAll('.archive-month').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const month = el.dataset.month;
-                loadArchiveIntoView(month);
-            });
-        });
-        document.querySelectorAll('.archive-export').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const month = btn.dataset.month;
-                exportArchiveToCSV(month);
-            });
-        });
-        document.querySelectorAll('.archive-delete').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const month = btn.dataset.month;
-                if (confirm(`Delete archive for ${month}?`)) {
-                    delete monthlyArchive[month];
-                    persistAll();
-                    renderArchiveList();
-                    if (currentViewArchive === month) exitArchiveMode();
-                }
-            });
-        });
-    }
-
-    // --- RENDER FUNCTIONS ---
+    // ========== RENDER FUNCTIONS ==========
     function renderExpenses() {
         expensesContainer.innerHTML = '';
         if (expenses.length === 0) {
-            const emptyHint = document.createElement('div');
-            emptyHint.innerText = '➕ add rent, food, transport…';
-            emptyHint.style.color = '#6b8f6b';
-            emptyHint.style.fontSize = '0.75rem';
-            emptyHint.style.padding = '6px 12px';
-            expensesContainer.appendChild(emptyHint);
-        } else {
-            expenses.forEach((exp, idx) => {
-                const row = document.createElement('div');
-                row.className = 'expense-item';
-                row.style.flexWrap = 'wrap';
-                row.innerHTML = `
-                    <input type="text" class="expense-name" value="${escapeHtml(exp.name)}" placeholder="Expense" ${currentViewArchive ? 'disabled' : ''}>
-                    <input type="number" step="any" class="expense-amount" value="${exp.amount}" ${currentViewArchive ? 'disabled' : ''}>
-                    <button class="remove-expense" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>✕</button>
-                    <button class="notes-toggle expense-note-toggle" data-idx="${idx}" style="margin-left:auto;">📝 note</button>
-                    <div class="notes-area expense-notes-${idx}" style="width:100%; margin-top:6px;">
-                        <textarea rows="2" placeholder="optional notes" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(exp.note || '')}</textarea>
-                    </div>
-                `;
-                expensesContainer.appendChild(row);
-            });
-            attachExpenseEvents();
+            expensesContainer.innerHTML = '<div style="color:#6b8f6b; padding:8px;">➕ add rent, food, transport…</div>';
+            return;
         }
+        expenses.forEach((exp, idx) => {
+            const row = document.createElement('div');
+            row.className = 'expense-item';
+            row.innerHTML = `
+                <input type="text" class="expense-name" value="${escapeHtml(exp.name)}" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>
+                <input type="number" step="any" class="expense-amount" value="${exp.amount}" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>
+                <button class="remove-expense" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>✕</button>
+                <button class="notes-toggle expense-note-toggle" data-idx="${idx}">📝 note</button>
+                <div class="notes-area expense-notes-${idx}" style="width:100%;"><textarea rows="2" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(exp.note || '')}</textarea></div>
+            `;
+            expensesContainer.appendChild(row);
+        });
+        attachExpenseEvents();
     }
 
     function attachExpenseEvents() {
-        document.querySelectorAll('.expense-name').forEach((inp, idx) => { inp.onchange = () => { if(!currentViewArchive) { expenses[idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); } }; });
-        document.querySelectorAll('.expense-amount').forEach((inp, idx) => { inp.oninput = () => { if(!currentViewArchive) { expenses[idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); } }; });
-        document.querySelectorAll('.remove-expense').forEach(btn => { if(!btn.disabled) btn.onclick = () => { if(!currentViewArchive) { const idx = parseInt(btn.dataset.idx); expenses.splice(idx,1); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } }; });
-        document.querySelectorAll('.expense-note-toggle').forEach(btn => { btn.onclick = () => { const idx = btn.dataset.idx; const div = document.querySelector(`.expense-notes-${idx}`); if(div) div.style.display = div.style.display==='none'?'block':'none'; }; });
-        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => { ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); }; });
+        document.querySelectorAll('.expense-name').forEach(inp => {
+            inp.onchange = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); } };
+        });
+        document.querySelectorAll('.expense-amount').forEach(inp => {
+            inp.oninput = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); } };
+        });
+        document.querySelectorAll('.remove-expense').forEach(btn => {
+            btn.onclick = () => { if(!currentViewArchive) { expenses.splice(parseInt(btn.dataset.idx),1); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } };
+        });
+        document.querySelectorAll('.expense-note-toggle').forEach(btn => {
+            btn.onclick = () => { const div = document.querySelector(`.expense-notes-${btn.dataset.idx}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; };
+        });
+        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => {
+            ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); };
+        });
     }
 
-    function monthsUntilDate(dateStr) { if(!dateStr) return 0; let target = new Date(dateStr); let now = new Date(); let months = (target.getFullYear()-now.getFullYear())*12 + (target.getMonth()-now.getMonth()); return months>0?months:0; }
-    
+    function monthsUntilDate(dateStr) {
+        if (!dateStr) return 0;
+        let target = new Date(dateStr);
+        let now = new Date();
+        return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
+    }
+
     function computeProjection(goal, monthlyContribution) {
         const remaining = goal.targetAmount - goal.currentSaved;
         if (remaining <= 0) return { message: '✓ GOAL ACHIEVED!' };
         if (monthlyContribution <= 0) return { message: '➕ add contribution this month' };
         let monthsNeeded = remaining / monthlyContribution;
-        let projectionDate = new Date(); projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
+        let projectionDate = new Date();
+        projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
         let formatted = projectionDate.toLocaleDateString('en-GB', { year:'numeric', month:'short' });
         if (goal.targetDate && goal.targetDate !== '') {
             let monthsUntilDeadline = monthsUntilDate(goal.targetDate);
@@ -773,12 +381,12 @@
     function renderGoals() {
         goalsContainer.innerHTML = '';
         if (goals.length === 0) { goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ click +NEW GOAL</div>'; return; }
-        goals.forEach((goal, idx) => {
+        goals.forEach((goal) => {
             const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
             const monthlyContribution = goal.userMonthlyContribution || 0;
             const projection = computeProjection(goal, monthlyContribution);
             const deadlineInfo = goal.targetDate ? `<span style="color:#b3f7b3;">📅 deadline: ${goal.targetDate}</span>` : `<span style="color:#e6c87a;">⚡ asap mode</span>`;
-            const neededPerMonth = (goal.targetAmount && goal.targetDate && goal.targetDate !== '') ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
+            const neededPerMonth = (goal.targetAmount && goal.targetDate) ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
             const card = document.createElement('div');
             card.className = 'goal-card';
             card.setAttribute('data-id', goal.id);
@@ -798,7 +406,7 @@
                     <button class="notes-toggle goal-note-toggle" data-id="${goal.id}">📝 note</button>
                 </div>
                 <div id="goalNote_${goal.id}" class="notes-area" style="display:none;"><textarea rows="2" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(goal.note || '')}</textarea></div>
-                <div style="font-size:0.75rem; margin-top:6px; color:#ade6ad;">${projection.message}</div>
+                <div style="font-size:0.75rem; margin:6px 0 0; color:#ade6ad;">${projection.message}</div>
                 <div style="font-size:0.7rem; display:flex; justify-content:space-between; flex-wrap:wrap;">${deadlineInfo}<span style="color:#9fca9f;">💷 need/mo: £${neededPerMonth}</span></div>
             `;
             goalsContainer.appendChild(card);
@@ -808,44 +416,173 @@
     }
 
     function attachGoalEvents() {
-        document.querySelectorAll('.goal-name').forEach(inp => { inp.onchange = () => { const gid = inp.dataset.id; const goal = goals.find(g=>g.id===gid); if(goal) goal.name = inp.value; persistAll(); renderGoals(); }; });
-        document.querySelectorAll('.goal-target-edit').forEach(inp => { inp.onchange = () => { const gid = inp.dataset.id; const goal = goals.find(g=>g.id===gid); if(goal) { let newTarget = parseFloat(inp.value); if(!isNaN(newTarget) && newTarget>=0) goal.targetAmount = newTarget; persistAll(); renderGoals(); } }; });
-        document.querySelectorAll('.apply-contrib').forEach(btn => { btn.onclick = () => { if(currentViewArchive) return; const gid = btn.dataset.id; const goal = goals.find(g=>g.id===gid); if(!goal) return; const cardDiv = btn.closest('.goal-card'); const contribField = cardDiv.querySelector('.contribution-input'); let amount = parseFloat(contribField.value); if(isNaN(amount)||amount<=0) amount=0; const available = calculateGoalMoney(); if(amount>available && amount>0) { alert(`⚠️ Only £${available.toFixed(2)} available`); return; } if(amount>0) { goal.currentSaved += amount; goal.userMonthlyContribution = amount; persistAll(); } renderGoals(); updateGoalMoneyDisplay(); }; });
-        document.querySelectorAll('.delete-goal').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) { const gid = btn.dataset.id; goals = goals.filter(g=>g.id!==gid); persistAll(); renderGoals(); } }; });
-        document.querySelectorAll('.goal-note-toggle').forEach(btn => { btn.onclick = () => { const gid = btn.dataset.id; const noteDiv = document.getElementById(`goalNote_${gid}`); if(noteDiv) noteDiv.style.display = noteDiv.style.display==='none'?'block':'none'; }; });
-        document.querySelectorAll('.notes-area textarea').forEach(ta => { ta.onblur = () => { if(!currentViewArchive) { const parentDiv = ta.closest('.notes-area'); const goalId = parentDiv.id.replace('goalNote_',''); const goal = goals.find(g=>g.id===goalId); if(goal) goal.note = ta.value; persistAll(); } }; });
+        document.querySelectorAll('.goal-name').forEach(inp => {
+            inp.onchange = () => { const goal = goals.find(g=>g.id===inp.dataset.id); if(goal) goal.name = inp.value; persistAll(); renderGoals(); };
+        });
+        document.querySelectorAll('.goal-target-edit').forEach(inp => {
+            inp.onchange = () => { const goal = goals.find(g=>g.id===inp.dataset.id); if(goal) { let newTarget = parseFloat(inp.value); if(!isNaN(newTarget) && newTarget>=0) goal.targetAmount = newTarget; persistAll(); renderGoals(); } };
+        });
+        document.querySelectorAll('.apply-contrib').forEach(btn => {
+            btn.onclick = () => {
+                if(currentViewArchive) return;
+                const goal = goals.find(g=>g.id===btn.dataset.id);
+                if(!goal) return;
+                const contribField = btn.closest('.goal-card').querySelector('.contribution-input');
+                let amount = parseFloat(contribField.value);
+                if(isNaN(amount)||amount<=0) amount=0;
+                const available = calculateGoalMoney();
+                if(amount > available && amount > 0) { alert(`⚠️ Only £${available.toFixed(2)} available`); return; }
+                if(amount > 0) { goal.currentSaved += amount; goal.userMonthlyContribution = amount; persistAll(); }
+                renderGoals(); updateGoalMoneyDisplay();
+            };
+        });
+        document.querySelectorAll('.delete-goal').forEach(btn => {
+            btn.onclick = () => { if(!currentViewArchive) { goals = goals.filter(g=>g.id!==btn.dataset.id); persistAll(); renderGoals(); } };
+        });
+        document.querySelectorAll('.goal-note-toggle').forEach(btn => {
+            btn.onclick = () => { const div = document.getElementById(`goalNote_${btn.dataset.id}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; };
+        });
+        document.querySelectorAll('.notes-area textarea').forEach(ta => {
+            ta.onblur = () => {
+                if(!currentViewArchive) {
+                    const parentId = ta.closest('.notes-area').id;
+                    const goalId = parentId.replace('goalNote_','');
+                    const goal = goals.find(g=>g.id===goalId);
+                    if(goal) goal.note = ta.value;
+                    persistAll();
+                }
+            };
+        });
     }
 
     function attachDragAndDrop() {
-        const cards = document.querySelectorAll('.goal-card');
-        cards.forEach(card => {
+        document.querySelectorAll('.goal-card').forEach(card => {
             card.addEventListener('dragstart', (e) => { dragSrc = card; e.dataTransfer.effectAllowed = 'move'; });
-            card.addEventListener('dragend', () => { if(dragSrc && dragSrc !== card) { const srcId = dragSrc.getAttribute('data-id'); const targetId = card.getAttribute('data-id'); const srcIndex = goals.findIndex(g=>g.id===srcId); const tgtIndex = goals.findIndex(g=>g.id===targetId); if(srcIndex!==-1 && tgtIndex!==-1) { const [moved] = goals.splice(srcIndex,1); goals.splice(tgtIndex,0,moved); goals.forEach((g,idx)=>g.orderIndex=idx); persistAll(); renderGoals(); } } dragSrc = null; });
+            card.addEventListener('dragend', () => {
+                if(dragSrc && dragSrc !== card) {
+                    const srcId = dragSrc.getAttribute('data-id');
+                    const tgtId = card.getAttribute('data-id');
+                    const srcIdx = goals.findIndex(g=>g.id===srcId);
+                    const tgtIdx = goals.findIndex(g=>g.id===tgtId);
+                    if(srcIdx !== -1 && tgtIdx !== -1) {
+                        const [moved] = goals.splice(srcIdx,1);
+                        goals.splice(tgtIdx,0,moved);
+                        goals.forEach((g,i)=>g.orderIndex=i);
+                        persistAll();
+                        renderGoals();
+                    }
+                }
+                dragSrc = null;
+            });
             card.addEventListener('dragover', (e)=>e.preventDefault());
         });
     }
 
-    function hardReset() { if(confirm("⚠️ DELETE ALL DATA?")) { localStorage.removeItem('ledger1985_final'); localStorage.removeItem('ledger1985_archive'); monthlyArchive = {}; loadFromLocal(); exitArchiveMode(); renderArchiveList(); } }
-    
-    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes = await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
-    
-    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
-    
-    // --- BUTTON BINDINGS ---
+    function renderArchiveList() {
+        if (!archiveListDiv) return;
+        const months = Object.keys(monthlyArchive).sort().reverse();
+        if (months.length === 0) { archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months. Click "Snapshot" at month end.</div>'; return; }
+        archiveListDiv.innerHTML = months.map(m => `
+            <div class="archive-item">
+                <span class="archive-month" data-month="${m}">📅 ${m.replace('-', ' · ')}</span>
+                <div><button class="archive-export" data-month="${m}">📎 CSV</button><button class="archive-delete" data-month="${m}">🗑️</button></div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.archive-month').forEach(el => { el.addEventListener('click', () => loadArchiveIntoView(el.dataset.month)); });
+        document.querySelectorAll('.archive-export').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); exportArchiveToCSV(btn.dataset.month); }); });
+        document.querySelectorAll('.archive-delete').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete?')) { delete monthlyArchive[btn.dataset.month]; persistAll(); renderArchiveList(); if(currentViewArchive === btn.dataset.month) exitArchiveMode(); } }); });
+    }
+
+    function hardReset() {
+        if(confirm("⚠️ DELETE ALL DATA?")) {
+            localStorage.removeItem('ledger1985_final');
+            localStorage.removeItem('ledger1985_archive');
+            localStorage.removeItem('ledger1985_last_month');
+            monthlyArchive = {};
+            loadFromLocal();
+            exitArchiveMode();
+        }
+    }
+
+    async function triggerGistBackup() {
+        if(!githubToken || !gistId || syncInProgress) return;
+        syncInProgress = true;
+        syncStatusSpan.innerText = '☁️ SYNC...';
+        try {
+            const getRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
+            let existing = {};
+            if(getRes.ok) { const gistData = await getRes.json(); const content = gistData.files['ledger1985.json']?.content; if(content) existing = JSON.parse(content); }
+            existing.ledger = { monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync: new Date().toISOString() };
+            await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'ledger1985.json': { content: JSON.stringify(existing, null, 2) } } }) });
+            syncStatusSpan.innerText = '☁️ SYNC OK';
+            setTimeout(() => syncStatusSpan.innerText = '☁️ SYNC READY', 2000);
+        } catch(e) { syncStatusSpan.innerText = '⚠️ SYNC ERR'; }
+        finally { syncInProgress = false; }
+    }
+
+    async function loadFromGist() {
+        if(!githubToken || !gistId) return;
+        syncStatusSpan.innerText = '📡 LOAD...';
+        try {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
+            if(res.ok) {
+                const gist = await res.json();
+                const content = gist.files['ledger1985.json']?.content;
+                if(content) {
+                    const remote = JSON.parse(content);
+                    if(remote.ledger) {
+                        monthlyIncome = remote.ledger.monthlyIncome || 0;
+                        expenses = remote.ledger.expenses || [];
+                        goals = remote.ledger.goals || [];
+                        monthlyArchive = remote.ledger.archive || {};
+                        incomeInput.value = monthlyIncome;
+                        renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList();
+                        persistAll();
+                        syncStatusSpan.innerText = '☁️ LOADED';
+                        setTimeout(() => syncStatusSpan.innerText = '☁️ SYNC READY', 1800);
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
+
+    // ========== BUTTON BINDINGS (with console logs for debugging) ==========
     document.getElementById('addExpenseBtn').onclick = () => { if(!currentViewArchive) { expenses.push({ name: 'New expense', amount: 0, note: '' }); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } };
     document.getElementById('addGoalBtn').onclick = () => { if(!currentViewArchive) { goals.push({ id:'goal_'+Date.now(), name:'✨ New Goal', targetAmount:200, currentSaved:0, targetDate:'', orderIndex:goals.length, userMonthlyContribution:0, note:'' }); persistAll(); renderGoals(); } };
-    document.getElementById('exportCurrentCSVBtn').onclick = (e) => { e.preventDefault(); exportCurrentToCSV(); };
+    
+    // FIXED: CSV export button binding
+    const exportBtn = document.getElementById('exportCurrentCSVBtn');
+    if (exportBtn) {
+        exportBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("CSV button clicked");
+            exportCurrentToCSV();
+        };
+        console.log("Export button bound successfully");
+    } else {
+        console.error("Export button not found in DOM");
+    }
+    
     document.getElementById('resetAllBtn').onclick = hardReset;
-    document.getElementById('saveCurrentMonthBtn').onclick = () => { saveSnapshotToArchive(getCurrentYearMonth()); alert(`Snapshot saved for ${getCurrentYearMonth()}`); };
+    document.getElementById('saveCurrentMonthBtn').onclick = () => saveSnapshotToArchive(getCurrentYearMonth());
     exitArchiveBtn.onclick = () => exitArchiveMode();
     incomeInput.oninput = () => { if(!currentViewArchive) { monthlyIncome = parseFloat(incomeInput.value) || 0; persistAll(); updateGoalMoneyDisplay(); renderGoals(); } };
-    document.getElementById('syncStatusChip').onclick = () => { document.getElementById('syncModal').style.display='flex'; };
-    document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
-    document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display='none';
+    document.getElementById('syncStatusChip').onclick = () => document.getElementById('syncModal').style.display = 'flex';
+    document.getElementById('saveGistSettingsBtn').onclick = async () => {
+        const newToken = document.getElementById('modalToken').value.trim();
+        const newGist = document.getElementById('modalGistId').value.trim();
+        if(newToken) { githubToken = newToken; localStorage.setItem('goal_github_token', newToken); }
+        if(newGist) { gistId = newGist; localStorage.setItem('goal_gist_id', newGist); }
+        document.getElementById('syncModal').style.display = 'none';
+        await loadFromGist();
+    };
+    document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display = 'none';
     
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
     loadFromLocal();
-    if(githubToken && gistId) setTimeout(()=>loadFromGist(),300);
+    if(githubToken && gistId) setTimeout(() => loadFromGist(), 300);
 </script>
 </body>
 </html>
