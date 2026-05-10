@@ -34,14 +34,7 @@
         .title { font-weight: bold; letter-spacing: 1.5px; font-size: 1.2rem; color: #8bcb8b; text-shadow: 0 0 3px #1f9a1f; }
         .sync-indicator { font-size: 10px; background: #0f0f0f; padding: 4px 10px; border-radius: 40px; color: #7ab87a; font-family: monospace; cursor: pointer; border: 1px solid #3e6e3e; }
         .content { padding: 20px 18px 26px; }
-        .panel {
-            background: #0e1a0e;
-            border: 1px solid #2b5e2b;
-            border-radius: 24px;
-            padding: 18px 16px;
-            margin-bottom: 28px;
-            box-shadow: inset 0 0 8px #1f3a1f, 0 2px 4px rgba(0,0,0,0.4);
-        }
+        .panel { background: #0e1a0e; border: 1px solid #2b5e2b; border-radius: 24px; padding: 18px 16px; margin-bottom: 28px; box-shadow: inset 0 0 8px #1f3a1f, 0 2px 4px rgba(0,0,0,0.4); }
         .panel h2 { font-size: 1.2rem; letter-spacing: 1px; color: #b3f7b3; border-left: 4px solid #6bc86b; padding-left: 12px; margin-bottom: 18px; }
         .budget-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: center; background: #071007; padding: 8px 12px; border-radius: 60px; }
         .budget-row label { flex: 2; min-width: 100px; font-size: 0.85rem; font-weight: bold; color: #9dcf9d; }
@@ -55,8 +48,7 @@
         .goal-money-card { background: #102010; border-radius: 40px; padding: 12px 18px; text-align: center; margin: 18px 0 8px; }
         .goal-money-number { font-size: 2.2rem; font-weight: bold; color: #e6ffe6; letter-spacing: 2px; }
         .goals-list { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .goal-card { background: #0f1a0f; border-radius: 28px; border-left: 8px solid #7bc97b; padding: 14px 16px; transition: all 0.1s; cursor: grab; }
-        .goal-card.dragging { opacity: 0.5; cursor: grabbing; }
+        .goal-card { background: #0f1a0f; border-radius: 28px; border-left: 8px solid #7bc97b; padding: 14px 16px; transition: all 0.1s; }
         .goal-header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; margin-bottom: 8px; gap: 8px; }
         .goal-name { font-weight: bold; font-size: 1rem; background: #071007; border: 1px solid #2f582f; padding: 6px 12px; border-radius: 60px; color: #d0ffd0; font-family: monospace; flex: 2; }
         .goal-target-edit { background: #071007; border: 1px solid #3c723c; padding: 6px 10px; border-radius: 40px; color: #f0fff0; width: 110px; font-family: monospace; text-align: center; }
@@ -67,12 +59,14 @@
         .contribution-input { background: #030d03; border: 1px solid #477a47; padding: 8px 10px; border-radius: 60px; color: #ceffce; font-family: monospace; flex: 1; }
         .small-btn { background: #2b472b; border: none; border-radius: 60px; padding: 6px 14px; font-family: monospace; font-weight: bold; color: #bcfdbc; cursor: pointer; }
         .delete-goal { background: #3e2626; color: #ffb4b4; border: none; border-radius: 60px; padding: 6px 14px; cursor: pointer; }
+        .move-btn { background: #2a4a6e; border: none; border-radius: 60px; padding: 4px 12px; font-family: monospace; font-size: 0.8rem; color: #b7f0f0; cursor: pointer; }
         .notes-toggle { background: #1f2a1f; border: none; border-radius: 60px; padding: 4px 12px; font-size: 0.7rem; color: #bada8a; cursor: pointer; width: fit-content; }
         .notes-area { margin-top: 8px; background: #092009; border-radius: 20px; padding: 8px 12px; display: none; }
         .notes-area textarea { width: 100%; background: #030f03; border: 1px solid #4f7a4f; color: #cef5ce; font-family: monospace; padding: 8px; border-radius: 20px; font-size: 0.7rem; resize: vertical; }
         .action-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 12px; }
         .reset-btn { background: #2a2a2a; border: 1px solid #9e6e6e; color: #f0b3b3; }
         .export-btn { background: #1a2e3a; border: 1px solid #6f9f9f; color: #b7f0f0; }
+        .copy-btn { background: #2a4a2a; border: 1px solid #6f9f6f; color: #b7f0b7; }
         .archive-panel { background: #0a120a; border-radius: 24px; padding: 16px; margin-top: 20px; }
         .archive-title { color: #8bcb8b; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #6bc86b; padding-left: 10px; }
         .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
@@ -82,6 +76,8 @@
         .archive-export { background: #1a2e3a; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
         .archive-delete { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
         .view-mode-badge { background: #2a4a2a; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; color: #b3f7b3; margin-bottom: 12px; display: inline-block; }
+        .reorder-buttons { display: flex; gap: 6px; align-items: center; }
+        .toast-msg { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #2a5a2a; color: #d4ffd4; padding: 8px 20px; border-radius: 60px; font-size: 0.8rem; z-index: 1000; box-shadow: 0 2px 8px black; pointer-events: none; }
         footer { font-size: 0.65rem; text-align: center; margin-top: 20px; color: #5d895d; }
         @media (max-width: 540px) { .content { padding: 12px; } .goal-input-group { flex-direction: column; align-items: stretch; } .goal-header { flex-direction: column; } }
     </style>
@@ -115,7 +111,8 @@
             <div id="goalsListContainer" class="goals-list"></div>
             <div class="action-bar">
                 <button class="add-btn" id="addGoalBtn">✨ + NEW GOAL</button>
-                <button class="add-btn export-btn" id="exportCurrentCSVBtn">📎 EXPORT CSV</button>
+                <button class="add-btn copy-btn" id="copyToClipboardBtn">📋 COPY TO CLIPBOARD</button>
+                <button class="add-btn export-btn" id="exportJSONBtn">💾 SAVE BACKUP (JSON)</button>
                 <button class="add-btn reset-btn" id="resetAllBtn">⟳ RESET ALL</button>
             </div>
         </div>
@@ -128,7 +125,7 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>local auto-save · drag goals · monthly snapshots carry over progress</footer>
+        <footer>⬆️⬇️ Use up/down arrows to reorder goals · Tap COPY for spreadsheet data</footer>
     </div>
 </div>
 
@@ -158,32 +155,22 @@
     let gistId = localStorage.getItem('goal_gist_id') || '';
     let syncInProgress = false;
 
-    // DOM elements
     const incomeInput = document.getElementById('monthlyIncome');
     const expensesContainer = document.getElementById('expensesContainer');
     const goalsContainer = document.getElementById('goalsListContainer');
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
     const archiveListDiv = document.getElementById('archiveList');
-    const currentMonthDisplay = document.getElementById('currentMonthDisplay');
-    const viewModeBadge = document.getElementById('viewModeBadge');
-    const exitArchiveBtn = document.getElementById('exitArchiveBtn');
 
-    function getCurrentYearMonth() {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    }
-
+    function getCurrentYearMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
     function calculateGoalMoney() {
         let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         let incomeVal = parseFloat(monthlyIncome) || 0;
         return incomeVal - totalExpenses > 0 ? incomeVal - totalExpenses : 0;
     }
-
-    function updateGoalMoneyDisplay() {
-        goalMoneySpan.innerText = `£${calculateGoalMoney().toFixed(2)}`;
-    }
-
+    function updateGoalMoneyDisplay() { goalMoneySpan.innerText = `£${calculateGoalMoney().toFixed(2)}`; }
+    function showToast(msg) { let d = document.createElement('div'); d.className = 'toast-msg'; d.innerText = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2000); }
+    
     function persistAll() {
         if (currentViewArchive) return;
         localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) }));
@@ -227,7 +214,7 @@
             monthlyArchive[lastMonth] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
         }
         localStorage.setItem('ledger1985_last_month', currentMonth);
-        if (currentMonthDisplay) currentMonthDisplay.innerText = `(${currentMonth})`;
+        document.getElementById('currentMonthDisplay').innerText = `(${currentMonth})`;
     }
 
     function saveSnapshotToArchive(monthKey) {
@@ -235,89 +222,72 @@
         monthlyArchive[monthKey] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
         persistAll();
         renderArchiveList();
-        alert(`Snapshot saved for ${monthKey}`);
-    }
-
-    function loadArchiveIntoView(monthKey) {
-        const snap = monthlyArchive[monthKey];
-        if (!snap) return;
-        currentViewArchive = monthKey;
-        monthlyIncome = snap.monthlyIncome;
-        expenses = snap.expenses;
-        goals = snap.goals;
-        incomeInput.value = monthlyIncome;
-        renderExpenses();
-        renderGoals();
-        updateGoalMoneyDisplay();
-        viewModeBadge.style.display = 'inline-block';
-        exitArchiveBtn.style.display = 'inline-block';
+        showToast(`Snapshot saved for ${monthKey}`);
     }
 
     function exitArchiveMode() {
         currentViewArchive = null;
         loadFromLocal();
-        viewModeBadge.style.display = 'none';
-        exitArchiveBtn.style.display = 'none';
+        document.getElementById('viewModeBadge').style.display = 'none';
+        document.getElementById('exitArchiveBtn').style.display = 'none';
     }
 
-    // ========== CSV EXPORT - FIXED ==========
-    function exportCurrentToCSV() {
-        console.log("EXPORT FUNCTION CALLED");
-        try {
-            const yearMonth = getCurrentYearMonth();
-            let rows = [];
-            rows.push(["Type", "Name", "Amount/Value", "Note"]);
-            rows.push(["INCOME", "Monthly", monthlyIncome, ""]);
-            expenses.forEach(e => rows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
-            goals.forEach(g => rows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
-            
-            let csvContent = rows.map(row => 
-                row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")
-            ).join("\n");
-            
-            const blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `ledger_${yearMonth}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            const btn = document.getElementById('exportCurrentCSVBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '✓ CSV SAVED!';
-            setTimeout(() => { btn.innerHTML = originalText; }, 1500);
-        } catch(e) {
-            console.error('CSV error:', e);
-            alert('Export failed: ' + e.message);
-        }
+    // ========== REORDER FUNCTIONS (Up/Down buttons) ==========
+    function moveGoalUp(index) {
+        if (index <= 0) return;
+        [goals[index-1], goals[index]] = [goals[index], goals[index-1]];
+        goals.forEach((g, i) => g.orderIndex = i);
+        persistAll();
+        renderGoals();
+    }
+    function moveGoalDown(index) {
+        if (index >= goals.length - 1) return;
+        [goals[index+1], goals[index]] = [goals[index], goals[index+1]];
+        goals.forEach((g, i) => g.orderIndex = i);
+        persistAll();
+        renderGoals();
     }
 
-    function exportArchiveToCSV(monthKey) {
-        const snap = monthlyArchive[monthKey];
-        if (!snap) { alert('No data'); return; }
-        let rows = [["Type", "Name", "Amount/Value", "Note"]];
-        rows.push(["INCOME", "Monthly", snap.monthlyIncome, ""]);
-        snap.expenses.forEach(e => rows.push(["EXPENSE", e.name, e.amount, e.note || ""]));
-        snap.goals.forEach(g => rows.push(["GOAL", g.name, `${g.currentSaved}/${g.targetAmount}`, g.note || ""]));
-        let csvContent = rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
-        const blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
+    // ========== COPY TO CLIPBOARD ==========
+    function copyToClipboard() {
+        let text = `LEDGER REPORT - ${getCurrentYearMonth()}\n`;
+        text += `=================================\n`;
+        text += `INCOME: £${monthlyIncome}\n\n`;
+        text += `EXPENSES:\n`;
+        expenses.forEach(e => text += `  ${e.name}: £${e.amount}\n`);
+        text += `\nGOALS (priority order):\n`;
+        goals.forEach((g, i) => text += `  ${i+1}. ${g.name}: £${g.currentSaved} / £${g.targetAmount} (${Math.round((g.currentSaved/g.targetAmount)*100)}%)\n`);
+        text += `\nMONEY FOR GOALS: £${calculateGoalMoney()}\n`;
+        navigator.clipboard.writeText(text).then(() => showToast("✓ Copied! Paste into spreadsheet or document")).catch(() => alert("Manual copy: select all text"));
+    }
+
+    function exportJSON() {
+        const data = { monthlyIncome, expenses, goals, exportDate: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `ledger_${monthKey}.csv`;
+        a.download = `ledger_backup_${getCurrentYearMonth()}.json`;
         a.click();
-        URL.revokeObjectURL(blob.url);
+        URL.revokeObjectURL(blob.href);
+        showToast("✓ JSON backup saved");
+    }
+
+    function exportArchiveJSON(monthKey) {
+        const snap = monthlyArchive[monthKey];
+        if (!snap) return;
+        const blob = new Blob([JSON.stringify(snap, null, 2)], {type: 'application/json'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `ledger_${monthKey}.json`;
+        a.click();
+        URL.revokeObjectURL(blob.href);
+        showToast(`✓ Archive ${monthKey} saved`);
     }
 
     // ========== RENDER FUNCTIONS ==========
     function renderExpenses() {
         expensesContainer.innerHTML = '';
-        if (expenses.length === 0) {
-            expensesContainer.innerHTML = '<div style="color:#6b8f6b; padding:8px;">➕ add rent, food, transport…</div>';
-            return;
-        }
+        if (expenses.length === 0) { expensesContainer.innerHTML = '<div style="color:#6b8f6b; padding:8px;">➕ add rent, food, transport…</div>'; return; }
         expenses.forEach((exp, idx) => {
             const row = document.createElement('div');
             row.className = 'expense-item';
@@ -334,37 +304,20 @@
     }
 
     function attachExpenseEvents() {
-        document.querySelectorAll('.expense-name').forEach(inp => {
-            inp.onchange = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); } };
-        });
-        document.querySelectorAll('.expense-amount').forEach(inp => {
-            inp.oninput = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); } };
-        });
-        document.querySelectorAll('.remove-expense').forEach(btn => {
-            btn.onclick = () => { if(!currentViewArchive) { expenses.splice(parseInt(btn.dataset.idx),1); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } };
-        });
-        document.querySelectorAll('.expense-note-toggle').forEach(btn => {
-            btn.onclick = () => { const div = document.querySelector(`.expense-notes-${btn.dataset.idx}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; };
-        });
-        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => {
-            ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); };
-        });
+        document.querySelectorAll('.expense-name').forEach(inp => { inp.onchange = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); } }; });
+        document.querySelectorAll('.expense-amount').forEach(inp => { inp.oninput = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); } }; });
+        document.querySelectorAll('.remove-expense').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) { expenses.splice(parseInt(btn.dataset.idx),1); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } }; });
+        document.querySelectorAll('.expense-note-toggle').forEach(btn => { btn.onclick = () => { const div = document.querySelector(`.expense-notes-${btn.dataset.idx}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; }; });
+        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => { ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); }; });
     }
 
-    function monthsUntilDate(dateStr) {
-        if (!dateStr) return 0;
-        let target = new Date(dateStr);
-        let now = new Date();
-        return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
-    }
-
+    function monthsUntilDate(dateStr) { if (!dateStr) return 0; let target = new Date(dateStr); let now = new Date(); return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth()); }
     function computeProjection(goal, monthlyContribution) {
         const remaining = goal.targetAmount - goal.currentSaved;
         if (remaining <= 0) return { message: '✓ GOAL ACHIEVED!' };
         if (monthlyContribution <= 0) return { message: '➕ add contribution this month' };
         let monthsNeeded = remaining / monthlyContribution;
-        let projectionDate = new Date();
-        projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
+        let projectionDate = new Date(); projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
         let formatted = projectionDate.toLocaleDateString('en-GB', { year:'numeric', month:'short' });
         if (goal.targetDate && goal.targetDate !== '') {
             let monthsUntilDeadline = monthsUntilDate(goal.targetDate);
@@ -377,24 +330,24 @@
         return { message: `📅 est. ${formatted}` };
     }
 
-    let dragSrc = null;
     function renderGoals() {
         goalsContainer.innerHTML = '';
         if (goals.length === 0) { goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ click +NEW GOAL</div>'; return; }
-        goals.forEach((goal) => {
+        goals.forEach((goal, idx) => {
             const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
             const monthlyContribution = goal.userMonthlyContribution || 0;
             const projection = computeProjection(goal, monthlyContribution);
             const deadlineInfo = goal.targetDate ? `<span style="color:#b3f7b3;">📅 deadline: ${goal.targetDate}</span>` : `<span style="color:#e6c87a;">⚡ asap mode</span>`;
             const neededPerMonth = (goal.targetAmount && goal.targetDate) ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
+            const canMoveUp = idx > 0 && !currentViewArchive;
+            const canMoveDown = idx < goals.length - 1 && !currentViewArchive;
             const card = document.createElement('div');
             card.className = 'goal-card';
             card.setAttribute('data-id', goal.id);
-            card.draggable = !currentViewArchive;
             card.innerHTML = `
                 <div class="goal-header">
                     <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>
-                    <input type="number" step="any" class="goal-target-edit" data-id="${goal.id}" value="${goal.targetAmount}" ${currentViewArchive ? 'disabled' : ''}>
+                    <input type="number" step="any" class="goal-target-edit" value="${goal.targetAmount}" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>
                     <div class="goal-badge" style="color:#b3f7b3;">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>
                 </div>
                 <div class="progress-bar-bg"><div class="progress-fill" style="width:${Math.min(100,percent)}%;"></div></div>
@@ -405,6 +358,10 @@
                     <button class="delete-goal" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>🗑️ DELETE</button>
                     <button class="notes-toggle goal-note-toggle" data-id="${goal.id}">📝 note</button>
                 </div>
+                <div class="reorder-buttons" style="margin-top: 8px; gap: 8px;">
+                    ${!currentViewArchive ? `<button class="move-btn move-up" data-idx="${idx}" ${!canMoveUp ? 'disabled style="opacity:0.3;"' : ''}>⬆️ Up</button>` : ''}
+                    ${!currentViewArchive ? `<button class="move-btn move-down" data-idx="${idx}" ${!canMoveDown ? 'disabled style="opacity:0.3;"' : ''}>⬇️ Down</button>` : ''}
+                </div>
                 <div id="goalNote_${goal.id}" class="notes-area" style="display:none;"><textarea rows="2" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(goal.note || '')}</textarea></div>
                 <div style="font-size:0.75rem; margin:6px 0 0; color:#ade6ad;">${projection.message}</div>
                 <div style="font-size:0.7rem; display:flex; justify-content:space-between; flex-wrap:wrap;">${deadlineInfo}<span style="color:#9fca9f;">💷 need/mo: £${neededPerMonth}</span></div>
@@ -412,70 +369,17 @@
             goalsContainer.appendChild(card);
         });
         if(!currentViewArchive) attachGoalEvents();
-        if(!currentViewArchive) attachDragAndDrop();
     }
 
     function attachGoalEvents() {
-        document.querySelectorAll('.goal-name').forEach(inp => {
-            inp.onchange = () => { const goal = goals.find(g=>g.id===inp.dataset.id); if(goal) goal.name = inp.value; persistAll(); renderGoals(); };
-        });
-        document.querySelectorAll('.goal-target-edit').forEach(inp => {
-            inp.onchange = () => { const goal = goals.find(g=>g.id===inp.dataset.id); if(goal) { let newTarget = parseFloat(inp.value); if(!isNaN(newTarget) && newTarget>=0) goal.targetAmount = newTarget; persistAll(); renderGoals(); } };
-        });
-        document.querySelectorAll('.apply-contrib').forEach(btn => {
-            btn.onclick = () => {
-                if(currentViewArchive) return;
-                const goal = goals.find(g=>g.id===btn.dataset.id);
-                if(!goal) return;
-                const contribField = btn.closest('.goal-card').querySelector('.contribution-input');
-                let amount = parseFloat(contribField.value);
-                if(isNaN(amount)||amount<=0) amount=0;
-                const available = calculateGoalMoney();
-                if(amount > available && amount > 0) { alert(`⚠️ Only £${available.toFixed(2)} available`); return; }
-                if(amount > 0) { goal.currentSaved += amount; goal.userMonthlyContribution = amount; persistAll(); }
-                renderGoals(); updateGoalMoneyDisplay();
-            };
-        });
-        document.querySelectorAll('.delete-goal').forEach(btn => {
-            btn.onclick = () => { if(!currentViewArchive) { goals = goals.filter(g=>g.id!==btn.dataset.id); persistAll(); renderGoals(); } };
-        });
-        document.querySelectorAll('.goal-note-toggle').forEach(btn => {
-            btn.onclick = () => { const div = document.getElementById(`goalNote_${btn.dataset.id}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; };
-        });
-        document.querySelectorAll('.notes-area textarea').forEach(ta => {
-            ta.onblur = () => {
-                if(!currentViewArchive) {
-                    const parentId = ta.closest('.notes-area').id;
-                    const goalId = parentId.replace('goalNote_','');
-                    const goal = goals.find(g=>g.id===goalId);
-                    if(goal) goal.note = ta.value;
-                    persistAll();
-                }
-            };
-        });
-    }
-
-    function attachDragAndDrop() {
-        document.querySelectorAll('.goal-card').forEach(card => {
-            card.addEventListener('dragstart', (e) => { dragSrc = card; e.dataTransfer.effectAllowed = 'move'; });
-            card.addEventListener('dragend', () => {
-                if(dragSrc && dragSrc !== card) {
-                    const srcId = dragSrc.getAttribute('data-id');
-                    const tgtId = card.getAttribute('data-id');
-                    const srcIdx = goals.findIndex(g=>g.id===srcId);
-                    const tgtIdx = goals.findIndex(g=>g.id===tgtId);
-                    if(srcIdx !== -1 && tgtIdx !== -1) {
-                        const [moved] = goals.splice(srcIdx,1);
-                        goals.splice(tgtIdx,0,moved);
-                        goals.forEach((g,i)=>g.orderIndex=i);
-                        persistAll();
-                        renderGoals();
-                    }
-                }
-                dragSrc = null;
-            });
-            card.addEventListener('dragover', (e)=>e.preventDefault());
-        });
+        document.querySelectorAll('.goal-name').forEach(inp => { inp.onchange = () => { const g = goals.find(g=>g.id===inp.dataset.id); if(g) g.name = inp.value; persistAll(); renderGoals(); }; });
+        document.querySelectorAll('.goal-target-edit').forEach(inp => { inp.onchange = () => { const g = goals.find(g=>g.id===inp.dataset.id); if(g) { let nt = parseFloat(inp.value); if(!isNaN(nt) && nt>=0) g.targetAmount = nt; persistAll(); renderGoals(); } }; });
+        document.querySelectorAll('.apply-contrib').forEach(btn => { btn.onclick = () => { if(currentViewArchive) return; const goal = goals.find(g=>g.id===btn.dataset.id); if(!goal) return; const contribField = btn.closest('.goal-card').querySelector('.contribution-input'); let amount = parseFloat(contribField.value); if(isNaN(amount)||amount<=0) amount=0; const available = calculateGoalMoney(); if(amount>available && amount>0) { alert(`⚠️ Only £${available.toFixed(2)} available`); return; } if(amount>0) { goal.currentSaved += amount; goal.userMonthlyContribution = amount; persistAll(); } renderGoals(); updateGoalMoneyDisplay(); }; });
+        document.querySelectorAll('.delete-goal').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) { goals = goals.filter(g=>g.id!==btn.dataset.id); persistAll(); renderGoals(); } }; });
+        document.querySelectorAll('.goal-note-toggle').forEach(btn => { btn.onclick = () => { const div = document.getElementById(`goalNote_${btn.dataset.id}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; }; });
+        document.querySelectorAll('.notes-area textarea').forEach(ta => { ta.onblur = () => { if(!currentViewArchive) { const parentId = ta.closest('.notes-area').id; const goalId = parentId.replace('goalNote_',''); const goal = goals.find(g=>g.id===goalId); if(goal) goal.note = ta.value; persistAll(); } }; });
+        document.querySelectorAll('.move-up').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) moveGoalUp(parseInt(btn.dataset.idx)); }; });
+        document.querySelectorAll('.move-down').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) moveGoalDown(parseInt(btn.dataset.idx)); }; });
     }
 
     function renderArchiveList() {
@@ -485,104 +389,48 @@
         archiveListDiv.innerHTML = months.map(m => `
             <div class="archive-item">
                 <span class="archive-month" data-month="${m}">📅 ${m.replace('-', ' · ')}</span>
-                <div><button class="archive-export" data-month="${m}">📎 CSV</button><button class="archive-delete" data-month="${m}">🗑️</button></div>
+                <div><button class="archive-export" data-month="${m}">📎 JSON</button><button class="archive-delete" data-month="${m}">🗑️</button></div>
             </div>
         `).join('');
-        document.querySelectorAll('.archive-month').forEach(el => { el.addEventListener('click', () => loadArchiveIntoView(el.dataset.month)); });
-        document.querySelectorAll('.archive-export').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); exportArchiveToCSV(btn.dataset.month); }); });
-        document.querySelectorAll('.archive-delete').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete?')) { delete monthlyArchive[btn.dataset.month]; persistAll(); renderArchiveList(); if(currentViewArchive === btn.dataset.month) exitArchiveMode(); } }); });
+        document.querySelectorAll('.archive-month').forEach(el => { el.addEventListener('click', () => { loadArchiveIntoView(el.dataset.month); }); });
+        document.querySelectorAll('.archive-export').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); exportArchiveJSON(btn.dataset.month); }); });
+        document.querySelectorAll('.archive-delete').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete archive?')) { delete monthlyArchive[btn.dataset.month]; persistAll(); renderArchiveList(); if(currentViewArchive === btn.dataset.month) exitArchiveMode(); } }); });
     }
 
-    function hardReset() {
-        if(confirm("⚠️ DELETE ALL DATA?")) {
-            localStorage.removeItem('ledger1985_final');
-            localStorage.removeItem('ledger1985_archive');
-            localStorage.removeItem('ledger1985_last_month');
-            monthlyArchive = {};
-            loadFromLocal();
-            exitArchiveMode();
-        }
+    function loadArchiveIntoView(monthKey) {
+        const snap = monthlyArchive[monthKey];
+        if (!snap) return;
+        currentViewArchive = monthKey;
+        monthlyIncome = snap.monthlyIncome;
+        expenses = snap.expenses;
+        goals = snap.goals;
+        incomeInput.value = monthlyIncome;
+        renderExpenses(); renderGoals(); updateGoalMoneyDisplay();
+        document.getElementById('viewModeBadge').style.display = 'inline-block';
+        document.getElementById('exitArchiveBtn').style.display = 'inline-block';
     }
 
-    async function triggerGistBackup() {
-        if(!githubToken || !gistId || syncInProgress) return;
-        syncInProgress = true;
-        syncStatusSpan.innerText = '☁️ SYNC...';
-        try {
-            const getRes = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
-            let existing = {};
-            if(getRes.ok) { const gistData = await getRes.json(); const content = gistData.files['ledger1985.json']?.content; if(content) existing = JSON.parse(content); }
-            existing.ledger = { monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync: new Date().toISOString() };
-            await fetch(`https://api.github.com/gists/${gistId}`, { method: 'PATCH', headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { 'ledger1985.json': { content: JSON.stringify(existing, null, 2) } } }) });
-            syncStatusSpan.innerText = '☁️ SYNC OK';
-            setTimeout(() => syncStatusSpan.innerText = '☁️ SYNC READY', 2000);
-        } catch(e) { syncStatusSpan.innerText = '⚠️ SYNC ERR'; }
-        finally { syncInProgress = false; }
-    }
+    function hardReset() { if(confirm("⚠️ DELETE ALL DATA? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
 
-    async function loadFromGist() {
-        if(!githubToken || !gistId) return;
-        syncStatusSpan.innerText = '📡 LOAD...';
-        try {
-            const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
-            if(res.ok) {
-                const gist = await res.json();
-                const content = gist.files['ledger1985.json']?.content;
-                if(content) {
-                    const remote = JSON.parse(content);
-                    if(remote.ledger) {
-                        monthlyIncome = remote.ledger.monthlyIncome || 0;
-                        expenses = remote.ledger.expenses || [];
-                        goals = remote.ledger.goals || [];
-                        monthlyArchive = remote.ledger.archive || {};
-                        incomeInput.value = monthlyIncome;
-                        renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList();
-                        persistAll();
-                        syncStatusSpan.innerText = '☁️ LOADED';
-                        setTimeout(() => syncStatusSpan.innerText = '☁️ SYNC READY', 1800);
-                    }
-                }
-            }
-        } catch(e) {}
-    }
-
+    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
+    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
 
-    // ========== BUTTON BINDINGS (with console logs for debugging) ==========
+    // ========== BUTTON BINDINGS ==========
     document.getElementById('addExpenseBtn').onclick = () => { if(!currentViewArchive) { expenses.push({ name: 'New expense', amount: 0, note: '' }); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } };
     document.getElementById('addGoalBtn').onclick = () => { if(!currentViewArchive) { goals.push({ id:'goal_'+Date.now(), name:'✨ New Goal', targetAmount:200, currentSaved:0, targetDate:'', orderIndex:goals.length, userMonthlyContribution:0, note:'' }); persistAll(); renderGoals(); } };
-    
-    // FIXED: CSV export button binding
-    const exportBtn = document.getElementById('exportCurrentCSVBtn');
-    if (exportBtn) {
-        exportBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log("CSV button clicked");
-            exportCurrentToCSV();
-        };
-        console.log("Export button bound successfully");
-    } else {
-        console.error("Export button not found in DOM");
-    }
-    
+    document.getElementById('copyToClipboardBtn').onclick = copyToClipboard;
+    document.getElementById('exportJSONBtn').onclick = exportJSON;
     document.getElementById('resetAllBtn').onclick = hardReset;
     document.getElementById('saveCurrentMonthBtn').onclick = () => saveSnapshotToArchive(getCurrentYearMonth());
-    exitArchiveBtn.onclick = () => exitArchiveMode();
+    document.getElementById('exitArchiveBtn').onclick = exitArchiveMode;
     incomeInput.oninput = () => { if(!currentViewArchive) { monthlyIncome = parseFloat(incomeInput.value) || 0; persistAll(); updateGoalMoneyDisplay(); renderGoals(); } };
     document.getElementById('syncStatusChip').onclick = () => document.getElementById('syncModal').style.display = 'flex';
-    document.getElementById('saveGistSettingsBtn').onclick = async () => {
-        const newToken = document.getElementById('modalToken').value.trim();
-        const newGist = document.getElementById('modalGistId').value.trim();
-        if(newToken) { githubToken = newToken; localStorage.setItem('goal_github_token', newToken); }
-        if(newGist) { gistId = newGist; localStorage.setItem('goal_gist_id', newGist); }
-        document.getElementById('syncModal').style.display = 'none';
-        await loadFromGist();
-    };
-    document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display = 'none';
+    document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
+    document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display='none';
     
     loadFromLocal();
-    if(githubToken && gistId) setTimeout(() => loadFromGist(), 300);
+    if(githubToken && gistId) setTimeout(()=>loadFromGist(),300);
 </script>
 </body>
 </html>
