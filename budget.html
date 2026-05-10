@@ -1,10 +1,11 @@
-
+Here is the complete HTML code for your goal tracker, with editable goal costs and a collapsible notes section for each goal and expense, while keeping the original design intact.
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>Ledger 1985</title>
+    <title>Ledger 1985 · Goal Forge</title>
     <style>
         * {
             margin: 0;
@@ -19,9 +20,8 @@
             min-height: 100vh;
         }
 
-        /* retro window */
         .crt {
-            max-width: 720px;
+            max-width: 760px;
             margin: 0 auto;
             background: #1e1e1e;
             border-radius: 32px 32px 28px 28px;
@@ -211,6 +211,7 @@
             flex-wrap: wrap;
             align-items: baseline;
             margin-bottom: 8px;
+            gap: 8px;
         }
 
         .goal-name {
@@ -223,6 +224,18 @@
             color: #d0ffd0;
             font-family: monospace;
             width: auto;
+            flex: 2;
+        }
+
+        .goal-target-edit {
+            background: #071007;
+            border: 1px solid #3c723c;
+            padding: 6px 10px;
+            border-radius: 40px;
+            color: #f0fff0;
+            width: 110px;
+            font-family: monospace;
+            text-align: center;
         }
 
         .progress-bar-bg {
@@ -288,6 +301,38 @@
             cursor: pointer;
         }
 
+        .notes-toggle {
+            background: #1f2a1f;
+            border: none;
+            border-radius: 60px;
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            color: #bada8a;
+            cursor: pointer;
+            margin-top: 8px;
+            width: fit-content;
+        }
+
+        .notes-area {
+            margin-top: 8px;
+            background: #092009;
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: none;
+        }
+
+        .notes-area textarea {
+            width: 100%;
+            background: #030f03;
+            border: 1px solid #4f7a4f;
+            color: #cef5ce;
+            font-family: monospace;
+            padding: 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            resize: vertical;
+        }
+
         .action-bar {
             display: flex;
             flex-wrap: wrap;
@@ -296,17 +341,8 @@
             margin-top: 12px;
         }
 
-        .reset-btn {
-            background: #2a2a2a;
-            border: 1px solid #9e6e6e;
-            color: #f0b3b3;
-        }
-
-        .export-btn {
-            background: #1a2e3a;
-            border: 1px solid #6f9f9f;
-            color: #b7f0f0;
-        }
+        .reset-btn { background: #2a2a2a; border: 1px solid #9e6e6e; color: #f0b3b3; }
+        .export-btn { background: #1a2e3a; border: 1px solid #6f9f9f; color: #b7f0f0; }
 
         footer {
             font-size: 0.65rem;
@@ -318,6 +354,7 @@
         @media (max-width: 540px) {
             .content { padding: 12px; }
             .goal-input-group { flex-direction: column; align-items: stretch; }
+            .goal-header { flex-direction: column; }
         }
     </style>
 </head>
@@ -355,11 +392,11 @@
                 <button class="add-btn reset-btn" id="resetAllBtn">⟳ RESET ALL</button>
             </div>
         </div>
-        <footer>local storage auto-save · drag goals to reorder · ☁️ click sync for gist backup</footer>
+        <footer>local auto-save · drag goals to reorder · ✎ click (📝) to add private notes</footer>
     </div>
 </div>
 
-<!-- MODAL for Gist sync / reset confirm -->
+<!-- MODAL for Gist sync -->
 <div id="syncModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#071007dd; backdrop-filter: blur(3px); justify-content:center; align-items:center; z-index:1000;">
     <div style="background:#121e12; max-width:360px; width:90%; border-radius:32px; border:1px solid #578b57; padding:22px; font-family:monospace;">
         <h3 style="color:#b1f0b1;">☁️ CLOUD SYNC</h3>
@@ -376,12 +413,11 @@
 </div>
 
 <script>
-    // ---------- APP STATE ----------
+    // ---------- APP STATE (goals have notes, expenses have notes) ----------
     let monthlyIncome = 0;
-    let expenses = [];          // { name, amount }
-    let goals = [];             // { id, name, targetAmount, currentSaved, targetDate, orderIndex, userMonthlyContribution }
+    let expenses = [];          // each: { name, amount, note }
+    let goals = [];             // each: { id, name, targetAmount, currentSaved, targetDate, orderIndex, userMonthlyContribution, note }
 
-    // Gist sync vars
     let githubToken = localStorage.getItem('goal_github_token') || '';
     let gistId = localStorage.getItem('goal_gist_id') || '';
     let syncInProgress = false;
@@ -393,7 +429,6 @@
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
 
-    // helpers
     function calculateGoalMoney() {
         let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         let incomeVal = parseFloat(monthlyIncome) || 0;
@@ -413,7 +448,6 @@
         triggerGistBackup();
     }
 
-    // load from local storage
     function loadFromLocal() {
         const saved = localStorage.getItem('ledger1985_final');
         if (saved) {
@@ -423,7 +457,8 @@
                 expenses = data.expenses || [];
                 goals = data.goals || [];
                 if (goals.length === 0) seedDefaultGoals();
-                goals.forEach((g, idx) => { if (g.orderIndex === undefined) g.orderIndex = idx; });
+                goals.forEach((g, idx) => { if (g.orderIndex === undefined) g.orderIndex = idx; if (g.note === undefined) g.note = ''; });
+                expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
                 goals.sort((a,b) => (a.orderIndex || 0) - (b.orderIndex || 0));
                 incomeInput.value = monthlyIncome;
             } catch(e) { console.warn(e); seedDefaultGoals(); }
@@ -438,15 +473,15 @@
     function seedDefaultGoals() {
         if (goals.length === 0) {
             goals = [
-                { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0, userMonthlyContribution: 0 },
-                { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1, userMonthlyContribution: 0 },
-                { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-01-15', orderIndex: 2, userMonthlyContribution: 0 },
-                { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0 }
+                { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
+                { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1, userMonthlyContribution: 0, note: '' },
+                { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-01-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
+                { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
             ];
         }
     }
 
-    // ---------- EXPENSES RENDER ----------
+    // ---------------- EXPENSES RENDER (with notes dropdown) ----------------
     function renderExpenses() {
         expensesContainer.innerHTML = '';
         if (expenses.length === 0) {
@@ -460,10 +495,15 @@
             expenses.forEach((exp, idx) => {
                 const row = document.createElement('div');
                 row.className = 'expense-item';
+                row.style.flexWrap = 'wrap';
                 row.innerHTML = `
                     <input type="text" class="expense-name" value="${escapeHtml(exp.name)}" placeholder="Expense">
                     <input type="number" step="any" class="expense-amount" value="${exp.amount}">
                     <button class="remove-expense" data-idx="${idx}">✕</button>
+                    <button class="notes-toggle expense-note-toggle" data-idx="${idx}" style="margin-left:auto;">📝 note</button>
+                    <div class="notes-area expense-notes-${idx}" style="width:100%; margin-top:6px;">
+                        <textarea rows="2" placeholder="optional notes (receipts, due date, store...)">${escapeHtml(exp.note || '')}</textarea>
+                    </div>
                 `;
                 expensesContainer.appendChild(row);
             });
@@ -487,9 +527,22 @@
                 updateGoalMoneyDisplay();
             };
         });
+        document.querySelectorAll('.expense-note-toggle').forEach(btn => {
+            btn.onclick = () => {
+                const idx = btn.dataset.idx;
+                const notesDiv = document.querySelector(`.expense-notes-${idx}`);
+                if (notesDiv) notesDiv.style.display = notesDiv.style.display === 'none' ? 'block' : 'none';
+            };
+        });
+        document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => {
+            ta.onblur = () => {
+                if (expenses[idx]) expenses[idx].note = ta.value;
+                persistAll();
+            };
+        });
     }
 
-    // ---------- GOAL RENDER (drag, projection, contributions) ----------
+    // ---------- GOAL RENDER (editable target amount, notes, drag, projection) ----------
     function monthsUntilDate(dateStr) {
         if (!dateStr) return 0;
         let target = new Date(dateStr);
@@ -534,6 +587,7 @@
             const projection = computeProjection(goal, monthlyContribution);
             const deadlineInfo = goal.targetDate ? `📅 deadline: ${goal.targetDate}` : '⚡ asap mode';
             const neededPerMonth = (goal.targetAmount && goal.targetDate && goal.targetDate !== '') ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
+            const noteId = `goalNote_${goal.id}`;
             const card = document.createElement('div');
             card.className = 'goal-card';
             card.setAttribute('data-id', goal.id);
@@ -541,17 +595,22 @@
             card.innerHTML = `
                 <div class="goal-header">
                     <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" style="background:#071007; border:1px solid #3e6e3e;">
-                    <div class="goal-badge">🎯 £${goal.targetAmount || 0}</div>
+                    <input type="number" step="any" class="goal-target-edit" data-id="${goal.id}" value="${goal.targetAmount}" placeholder="target £">
+                    <div class="goal-badge">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>
                 </div>
                 <div class="progress-bar-bg"><div class="progress-fill" style="width: ${Math.min(100,percent)}%;"></div></div>
                 <div class="goal-stats">
-                    <span>💰 saved: £${goal.currentSaved.toFixed(2)}</span>
-                    <span>🏁 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span>
+                    <span>💰 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span>
+                    <span>🏁 target: £${goal.targetAmount}</span>
                 </div>
                 <div class="goal-input-group">
                     <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}">
                     <button class="small-btn apply-contrib" data-id="${goal.id}">APPLY ➕</button>
                     <button class="delete-goal" data-id="${goal.id}">🗑️ DELETE</button>
+                    <button class="notes-toggle goal-note-toggle" data-id="${goal.id}">📝 note</button>
+                </div>
+                <div id="${noteId}" class="notes-area" style="display:none; margin-top:6px;">
+                    <textarea rows="2" placeholder="Private notes, reminders, deadlines...">${escapeHtml(goal.note || '')}</textarea>
                 </div>
                 <div style="font-size:0.75rem; margin-top:6px; color:#ade6ad;">${projection.message}</div>
                 <div style="font-size:0.7rem; display:flex; justify-content: space-between; flex-wrap:wrap;">${deadlineInfo}<span>💷 need/mo: £${neededPerMonth}</span></div>
@@ -563,6 +622,7 @@
     }
 
     function attachGoalEvents() {
+        // goal name edit
         document.querySelectorAll('.goal-name').forEach(inp => {
             inp.onchange = (e) => {
                 const gid = inp.dataset.id;
@@ -572,6 +632,21 @@
                 renderGoals();
             };
         });
+        // TARGET AMOUNT edit (the new field)
+        document.querySelectorAll('.goal-target-edit').forEach(inp => {
+            inp.onchange = (e) => {
+                const gid = inp.dataset.id;
+                const goal = goals.find(g => g.id === gid);
+                if (goal) {
+                    let newTarget = parseFloat(inp.value);
+                    if (!isNaN(newTarget) && newTarget >= 0) goal.targetAmount = newTarget;
+                    else goal.targetAmount = 0;
+                    persistAll();
+                    renderGoals();
+                }
+            };
+        });
+        // apply contribution
         document.querySelectorAll('.apply-contrib').forEach(btn => {
             btn.onclick = (e) => {
                 const gid = btn.dataset.id;
@@ -583,7 +658,7 @@
                 if (isNaN(amount) || amount <= 0) amount = 0;
                 const available = calculateGoalMoney();
                 if (amount > available && amount > 0) {
-                    alert(`⚠️ Not enough goal money this month. Available: £${available.toFixed(2)}`);
+                    alert(`⚠️ Not enough goal money. Available: £${available.toFixed(2)}`);
                     return;
                 }
                 if (amount > 0) {
@@ -595,12 +670,31 @@
                 updateGoalMoneyDisplay();
             };
         });
+        // delete goal
         document.querySelectorAll('.delete-goal').forEach(btn => {
             btn.onclick = () => {
                 const gid = btn.dataset.id;
                 goals = goals.filter(g => g.id !== gid);
                 persistAll();
                 renderGoals();
+            };
+        });
+        // notes toggle for goals
+        document.querySelectorAll('.goal-note-toggle').forEach(btn => {
+            btn.onclick = (e) => {
+                const gid = btn.dataset.id;
+                const noteDiv = document.getElementById(`goalNote_${gid}`);
+                if (noteDiv) noteDiv.style.display = noteDiv.style.display === 'none' ? 'block' : 'none';
+            };
+        });
+        // save note content on blur
+        document.querySelectorAll('.notes-area textarea').forEach(ta => {
+            ta.onblur = (e) => {
+                const parentDiv = ta.closest('.notes-area');
+                const goalId = parentDiv.id.replace('goalNote_', '');
+                const goal = goals.find(g => g.id === goalId);
+                if (goal) goal.note = ta.value;
+                persistAll();
             };
         });
     }
@@ -630,35 +724,25 @@
                 }
                 dragSrc = null;
             });
-            card.addEventListener('dragover', (e) => { e.preventDefault(); });
+            card.addEventListener('dragover', (e) => e.preventDefault());
         });
     }
 
-    // ---------- EXPORT & RESET ----------
+    // ---------- EXPORT / RESET ----------
     function exportFullData() {
-        const exportState = {
-            version: "ledger1985_export",
-            date: new Date().toISOString(),
-            monthlyIncome: monthlyIncome,
-            expenses: expenses,
-            goals: goals
-        };
-        const dataStr = JSON.stringify(exportState, null, 2);
-        const blob = new Blob([dataStr], {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
+        const exportState = { version: "ledger1985_export", date: new Date().toISOString(), monthlyIncome, expenses, goals };
+        const blob = new Blob([JSON.stringify(exportState, null, 2)], {type: 'application/json'});
         const a = document.createElement('a');
-        a.href = url;
+        a.href = URL.createObjectURL(blob);
         a.download = `ledger_backup_${new Date().toISOString().slice(0,19)}.json`;
         a.click();
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(blob);
     }
 
     function hardReset() {
-        if (confirm("⚠️ THIS WILL DELETE ALL GOALS, EXPENSES AND INCOME.\nYour cloud sync preferences will stay, but all local data will be wiped. Continue?")) {
+        if (confirm("⚠️ THIS WILL DELETE ALL GOALS, EXPENSES, NOTES, INCOME.\nCloud sync preferences stay. Continue?")) {
             localStorage.removeItem('ledger1985_final');
-            monthlyIncome = 0;
-            expenses = [];
-            goals = [];
+            monthlyIncome = 0; expenses = []; goals = [];
             seedDefaultGoals();
             incomeInput.value = 0;
             renderExpenses();
@@ -668,7 +752,7 @@
         }
     }
 
-    // ---------- GIST SYNC (fully functional) ----------
+    // ---------- GIST SYNC (unchanged but robust) ----------
     async function triggerGistBackup() {
         if (!githubToken || !gistId || syncInProgress) return;
         syncInProgress = true;
@@ -721,7 +805,7 @@
         } catch(e) { console.warn(e); }
     }
 
-    // MODAL LOGIC
+    // MODAL
     const modal = document.getElementById('syncModal');
     const modalToken = document.getElementById('modalToken');
     const modalGistId = document.getElementById('modalGistId');
@@ -740,21 +824,21 @@
     };
     document.getElementById('closeSyncModalBtn').onclick = () => modal.style.display = 'none';
 
-    // top level event binding (always works)
+    // top-level buttons
     document.getElementById('addExpenseBtn').onclick = () => {
-        expenses.push({ name: 'New expense', amount: 0 });
+        expenses.push({ name: 'New expense', amount: 0, note: '' });
         renderExpenses();
         persistAll();
         updateGoalMoneyDisplay();
     };
     document.getElementById('addGoalBtn').onclick = () => {
         const newId = 'goal_' + Date.now();
-        goals.push({ id: newId, name: '✨ New Goal', targetAmount: 200, currentSaved: 0, targetDate: '', orderIndex: goals.length, userMonthlyContribution: 0 });
+        goals.push({ id: newId, name: '✨ New Goal', targetAmount: 200, currentSaved: 0, targetDate: '', orderIndex: goals.length, userMonthlyContribution: 0, note: '' });
         persistAll();
         renderGoals();
     };
-    document.getElementById('exportDataBtn').onclick = () => exportFullData();
-    document.getElementById('resetAllBtn').onclick = () => hardReset();
+    document.getElementById('exportDataBtn').onclick = exportFullData;
+    document.getElementById('resetAllBtn').onclick = hardReset;
     incomeInput.oninput = () => {
         monthlyIncome = parseFloat(incomeInput.value) || 0;
         persistAll();
@@ -763,10 +847,9 @@
     };
 
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
-    // INIT
     loadFromLocal();
     if (githubToken && gistId) setTimeout(() => loadFromGist(), 300);
 </script>
 </body>
 </html>
-
+```
