@@ -583,7 +583,7 @@
             const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
             const monthlyContribution = goal.userMonthlyContribution || 0;
             const projection = computeProjection(goal, monthlyContribution);
-            const deadlineInfo = goal.targetDate ? `📅 deadline: ${goal.targetDate}` : '⚡ asap mode';
+            const deadlineInfo = goal.targetDate ? `📅 deadline: ${goal.targetDate}` : `<span style="color: #b3f7b3;">⚡ asap mode</span>`;
             const neededPerMonth = (goal.targetAmount && goal.targetDate && goal.targetDate !== '') ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
             const noteId = `goalNote_${goal.id}`;
             const card = document.createElement('div');
@@ -594,7 +594,7 @@
                 <div class="goal-header">
                     <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" style="background:#071007; border:1px solid #3e6e3e;">
                     <input type="number" step="any" class="goal-target-edit" data-id="${goal.id}" value="${goal.targetAmount}" placeholder="target £">
-                    <div class="goal-badge">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>
+                    <div class="goal-badge" style="color: #b3f7b3;">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>                
                 </div>
                 <div class="progress-bar-bg"><div class="progress-fill" style="width: ${Math.min(100,percent)}%;"></div></div>
                 <div class="goal-stats">
@@ -611,7 +611,7 @@
                     <textarea rows="2" placeholder="Private notes, reminders, deadlines...">${escapeHtml(goal.note || '')}</textarea>
                 </div>
                 <div style="font-size:0.75rem; margin-top:6px; color:#ade6ad;">${projection.message}</div>
-                <div style="font-size:0.7rem; display:flex; justify-content: space-between; flex-wrap:wrap;">${deadlineInfo}<span>💷 need/mo: £${neededPerMonth}</span></div>
+                <div style="font-size:0.7rem; display:flex; justify-content: space-between; flex-wrap:wrap;">${deadlineInfo}<span style="color: #9fca9f;">💷 need/mo: £${neededPerMonth}</span></div>
             `;
             goalsContainer.appendChild(card);
         });
