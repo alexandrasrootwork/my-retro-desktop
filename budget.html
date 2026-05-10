@@ -1,0 +1,805 @@
+Here is the complete HTML code for a retro goal tracker web app. You can save it as an `.html` file and open it in any browser.
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Ledger 1985 · Goal Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* keep retro feel, but text can be selected if needed */
+        }
+
+        body {
+            background: radial-gradient(circle at 20% 30%, #1a2a1a, #0a120a);
+            font-family: 'Courier New', 'Fira Code', 'VT323', monospace;
+            padding: 16px 12px 40px;
+            min-height: 100vh;
+        }
+
+        /* retro-window (walkman / terminal hybrid) */
+        .crt {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            border-radius: 28px 28px 24px 24px;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.6), inset 0 1px 0px rgba(255,255,255,0.08);
+            border: 1px solid #2c3e2c;
+            backdrop-filter: blur(0px);
+            transition: all 0.1s;
+        }
+
+        /* scanline effect (subtle) */
+        .crt::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,255,0,0.02) 0px, rgba(0,255,0,0.02) 2px, transparent 2px, transparent 6px);
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .window-header {
+            background: #2a2a2a;
+            padding: 12px 18px;
+            border-radius: 28px 28px 0 0;
+            border-bottom: 2px solid #3c6e3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .title {
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            font-size: 1.2rem;
+            color: #8bcb8b;
+            text-shadow: 0 0 3px #1f9a1f;
+        }
+
+        .sync-indicator {
+            font-size: 10px;
+            background: #0f0f0f;
+            padding: 4px 10px;
+            border-radius: 40px;
+            color: #7ab87a;
+            font-family: monospace;
+            cursor: pointer;
+            border: 1px solid #3e6e3e;
+        }
+
+        .content {
+            padding: 20px 18px 26px;
+        }
+
+        /* green phosphor panels */
+        .panel {
+            background: #0e1a0e;
+            border: 1px solid #2b5e2b;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 28px;
+            box-shadow: inset 0 0 8px #1f3a1f, 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .panel h2 {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            color: #b3f7b3;
+            border-left: 4px solid #6bc86b;
+            padding-left: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .budget-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+            background: #071007;
+            padding: 8px 12px;
+            border-radius: 40px;
+        }
+
+        .budget-row label {
+            flex: 2;
+            min-width: 100px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #9dcf9d;
+        }
+
+        .budget-row input {
+            flex: 3;
+            background: #030903;
+            border: 1px solid #3c6e3c;
+            padding: 10px 12px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: #d2ffd2;
+            border-radius: 28px;
+            outline: none;
+        }
+
+        .budget-row input:focus {
+            border-color: #8eff8e;
+            box-shadow: 0 0 4px #6aff6a;
+        }
+
+        .expense-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .expense-name {
+            flex: 2;
+            background: #0d170d;
+            border: 1px solid #2f582f;
+            padding: 8px 12px;
+            border-radius: 28px;
+            color: #add8ad;
+            font-family: monospace;
+        }
+
+        .expense-amount {
+            flex: 1;
+            background: #030903;
+            border: 1px solid #3e6b3e;
+            padding: 8px 12px;
+            border-radius: 28px;
+            color: #e2ffe2;
+            font-family: monospace;
+        }
+
+        .remove-expense {
+            background: #2e1e1e;
+            border: none;
+            color: #ffa0a0;
+            font-weight: bold;
+            width: 32px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .add-btn {
+            background: #1f3a1f;
+            border: 1px solid #5ba05b;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #bef5be;
+            margin-top: 8px;
+            width: fit-content;
+            cursor: pointer;
+        }
+
+        .goal-money-card {
+            background: #102010;
+            border-radius: 32px;
+            padding: 12px 18px;
+            text-align: center;
+            margin: 16px 0 8px;
+        }
+
+        .goal-money-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #e6ffe6;
+            letter-spacing: 2px;
+        }
+
+        /* goals list (draggable) */
+        .goals-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .goal-card {
+            background: #0f1a0f;
+            border-radius: 28px;
+            border-left: 8px solid #7bc97b;
+            padding: 14px;
+            transition: all 0.1s;
+            cursor: grab;
+        }
+
+        .goal-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .goal-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: none;
+            border: none;
+            color: #d0ffd0;
+            font-family: monospace;
+            width: auto;
+        }
+
+        .goal-badge {
+            font-size: 0.7rem;
+            background: #1f351f;
+            padding: 4px 8px;
+            border-radius: 40px;
+        }
+
+        .progress-bar-bg {
+            background: #1d2a1d;
+            border-radius: 60px;
+            height: 18px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #6bd96b;
+            width: 0%;
+            height: 100%;
+            border-radius: 60px;
+            box-shadow: 0 0 6px #90ee90;
+        }
+
+        .goal-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #b1d0b1;
+            margin: 8px 0;
+        }
+
+        .goal-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0 4px;
+            align-items: center;
+        }
+
+        .contribution-input {
+            background: #030d03;
+            border: 1px solid #477a47;
+            padding: 8px 10px;
+            border-radius: 32px;
+            color: #ceffce;
+            font-family: monospace;
+            flex: 1;
+        }
+
+        .small-btn {
+            background: #2b472b;
+            border: none;
+            border-radius: 60px;
+            padding: 6px 14px;
+            font-family: monospace;
+            font-weight: bold;
+            color: #bcfdbc;
+            cursor: pointer;
+        }
+
+        .delete-goal {
+            background: #3e2626;
+            color: #ffb4b4;
+            border: none;
+            border-radius: 40px;
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .ghost {
+            opacity: 0.4;
+            background: #1e2a1e;
+        }
+
+        footer {
+            font-size: 0.65rem;
+            text-align: center;
+            margin-top: 20px;
+            color: #5d895d;
+        }
+
+        @media (max-width: 520px) {
+            .content {
+                padding: 14px;
+            }
+            .goal-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="crt" id="appRoot">
+    <div class="window-header">
+        <div class="title">◍ LEDGER 1985 ◍</div>
+        <div class="sync-indicator" id="syncStatusChip">☁️ SYNC READY</div>
+    </div>
+    <div class="content">
+        <!-- INCOME + EXPENSES PANEL -->
+        <div class="panel">
+            <h2>💰 CASH IN / OUT</h2>
+            <div class="budget-row">
+                <label>💷 MONTHLY INCOME (take-home)</label>
+                <input type="number" id="monthlyIncome" placeholder="0.00" step="any" value="0">
+            </div>
+            <div style="margin: 10px 0 6px;"><span style="color:#9fca9f;">▼ EXPENSES (rent, food, etc.)</span></div>
+            <div id="expensesContainer"></div>
+            <button class="add-btn" id="addExpenseBtn">+ ADD EXPENSE</button>
+            <div class="goal-money-card">
+                <div style="font-size: 0.8rem;">💰 MONEY AVAILABLE FOR GOALS</div>
+                <div class="goal-money-number" id="goalMoneyDisplay">£0.00</div>
+                <div style="font-size: 0.7rem;">after rent, food & bills</div>
+            </div>
+        </div>
+
+        <!-- GOALS DASHBOARD -->
+        <div class="panel">
+            <h2>🎯 GOALS · FOCUS</h2>
+            <div id="goalsListContainer" class="goals-list"></div>
+            <button class="add-btn" id="addGoalBtn" style="margin-top: 20px;">✨ + NEW GOAL</button>
+        </div>
+        <footer>local storage auto-save · ☁️ gist sync (gear)</footer>
+    </div>
+</div>
+
+<!-- SYNC MODAL (retro style) -->
+<div id="syncModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#071007dd; backdrop-filter: blur(3px); justify-content:center; align-items:center; z-index:1000;">
+    <div style="background:#121e12; max-width:340px; width:90%; border-radius:32px; border:1px solid #578b57; padding:20px; font-family:monospace;">
+        <h3 style="color:#b1f0b1;">☁️ SYNC SETTINGS</h3>
+        <label style="color:#97cf97;">GitHub Token</label>
+        <input type="password" id="modalToken" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
+        <label style="color:#97cf97;">Gist ID</label>
+        <input type="text" id="modalGistId" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
+        <div style="display:flex; gap:12px; margin-top: 14px;">
+            <button id="saveGistSettingsBtn" style="background:#2d592d; border:none; padding:6px; border-radius:40px; color:white; flex:1;">SAVE & SYNC</button>
+            <button id="closeSyncModalBtn" style="background:#2e2e2e; border:none; flex:1; border-radius:40px;">CANCEL</button>
+        </div>
+        <div id="syncMsg" style="font-size:10px; margin-top:12px; color:#bbffbb;"></div>
+    </div>
+</div>
+
+<script>
+    // ------------------- DATA STRUCTURE ------------------
+    let monthlyIncome = 0;
+    let expenses = [];   // { name, amount }
+    let goals = [];      // { id, name, targetAmount, targetDate, currentSaved, orderIndex }
+
+    // Gist sync variables
+    let githubToken = localStorage.getItem('goal_github_token') || '';
+    let gistId = localStorage.getItem('goal_gist_id') || '';
+    let syncInProgress = false;
+
+    // DOM elements
+    const incomeInput = document.getElementById('monthlyIncome');
+    const expensesContainer = document.getElementById('expensesContainer');
+    const goalsContainer = document.getElementById('goalsListContainer');
+    const goalMoneySpan = document.getElementById('goalMoneyDisplay');
+    const syncStatusSpan = document.getElementById('syncStatusChip');
+
+    let draggedItem = null;
+    let dragOverItem = null;
+
+    // ------------------- HELPER FUNCTIONS ----------------
+    function calculateGoalMoney() {
+        let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+        let incomeVal = parseFloat(monthlyIncome) || 0;
+        let remaining = incomeVal - totalExpenses;
+        return remaining > 0 ? remaining : 0;
+    }
+
+    function updateGoalMoneyDisplay() {
+        let available = calculateGoalMoney();
+        goalMoneySpan.innerText = `£${available.toFixed(2)}`;
+        return available;
+    }
+
+    // save everything to localStorage + trigger gist backup
+    function persistAll() {
+        const state = {
+            monthlyIncome: monthlyIncome,
+            expenses: expenses,
+            goals: goals.map(g => ({ ...g }))
+        };
+        localStorage.setItem('ledger1985_state', JSON.stringify(state));
+        triggerGistBackup();
+    }
+
+    // load initial data
+    function loadFromLocal() {
+        const saved = localStorage.getItem('ledger1985_state');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                monthlyIncome = data.monthlyIncome || 0;
+                expenses = data.expenses || [];
+                goals = data.goals || [];
+                if (goals.length === 0) {
+                    // seed with example goals
+                    goals.push({ id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0 });
+                    goals.push({ id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1 });
+                    goals.push({ id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-01-15', orderIndex: 2 });
+                    goals.push({ id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3 });
+                }
+                // ensure orderIndex exists
+                goals.forEach((g, idx) => { if (g.orderIndex === undefined) g.orderIndex = idx; });
+                goals.sort((a,b) => (a.orderIndex || 0) - (b.orderIndex || 0));
+            } catch(e) { console.warn(e); }
+        }
+        if (!goals.length) {
+            goals = [
+                { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0 },
+                { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1 },
+            ];
+        }
+        incomeInput.value = monthlyIncome;
+        renderExpenses();
+        renderGoals();
+        updateGoalMoneyDisplay();
+    }
+
+    // ---------------- EXPENSES RENDER --------------------
+    function renderExpenses() {
+        expensesContainer.innerHTML = '';
+        if (expenses.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.innerText = '➕ add expenses (rent, food, transport...)';
+            emptyDiv.style.color = '#6b8f6b';
+            emptyDiv.style.fontSize = '0.75rem';
+            emptyDiv.style.padding = '6px 12px';
+            expensesContainer.appendChild(emptyDiv);
+        } else {
+            expenses.forEach((exp, idx) => {
+                const row = document.createElement('div');
+                row.className = 'expense-item';
+                row.innerHTML = `
+                    <input type="text" class="expense-name" value="${escapeHtml(exp.name)}" placeholder="e.g., Rent">
+                    <input type="number" step="any" class="expense-amount" value="${exp.amount}">
+                    <button class="remove-expense" data-idx="${idx}">✕</button>
+                `;
+                expensesContainer.appendChild(row);
+            });
+            attachExpenseEvents();
+        }
+    }
+
+    function attachExpenseEvents() {
+        document.querySelectorAll('.expense-name').forEach((input, idx) => {
+            input.addEventListener('change', (e) => {
+                expenses[idx].name = e.target.value;
+                persistAll();
+                updateGoalMoneyDisplay();
+            });
+        });
+        document.querySelectorAll('.expense-amount').forEach((input, idx) => {
+            input.addEventListener('input', (e) => {
+                expenses[idx].amount = parseFloat(e.target.value) || 0;
+                persistAll();
+                updateGoalMoneyDisplay();
+            });
+        });
+        document.querySelectorAll('.remove-expense').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.idx);
+                expenses.splice(idx, 1);
+                renderExpenses();
+                persistAll();
+                updateGoalMoneyDisplay();
+            });
+        });
+    }
+
+    // ---------------- GOALS RENDER (drag&drop + projection) --------------
+    function computeProjection(goal, currentMonthlyContribution) {
+        if (goal.targetAmount <= 0) return { status: '', message: 'no target', eta: null };
+        const remaining = goal.targetAmount - goal.currentSaved;
+        if (remaining <= 0) return { status: 'complete', message: '✓ GOAL ACHIEVED', eta: null };
+        if (currentMonthlyContribution <= 0) return { status: 'behind', message: '➕ add contribution', eta: null };
+
+        let monthsNeeded = remaining / currentMonthlyContribution;
+        let projectionDate = new Date();
+        projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
+        let formatted = projectionDate.toLocaleDateString('en-GB', { year:'numeric', month:'short' });
+        let neededMonthly = remaining / (goal.targetDate ? Math.max(1, monthsUntilDate(goal.targetDate)) : 1);
+        if (goal.targetDate && goal.targetDate !== '') {
+            let monthsUntilDeadline = monthsUntilDate(goal.targetDate);
+            if (monthsUntilDeadline > 0) {
+                let requiredMonthly = remaining / monthsUntilDeadline;
+                if (currentMonthlyContribution >= requiredMonthly - 0.01) {
+                    return { status: 'ontrack', message: `✅ on track – finish by ${formatted}`, eta: formatted };
+                } else {
+                    let deficit = (requiredMonthly - currentMonthlyContribution).toFixed(2);
+                    return { status: 'behind', message: `⚠️ behind: +£${deficit}/mo needed`, eta: 'adjust rate' };
+                }
+            }
+        }
+        return { status: 'projected', message: `📅 est. ${formatted} at current rate`, eta: formatted };
+    }
+
+    function monthsUntilDate(dateStr) {
+        if (!dateStr) return 0;
+        let target = new Date(dateStr);
+        let now = new Date();
+        let months = (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
+        return months > 0 ? months : 0;
+    }
+
+    function renderGoals() {
+        goalsContainer.innerHTML = '';
+        if (goals.length === 0) {
+            goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ add your first goal above</div>';
+            return;
+        }
+        const availableMoney = calculateGoalMoney();
+        goals.forEach((goal, idx) => {
+            const card = document.createElement('div');
+            card.className = 'goal-card';
+            card.setAttribute('data-idx', idx);
+            card.draggable = true;
+            const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
+            // optional monthly contribution input – manually set per goal
+            let monthlyContribution = goal.userMonthlyContribution || 0;
+            const projectionData = computeProjection(goal, monthlyContribution);
+            const needBar = percent.toFixed(1);
+            card.innerHTML = `
+                <div class="goal-header">
+                    <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" style="background:transparent; font-weight:bold;">
+                    <div class="goal-badge">🎯 ${goal.targetAmount ? '£'+goal.targetAmount : '∞'}</div>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-fill" style="width: ${Math.min(100,percent)}%;"></div></div>
+                <div class="goal-stats">
+                    <span>💰 saved: £${goal.currentSaved.toFixed(2)}</span>
+                    <span>🏁 remaining: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span>
+                </div>
+                <div class="goal-input-group">
+                    <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}">
+                    <button class="small-btn apply-contrib" data-id="${goal.id}">APPLY ➕</button>
+                    <button class="delete-goal" data-id="${goal.id}">🗑️ DELETE</button>
+                </div>
+                <div style="font-size:0.75rem; margin-top:6px; color:#ade6ad;">${projectionData.message}</div>
+                ${ goal.targetDate ? `<div style="font-size:0.7rem;">📅 deadline: ${goal.targetDate}</div>` : ''}
+                <div style="font-size:0.7rem; margin-top:4px;">💡 need per month: ${goal.targetAmount && goal.targetDate ? '£' + ((goal.targetAmount - goal.currentSaved)/Math.max(1,monthsUntilDate(goal.targetDate))).toFixed(2) : '—'}</div>
+            `;
+            goalsContainer.appendChild(card);
+        });
+        attachGoalCardEvents();
+        attachDragDropEvents();
+    }
+
+    function attachGoalCardEvents() {
+        // edit goal name
+        document.querySelectorAll('.goal-name').forEach(input => {
+            input.removeEventListener('change', handleNameChange);
+            input.addEventListener('change', handleNameChange);
+        });
+        // apply contribution
+        document.querySelectorAll('.apply-contrib').forEach(btn => {
+            btn.removeEventListener('click', handleContribution);
+            btn.addEventListener('click', handleContribution);
+        });
+        // delete goal
+        document.querySelectorAll('.delete-goal').forEach(btn => {
+            btn.removeEventListener('click', handleDeleteGoal);
+            btn.addEventListener('click', handleDeleteGoal);
+        });
+    }
+
+    function handleNameChange(e) {
+        const goalId = e.target.dataset.id;
+        const goal = goals.find(g => g.id === goalId);
+        if (goal) {
+            goal.name = e.target.value;
+            persistAll();
+            renderGoals();
+        }
+    }
+
+    function handleContribution(e) {
+        const goalId = e.target.dataset.id;
+        const goal = goals.find(g => g.id === goalId);
+        if (!goal) return;
+        const cardDiv = e.target.closest('.goal-card');
+        const contribInput = cardDiv.querySelector('.contribution-input');
+        let amount = parseFloat(contribInput.value);
+        if (isNaN(amount)) amount = 0;
+        const available = calculateGoalMoney();
+        if (amount > available) {
+            alert(`⚠️ Not enough goal money this month. Available: £${available.toFixed(2)}`);
+            return;
+        }
+        // reduce global monthly budget? we just store contribution to compute projection and also add to saved.
+        goal.currentSaved += amount;
+        // store monthly contribution for projection logic
+        goal.userMonthlyContribution = amount;
+        // after adding, we need to simulate that we spent money from "goal money pool" - but for simplicity we persist
+        persistAll();
+        renderGoals();
+        updateGoalMoneyDisplay();
+    }
+
+    function handleDeleteGoal(e) {
+        const goalId = e.target.dataset.id;
+        goals = goals.filter(g => g.id !== goalId);
+        persistAll();
+        renderGoals();
+    }
+
+    // drag & drop reorder
+    function attachDragDropEvents() {
+        const cards = document.querySelectorAll('.goal-card');
+        cards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                draggedItem = card;
+                card.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            card.addEventListener('dragend', () => {
+                card.classList.remove('dragging');
+                if (dragOverItem && draggedItem) {
+                    const fromIndex = Array.from(goalsContainer.children).indexOf(draggedItem);
+                    const toIndex = Array.from(goalsContainer.children).indexOf(dragOverItem);
+                    if (fromIndex !== toIndex) {
+                        const movedGoal = goals[fromIndex];
+                        goals.splice(fromIndex, 1);
+                        goals.splice(toIndex, 0, movedGoal);
+                        goals.forEach((g, idx) => g.orderIndex = idx);
+                        persistAll();
+                        renderGoals();
+                    }
+                }
+                draggedItem = null;
+                dragOverItem = null;
+            });
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragOverItem = card;
+            });
+        });
+    }
+
+    // ------------------- GIST SYNC (built-in) ------------------
+    async function triggerGistBackup() {
+        if (!githubToken || !gistId) return;
+        if (syncInProgress) return;
+        syncInProgress = true;
+        syncStatusSpan.innerText = '☁️ SYNCING...';
+        const fullState = { monthlyIncome, expenses, goals, lastSync: new Date().toISOString() };
+        try {
+            const getExisting = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
+            let existingData = {};
+            if (getExisting.ok) {
+                const gistData = await getExisting.json();
+                const content = gistData.files['ledger1985.json']?.content;
+                if (content) existingData = JSON.parse(content);
+            }
+            existingData.ledger = fullState;
+            const payload = { files: { 'ledger1985.json': { content: JSON.stringify(existingData, null, 2) } } };
+            await fetch(`https://api.github.com/gists/${gistId}`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            syncStatusSpan.innerText = '☁️ SYNC OK';
+            setTimeout(() => { syncStatusSpan.innerText = '☁️ SYNC READY'; }, 2000);
+        } catch(err) { console.warn(err); syncStatusSpan.innerText = '⚠️ SYNC ERR'; }
+        finally { syncInProgress = false; }
+    }
+
+    async function loadFromGist() {
+        if (!githubToken || !gistId) return false;
+        syncStatusSpan.innerText = '📡 LOADING...';
+        try {
+            const res = await fetch(`https://api.github.com/gists/${gistId}`, { headers: { 'Authorization': `token ${githubToken}` } });
+            if (res.ok) {
+                const gist = await res.json();
+                const content = gist.files['ledger1985.json']?.content;
+                if (content) {
+                    const remote = JSON.parse(content);
+                    if (remote.ledger) {
+                        monthlyIncome = remote.ledger.monthlyIncome || 0;
+                        expenses = remote.ledger.expenses || [];
+                        goals = remote.ledger.goals || [];
+                        incomeInput.value = monthlyIncome;
+                        renderExpenses();
+                        renderGoals();
+                        updateGoalMoneyDisplay();
+                        persistAll();
+                        syncStatusSpan.innerText = '☁️ LOADED';
+                        setTimeout(() => syncStatusSpan.innerText = '☁️ SYNC READY', 1800);
+                        return true;
+                    }
+                }
+            }
+        } catch(e) { console.warn(e); }
+        syncStatusSpan.innerText = '☁️ LOCAL ONLY';
+        return false;
+    }
+
+    // Modal Gist UI
+    const modal = document.getElementById('syncModal');
+    const modalToken = document.getElementById('modalToken');
+    const modalGistId = document.getElementById('modalGistId');
+    document.getElementById('syncStatusChip').addEventListener('click', () => {
+        modalToken.value = githubToken;
+        modalGistId.value = gistId;
+        modal.style.display = 'flex';
+    });
+    document.getElementById('saveGistSettingsBtn').addEventListener('click', async () => {
+        const newToken = modalToken.value.trim();
+        const newGist = modalGistId.value.trim();
+        if (newToken) { githubToken = newToken; localStorage.setItem('goal_github_token', newToken); }
+        if (newGist) { gistId = newGist; localStorage.setItem('goal_gist_id', newGist); }
+        modal.style.display = 'none';
+        await loadFromGist();
+    });
+    document.getElementById('closeSyncModalBtn').addEventListener('click', () => { modal.style.display = 'none'; });
+
+    // Event listeners for income, expenses
+    incomeInput.addEventListener('input', () => {
+        monthlyIncome = parseFloat(incomeInput.value) || 0;
+        persistAll();
+        updateGoalMoneyDisplay();
+        renderGoals(); // refresh projections
+    });
+
+    document.getElementById('addExpenseBtn').addEventListener('click', () => {
+        expenses.push({ name: 'New expense', amount: 0 });
+        renderExpenses();
+        persistAll();
+        updateGoalMoneyDisplay();
+    });
+
+    document.getElementById('addGoalBtn').addEventListener('click', () => {
+        const newId = 'goal_' + Date.now();
+        goals.push({
+            id: newId, name: '✨ New goal', targetAmount: 200, currentSaved: 0,
+            targetDate: '', orderIndex: goals.length, userMonthlyContribution: 0
+        });
+        persistAll();
+        renderGoals();
+    });
+
+    // initial boot
+    loadFromLocal();
+    setTimeout(() => { if (githubToken && gistId) loadFromGist(); }, 500);
+</script>
+</body>
+</html>
+```
