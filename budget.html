@@ -34,6 +34,29 @@
         .title { font-weight: bold; letter-spacing: 1.5px; font-size: 1.2rem; color: #8bcb8b; text-shadow: 0 0 3px #1f9a1f; }
         .sync-indicator { font-size: 10px; background: #0f0f0f; padding: 4px 10px; border-radius: 40px; color: #7ab87a; font-family: monospace; cursor: pointer; border: 1px solid #3e6e3e; }
         .content { padding: 20px 18px 26px; }
+        .month-name-row {
+            background: #0a150a;
+            border-radius: 60px;
+            padding: 8px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+        .month-name-row label { color: #9dcf9d; font-size: 0.8rem; }
+        .month-name-row input {
+            flex: 2;
+            min-width: 150px;
+            background: #030903;
+            border: 1px solid #3c6e3c;
+            padding: 8px 14px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #d2ffd2;
+            border-radius: 40px;
+            outline: none;
+        }
         .panel { background: #0e1a0e; border: 1px solid #2b5e2b; border-radius: 24px; padding: 18px 16px; margin-bottom: 28px; box-shadow: inset 0 0 8px #1f3a1f, 0 2px 4px rgba(0,0,0,0.4); }
         .panel h2 { font-size: 1.2rem; letter-spacing: 1px; color: #b3f7b3; border-left: 4px solid #6bc86b; padding-left: 12px; margin-bottom: 18px; }
         .budget-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: center; background: #071007; padding: 8px 12px; border-radius: 60px; }
@@ -72,8 +95,9 @@
         .archive-title { color: #8bcb8b; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #6bc86b; padding-left: 10px; }
         .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
         .archive-item { background: #142014; border-radius: 40px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; }
+        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; font-weight: bold; }
         .archive-month:hover { color: #d4ffd4; text-decoration: underline; }
+        .archive-name { color: #bada8a; font-size: 0.7rem; margin-left: 6px; }
         .archive-export { background: #1a2e3a; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
         .archive-delete { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
         .view-mode-badge { background: #2a4a2a; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; color: #b3f7b3; margin-bottom: 12px; display: inline-block; }
@@ -90,6 +114,13 @@
         <div class="sync-indicator" id="syncStatusChip">☁️ SYNC READY</div>
     </div>
     <div class="content">
+        <!-- MONTH NAME FIELD -->
+        <div class="month-name-row">
+            <label>📛 MONTH NAME:</label>
+            <input type="text" id="currentMonthName" placeholder="e.g., May 2025, Shipping Push, June Budget" value="">
+            <span style="font-size:0.7rem; color:#6f9f6f;">(custom name for this month)</span>
+        </div>
+
         <div class="panel">
             <h2>💰 CASH IN / OUT</h2>
             <div class="budget-row">
@@ -127,7 +158,7 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>📆 START NEW MONTH → choose: keep goals or fresh start · ⬆️⬇️ reorder goals</footer>
+        <footer>📛 Name your month · 📆 START NEW MONTH → choose: keep goals or fresh start</footer>
     </div>
 </div>
 
@@ -152,6 +183,7 @@
     let goals = [];
     let monthlyArchive = {};
     let currentViewArchive = null;
+    let currentMonthCustomName = "";
     
     let githubToken = localStorage.getItem('goal_github_token') || '';
     let gistId = localStorage.getItem('goal_gist_id') || '';
@@ -163,8 +195,10 @@
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
     const archiveListDiv = document.getElementById('archiveList');
+    const monthNameInput = document.getElementById('currentMonthName');
 
     function getCurrentYearMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+    
     function calculateGoalMoney() {
         let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
         let incomeVal = parseFloat(monthlyIncome) || 0;
@@ -175,7 +209,7 @@
     
     function persistAll() {
         if (currentViewArchive) return;
-        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) }));
+        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })), currentMonthCustomName }));
         localStorage.setItem('ledger1985_archive', JSON.stringify(monthlyArchive));
         triggerGistBackup();
     }
@@ -198,10 +232,12 @@
             monthlyIncome = data.monthlyIncome || 0;
             expenses = data.expenses || [];
             goals = data.goals || [];
+            currentMonthCustomName = data.currentMonthCustomName || "";
             goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
             expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
             goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
             incomeInput.value = monthlyIncome;
+            monthNameInput.value = currentMonthCustomName;
         }
         if (goals.length === 0) seedDefaultGoals();
         checkMonthRollover();
@@ -209,65 +245,99 @@
         renderGoals();
         updateGoalMoneyDisplay();
         renderArchiveList();
+        updateMonthDisplay();
     }
+
+    function updateMonthDisplay() {
+        const monthCode = getCurrentYearMonth();
+        const displayName = currentMonthCustomName ? `${currentMonthCustomName} (${monthCode})` : monthCode;
+        document.getElementById('currentMonthDisplay').innerText = `(${displayName})`;
+    }
+
+    monthNameInput.addEventListener('input', () => {
+        if (!currentViewArchive) {
+            currentMonthCustomName = monthNameInput.value;
+            persistAll();
+            updateMonthDisplay();
+        }
+    });
 
     function checkMonthRollover() {
         const lastMonth = localStorage.getItem('ledger1985_last_month');
         const currentMonth = getCurrentYearMonth();
         if (lastMonth && lastMonth !== currentMonth) {
-            monthlyArchive[lastMonth] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
+            const lastMonthName = localStorage.getItem(`month_name_${lastMonth}`) || "";
+            monthlyArchive[lastMonth] = { 
+                monthlyIncome, 
+                expenses: JSON.parse(JSON.stringify(expenses)), 
+                goals: JSON.parse(JSON.stringify(goals)), 
+                customName: lastMonthName,
+                archivedDate: new Date().toISOString() 
+            };
             persistAll();
         }
         localStorage.setItem('ledger1985_last_month', currentMonth);
-        document.getElementById('currentMonthDisplay').innerText = `(${currentMonth})`;
+        localStorage.setItem(`month_name_${currentMonth}`, currentMonthCustomName);
+        updateMonthDisplay();
     }
 
-    // ========== START NEW MONTH WITH CHOICE ==========
+    // ========== START NEW MONTH WITH CHOICE AND NAME PRESERVATION ==========
     function startNewMonth() {
-        // Create custom confirm with options
         const choice = confirm("📆 START NEW MONTH\n\nChoose:\n• OK = Keep goals (with progress), reset income & expenses\n• Cancel = Start completely fresh (everything resets)");
         
-        // Archive current month first (always archive before resetting)
         const currentMonth = getCurrentYearMonth();
+        // Archive current month with its custom name
         monthlyArchive[currentMonth] = { 
             monthlyIncome: monthlyIncome, 
             expenses: JSON.parse(JSON.stringify(expenses)), 
             goals: JSON.parse(JSON.stringify(goals)), 
+            customName: currentMonthCustomName,
             archivedDate: new Date().toISOString() 
         };
         
         if (choice === true) {
-            // OK = Keep goals with progress, reset income + expenses
+            // Keep goals with progress
             monthlyIncome = 0;
             expenses = [];
-            // goals remain exactly as they are (with currentSaved progress kept)
             goals.forEach(g => {
-                g.userMonthlyContribution = 0; // reset monthly contribution tracking
+                g.userMonthlyContribution = 0;
             });
-            showToast("✅ New month started. Goals kept with progress. Income + expenses reset.");
+            currentMonthCustomName = "";
+            monthNameInput.value = "";
+            showToast("✅ New month started. Goals kept with progress.");
         } else {
-            // Cancel = Fresh start (everything reset)
+            // Fresh start
             monthlyIncome = 0;
             expenses = [];
             seedDefaultGoals();
-            showToast("✨ Fresh start! All goals, income, and expenses reset.");
+            currentMonthCustomName = "";
+            monthNameInput.value = "";
+            showToast("✨ Fresh start! Everything reset.");
         }
         
         incomeInput.value = 0;
         localStorage.setItem('ledger1985_last_month', currentMonth);
+        localStorage.setItem(`month_name_${getCurrentYearMonth()}`, "");
         persistAll();
         renderExpenses();
         renderGoals();
         updateGoalMoneyDisplay();
         renderArchiveList();
+        updateMonthDisplay();
     }
 
     function saveSnapshotToArchive(monthKey) {
         if (!monthKey) monthKey = getCurrentYearMonth();
-        monthlyArchive[monthKey] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
+        monthlyArchive[monthKey] = { 
+            monthlyIncome, 
+            expenses: JSON.parse(JSON.stringify(expenses)), 
+            goals: JSON.parse(JSON.stringify(goals)), 
+            customName: currentMonthCustomName,
+            archivedDate: new Date().toISOString() 
+        };
         persistAll();
         renderArchiveList();
-        showToast(`Snapshot saved for ${monthKey}`);
+        showToast(`Snapshot saved for ${monthKey}${currentMonthCustomName ? ' (' + currentMonthCustomName + ')' : ''}`);
     }
 
     function exitArchiveMode() {
@@ -295,7 +365,8 @@
 
     // ========== COPY TO CLIPBOARD ==========
     function copyToClipboard() {
-        let text = `LEDGER REPORT - ${getCurrentYearMonth()}\n`;
+        const monthLabel = currentMonthCustomName || getCurrentYearMonth();
+        let text = `LEDGER REPORT - ${monthLabel}\n`;
         text += `=================================\n`;
         text += `INCOME: £${monthlyIncome}\n\n`;
         text += `EXPENSES:\n`;
@@ -307,11 +378,12 @@
     }
 
     function exportJSON() {
-        const data = { monthlyIncome, expenses, goals, exportDate: new Date().toISOString() };
+        const monthLabel = currentMonthCustomName || getCurrentYearMonth();
+        const data = { monthlyIncome, expenses, goals, monthName: currentMonthCustomName, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `ledger_backup_${getCurrentYearMonth()}.json`;
+        a.download = `ledger_backup_${monthLabel.replace(/\s/g, '_')}.json`;
         a.click();
         URL.revokeObjectURL(blob.href);
         showToast("✓ JSON backup saved");
@@ -320,16 +392,17 @@
     function exportArchiveJSON(monthKey) {
         const snap = monthlyArchive[monthKey];
         if (!snap) return;
+        const displayName = snap.customName ? `${snap.customName} (${monthKey})` : monthKey;
         const blob = new Blob([JSON.stringify(snap, null, 2)], {type: 'application/json'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `ledger_${monthKey}.json`;
+        a.download = `ledger_${displayName.replace(/\s/g, '_')}.json`;
         a.click();
         URL.revokeObjectURL(blob.href);
-        showToast(`✓ Archive ${monthKey} saved`);
+        showToast(`✓ Archive ${displayName} saved`);
     }
 
-    // ========== RENDER FUNCTIONS ==========
+    // ========== RENDER FUNCTIONS (simplified, working) ==========
     function renderExpenses() {
         expensesContainer.innerHTML = '';
         if (expenses.length === 0) { expensesContainer.innerHTML = '<div style="color:#6b8f6b; padding:8px;">➕ add rent, food, transport…</div>'; return; }
@@ -431,12 +504,15 @@
         if (!archiveListDiv) return;
         const months = Object.keys(monthlyArchive).sort().reverse();
         if (months.length === 0) { archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months. Click "Snapshot" or start a new month.</div>'; return; }
-        archiveListDiv.innerHTML = months.map(m => `
+        archiveListDiv.innerHTML = months.map(m => {
+            const snap = monthlyArchive[m];
+            const displayName = snap?.customName ? `${snap.customName} · ${m}` : m;
+            return `
             <div class="archive-item">
-                <span class="archive-month" data-month="${m}">📅 ${m.replace('-', ' · ')}</span>
+                <span class="archive-month" data-month="${m}">📅 ${displayName}</span>
                 <div><button class="archive-export" data-month="${m}">📎 JSON</button><button class="archive-delete" data-month="${m}">🗑️</button></div>
             </div>
-        `).join('');
+        `}).join('');
         document.querySelectorAll('.archive-month').forEach(el => { el.addEventListener('click', () => { loadArchiveIntoView(el.dataset.month); }); });
         document.querySelectorAll('.archive-export').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); exportArchiveJSON(btn.dataset.month); }); });
         document.querySelectorAll('.archive-delete').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete archive?')) { delete monthlyArchive[btn.dataset.month]; persistAll(); renderArchiveList(); if(currentViewArchive === btn.dataset.month) exitArchiveMode(); } }); });
@@ -458,7 +534,7 @@
     function hardReset() { if(confirm("⚠️ DELETE ALL DATA? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
 
     async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
-    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
+    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; currentMonthCustomName=remote.ledger.currentMonthCustomName||""; monthNameInput.value=currentMonthCustomName; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
 
     // ========== BUTTON BINDINGS ==========
