@@ -120,14 +120,14 @@
         </div>
 
         <div class="archive-panel">
-            <div class="archive-title">📁 MONTHLY ARCHIVE (carry-over progress)</div>
+            <div class="archive-title">📁 MONTHLY ARCHIVE</div>
             <div id="archiveList" class="archive-list"></div>
             <div style="margin-top: 10px;">
                 <button id="saveCurrentMonthBtn" class="small-btn" style="background:#2f552f;">💾 SNAPSHOT CURRENT MONTH</button>
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>📆 Click START NEW MONTH to copy template · ⬆️⬇️ Use up/down to reorder goals</footer>
+        <footer>📆 START NEW MONTH → choose: keep goals or fresh start · ⬆️⬇️ reorder goals</footer>
     </div>
 </div>
 
@@ -180,6 +180,15 @@
         triggerGistBackup();
     }
 
+    function seedDefaultGoals() {
+        goals = [
+            { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
+            { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1, userMonthlyContribution: 0, note: '' },
+            { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-01-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
+            { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
+        ];
+    }
+
     function loadFromLocal() {
         const saved = localStorage.getItem('ledger1985_final');
         const savedArchive = localStorage.getItem('ledger1985_archive');
@@ -194,14 +203,7 @@
             goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
             incomeInput.value = monthlyIncome;
         }
-        if (goals.length === 0) {
-            goals = [
-                { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
-                { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1, userMonthlyContribution: 0, note: '' },
-                { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-01-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
-                { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
-            ];
-        }
+        if (goals.length === 0) seedDefaultGoals();
         checkMonthRollover();
         renderExpenses();
         renderGoals();
@@ -220,36 +222,44 @@
         document.getElementById('currentMonthDisplay').innerText = `(${currentMonth})`;
     }
 
-    // ========== START NEW MONTH (TEMPLATE FUNCTION) ==========
+    // ========== START NEW MONTH WITH CHOICE ==========
     function startNewMonth() {
-        if (confirm("📆 Start a new month?\n\nThis will:\n✅ Archive current month (income + expenses)\n✅ Keep your goals with current progress\n✅ Reset income and expenses to zero\n\nYour goals and their saved amounts will carry over.")) {
-            // Archive current month
-            const currentMonth = getCurrentYearMonth();
-            monthlyArchive[currentMonth] = { 
-                monthlyIncome: monthlyIncome, 
-                expenses: JSON.parse(JSON.stringify(expenses)), 
-                goals: JSON.parse(JSON.stringify(goals)), 
-                archivedDate: new Date().toISOString() 
-            };
-            
-            // Reset for new month (keep goals and their saved amounts)
+        // Create custom confirm with options
+        const choice = confirm("📆 START NEW MONTH\n\nChoose:\n• OK = Keep goals (with progress), reset income & expenses\n• Cancel = Start completely fresh (everything resets)");
+        
+        // Archive current month first (always archive before resetting)
+        const currentMonth = getCurrentYearMonth();
+        monthlyArchive[currentMonth] = { 
+            monthlyIncome: monthlyIncome, 
+            expenses: JSON.parse(JSON.stringify(expenses)), 
+            goals: JSON.parse(JSON.stringify(goals)), 
+            archivedDate: new Date().toISOString() 
+        };
+        
+        if (choice === true) {
+            // OK = Keep goals with progress, reset income + expenses
             monthlyIncome = 0;
             expenses = [];
-            // Goals remain, but reset monthly contribution tracking
+            // goals remain exactly as they are (with currentSaved progress kept)
             goals.forEach(g => {
-                g.userMonthlyContribution = 0;
-                // DO NOT reset currentSaved — that carries over
+                g.userMonthlyContribution = 0; // reset monthly contribution tracking
             });
-            
-            incomeInput.value = 0;
-            localStorage.setItem('ledger1985_last_month', currentMonth);
-            persistAll();
-            renderExpenses();
-            renderGoals();
-            updateGoalMoneyDisplay();
-            renderArchiveList();
-            showToast(`✅ New month started. ${currentMonth} archived.`);
+            showToast("✅ New month started. Goals kept with progress. Income + expenses reset.");
+        } else {
+            // Cancel = Fresh start (everything reset)
+            monthlyIncome = 0;
+            expenses = [];
+            seedDefaultGoals();
+            showToast("✨ Fresh start! All goals, income, and expenses reset.");
         }
+        
+        incomeInput.value = 0;
+        localStorage.setItem('ledger1985_last_month', currentMonth);
+        persistAll();
+        renderExpenses();
+        renderGoals();
+        updateGoalMoneyDisplay();
+        renderArchiveList();
     }
 
     function saveSnapshotToArchive(monthKey) {
@@ -420,7 +430,7 @@
     function renderArchiveList() {
         if (!archiveListDiv) return;
         const months = Object.keys(monthlyArchive).sort().reverse();
-        if (months.length === 0) { archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months. Click "Snapshot" at month end.</div>'; return; }
+        if (months.length === 0) { archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months. Click "Snapshot" or start a new month.</div>'; return; }
         archiveListDiv.innerHTML = months.map(m => `
             <div class="archive-item">
                 <span class="archive-month" data-month="${m}">📅 ${m.replace('-', ' · ')}</span>
