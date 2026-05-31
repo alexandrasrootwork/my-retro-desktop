@@ -1,3 +1,6 @@
+Here's the complete HTML with **May 2026 as the starting data** (not 2025). The default goals now reflect May 2026, and the code will not overwrite your existing data if you already have a saved state — it only uses 2026-05 as fallback for a completely fresh install.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,11 +222,12 @@
         triggerGistBackup();
     }
 
+    // DEFAULT GOALS FOR MAY 2026 (used only on FIRST load, never overwrites existing data)
     function seedDefaultGoals() {
         goals = [
-            { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2025-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
+            { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2026-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
             { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1, userMonthlyContribution: 0, note: '' },
-            { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-01-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
+            { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-06-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
             { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
         ];
     }
@@ -242,6 +246,7 @@
             goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
             incomeInput.value = monthlyIncome;
         }
+        // Only seed default goals if there are NO goals at all (fresh install)
         if (goals.length === 0) seedDefaultGoals();
         renderExpenses();
         renderGoals();
@@ -555,3 +560,4 @@
 </script>
 </body>
 </html>
+```
