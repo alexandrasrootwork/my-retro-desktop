@@ -52,15 +52,7 @@
         .goal-header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; margin-bottom: 8px; gap: 8px; }
         .goal-name { font-weight: bold; font-size: 1rem; background: #071007; border: 1px solid #2f582f; padding: 6px 12px; border-radius: 60px; color: #d0ffd0; font-family: monospace; flex: 2; }
         .goal-target-edit { background: #071007; border: 1px solid #3c723c; padding: 6px 10px; border-radius: 40px; color: #f0fff0; width: 110px; font-family: monospace; text-align: center; }
-        .goal-complete-btn {
-            background: #2a5a2a;
-            border: none;
-            border-radius: 60px;
-            padding: 4px 12px;
-            color: #d4ffd4;
-            cursor: pointer;
-            font-size: 0.7rem;
-        }
+        .goal-complete-btn { background: #2a5a2a; border: none; border-radius: 60px; padding: 4px 12px; color: #d4ffd4; cursor: pointer; font-size: 0.7rem; }
         .progress-bar-bg { background: #1d2a1d; border-radius: 60px; height: 18px; margin: 10px 0; overflow: hidden; }
         .progress-fill { background: #6bd96b; width: 0%; height: 100%; border-radius: 60px; }
         .goal-stats { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.75rem; color: #b1d0b1; margin: 8px 0; }
@@ -106,7 +98,10 @@
         .reorder-buttons { display: flex; gap: 6px; align-items: center; }
         .toast-msg { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #2a5a2a; color: #d4ffd4; padding: 8px 20px; border-radius: 60px; font-size: 0.8rem; z-index: 1000; box-shadow: 0 2px 8px black; pointer-events: none; }
         .modal-small { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #071007dd; backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1001; display: none; }
-        .modal-small-content { background: #121e12; max-width: 360px; width: 90%; border-radius: 28px; border: 1px solid #578b57; padding: 20px; }
+        .modal-small-content { background: #121e12; max-width: 360px; width: 90%; border-radius: 28px; border: 1px solid #578b57; padding: 20px; position: relative; }
+        .modal-close-x { position: absolute; top: 12px; right: 16px; font-size: 1.2rem; cursor: pointer; color: #ffb4b4; }
+        .modal-close-x:hover { color: #ff6666; }
+        .modal-small select { background: #030903; border: 1px solid #3e7e3e; padding: 8px; color: #d6ffd6; border-radius: 40px; width: 100%; margin: 8px 0; }
         footer { font-size: 0.65rem; text-align: center; margin-top: 20px; color: #5d895d; }
         @media (max-width: 540px) { .content { padding: 12px; } .goal-input-group { flex-direction: column; align-items: stretch; } .goal-header { flex-direction: column; } }
     </style>
@@ -155,7 +150,7 @@
                 <input type="number" id="newWishlistAmount" placeholder="Target £" style="width:100px; background:#030903; border:1px solid #3e6b3e; padding:8px; border-radius:40px; color:#d2ffd2;">
                 <button id="addWishlistBtn" class="small-btn" style="background:#2a4a6e;">➕ ADD TO WISHLIST</button>
             </div>
-            <div style="font-size:0.7rem; color:#9fca9f; margin-top:8px; text-align:center;">✨ When you complete an active goal, check it off → it archives. Then move items from Wishlist to Goals!</div>
+            <div style="font-size:0.7rem; color:#9fca9f; margin-top:8px; text-align:center;">✨ When you complete a goal, move items from Wishlist to Goals!</div>
         </div>
 
         <div class="archive-panel">
@@ -166,14 +161,15 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>📋 Click "✅ COMPLETE" on a goal → moves to archive. Then move from Wishlist → Active Goals</footer>
+        <footer>📋 Click "📋 COPY & USE" on any archived month → name it → becomes your current month</footer>
     </div>
 </div>
 
 <!-- Copy Month Modal -->
 <div id="copyModal" class="modal-small">
     <div class="modal-small-content">
-        <h3 style="color:#b1f0b1;">📋 COPY ARCHIVE TO CURRENT MONTH</h3>
+        <span class="modal-close-x" id="closeCopyModalX">✗</span>
+        <h3 style="color:#b1f0b1; margin-right: 20px;">📋 COPY ARCHIVE TO CURRENT MONTH</h3>
         <label style="color:#97cf97;">Name for this month:</label>
         <input type="text" id="copyMonthName" placeholder="e.g., June 2026, Shipping Push" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
         <label style="color:#97cf97;">Goal progress:</label>
@@ -182,8 +178,8 @@
             <option value="reset">Reset progress to £0 (start fresh)</option>
         </select>
         <div style="display:flex; gap:12px; margin-top: 16px;">
-            <button id="confirmCopyBtn" style="background:#2d592d; border:none; padding:8px; border-radius:60px; color:white; flex:1;">COPY & USE</button>
-            <button id="cancelCopyBtn" style="background:#2e2e2e; border:none; flex:1; border-radius:60px;">CANCEL</button>
+            <button id="confirmCopyBtn" class="small-btn" style="background:#2d592d; flex:1;">📋 COPY & USE</button>
+            <button id="cancelCopyBtn" class="small-btn" style="background:#2e2e2e; flex:1;">CANCEL</button>
         </div>
     </div>
 </div>
@@ -207,10 +203,9 @@
     let monthlyIncome = 0;
     let expenses = [];
     let goals = [];
-    let wishlist = [];  // { id, name, targetAmount }
+    let wishlist = [];
     let monthlyArchive = {};
     let currentViewArchive = null;
-    let completedGoalsArchive = []; // store completed goal IDs
     
     let githubToken = localStorage.getItem('goal_github_token') || '';
     let gistId = localStorage.getItem('goal_gist_id') || '';
@@ -283,18 +278,16 @@
 
     function updateMonthDisplay() { document.getElementById('currentMonthDisplay').innerText = `(${getCurrentYearMonth()})`; }
 
-    // ---------- COMPLETE GOAL (archive it and remove from active) ----------
+    // ---------- COMPLETE GOAL ----------
     function completeGoal(goalId) {
         const goalIndex = goals.findIndex(g => g.id === goalId);
         if (goalIndex === -1) return;
         const completedGoal = goals[goalIndex];
-        // Remove from active goals
         goals.splice(goalIndex, 1);
-        // Reorder indices
         goals.forEach((g, idx) => g.orderIndex = idx);
         persistAll();
         renderGoals();
-        showToast(`✅ "${completedGoal.name}" completed! Archived. Add from Wishlist to create new goals.`);
+        showToast(`✅ "${completedGoal.name}" completed!`);
     }
 
     // ---------- WISHLIST FUNCTIONS ----------
@@ -314,7 +307,6 @@
         const itemIndex = wishlist.findIndex(w => w.id === itemId);
         if (itemIndex === -1) return;
         const item = wishlist[itemIndex];
-        // Create new goal from wishlist item
         const newGoal = {
             id: Date.now().toString(),
             name: item.name,
@@ -326,7 +318,6 @@
             note: ''
         };
         goals.push(newGoal);
-        // Remove from wishlist
         wishlist.splice(itemIndex, 1);
         persistAll();
         renderGoals();
@@ -371,7 +362,7 @@
         });
     }
 
-    // ---------- COPY ARCHIVE TO CURRENT MONTH ----------
+    // ---------- COPY ARCHIVE TO CURRENT MONTH (FIXED) ----------
     function openCopyModal(archiveKey) {
         pendingCopySource = archiveKey;
         copyMonthNameInput.value = "";
@@ -379,21 +370,41 @@
         copyModal.style.display = 'flex';
     }
 
+    function closeCopyModal() {
+        copyModal.style.display = 'none';
+        pendingCopySource = null;
+    }
+
     function executeCopyToCurrent() {
-        if (!pendingCopySource || !monthlyArchive[pendingCopySource]) { showToast("Error: source not found"); copyModal.style.display = 'none'; return; }
+        if (!pendingCopySource || !monthlyArchive[pendingCopySource]) {
+            showToast("Error: source not found");
+            closeCopyModal();
+            return;
+        }
         const newName = copyMonthNameInput.value.trim();
-        if (!newName) { alert("Please enter a name for this month"); return; }
+        if (!newName) {
+            alert("Please enter a name for this month");
+            return;
+        }
         const source = monthlyArchive[pendingCopySource];
         const keepProgress = copyProgressOption.value === "keep";
+        
         monthlyIncome = source.monthlyIncome;
         expenses = JSON.parse(JSON.stringify(source.expenses));
         goals = JSON.parse(JSON.stringify(source.goals));
-        wishlist = source.wishlist || [];
-        if (!keepProgress) goals.forEach(g => { g.currentSaved = 0; g.userMonthlyContribution = 0; });
-        else goals.forEach(g => { g.userMonthlyContribution = 0; });
+        wishlist = source.wishlist ? JSON.parse(JSON.stringify(source.wishlist)) : [];
+        
+        if (!keepProgress) {
+            goals.forEach(g => { g.currentSaved = 0; g.userMonthlyContribution = 0; });
+        } else {
+            goals.forEach(g => { g.userMonthlyContribution = 0; });
+        }
         goals.forEach((g, idx) => { g.orderIndex = idx; });
+        
         incomeInput.value = monthlyIncome;
+        
         if (currentViewArchive) exitArchiveMode();
+        
         persistAll();
         renderExpenses();
         renderGoals();
@@ -401,30 +412,32 @@
         updateGoalMoneyDisplay();
         renderArchiveList();
         updateMonthDisplay();
-        copyModal.style.display = 'none';
-        pendingCopySource = null;
+        
+        closeCopyModal();
         showToast(`✅ "${newName}" is now your current month`);
     }
 
-    function cancelCopy() { copyModal.style.display = 'none'; pendingCopySource = null; }
+    function exitArchiveMode() {
+        currentViewArchive = null;
+        loadFromLocal();
+        document.getElementById('viewModeBadge').style.display = 'none';
+        document.getElementById('exitArchiveBtn').style.display = 'none';
+    }
 
     function saveSnapshotToArchive(monthKey) {
         if (!monthKey) monthKey = getCurrentYearMonth();
         const customName = prompt("Name this snapshot:", monthKey);
         monthlyArchive[monthKey] = { 
-            monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), 
-            goals: JSON.parse(JSON.stringify(goals)), wishlist: JSON.parse(JSON.stringify(wishlist)),
-            customName: customName || monthKey, archivedDate: new Date().toISOString() 
+            monthlyIncome, 
+            expenses: JSON.parse(JSON.stringify(expenses)), 
+            goals: JSON.parse(JSON.stringify(goals)), 
+            wishlist: JSON.parse(JSON.stringify(wishlist)),
+            customName: customName || monthKey,
+            archivedDate: new Date().toISOString() 
         };
         persistAll();
         renderArchiveList();
         showToast(`Snapshot saved: ${customName || monthKey}`);
-    }
-
-    function exitArchiveMode() {
-        currentViewArchive = null; loadFromLocal();
-        document.getElementById('viewModeBadge').style.display = 'none';
-        document.getElementById('exitArchiveBtn').style.display = 'none';
     }
 
     // ---------- REORDER ----------
@@ -586,8 +599,13 @@
     document.getElementById('syncStatusChip').onclick = () => document.getElementById('syncModal').style.display = 'flex';
     document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
     document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display='none';
+    
+    // Copy modal buttons (FIXED)
     document.getElementById('confirmCopyBtn').onclick = executeCopyToCurrent;
-    document.getElementById('cancelCopyBtn').onclick = cancelCopy;
+    document.getElementById('cancelCopyBtn').onclick = closeCopyModal;
+    document.getElementById('closeCopyModalX').onclick = closeCopyModal;
+    // Click outside modal to close
+    copyModal.onclick = (e) => { if (e.target === copyModal) closeCopyModal(); };
     
     loadFromLocal();
     if(githubToken && gistId) setTimeout(()=>loadFromGist(),300);
