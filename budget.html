@@ -45,7 +45,6 @@
         .remove-expense { background: #2e1e1e; border: none; color: #ffa0a0; font-weight: bold; width: 36px; border-radius: 60px; cursor: pointer; font-size: 1.2rem; }
         .add-btn { background: #1f3a1f; border: 1px solid #5ba05b; padding: 8px 18px; border-radius: 60px; font-family: monospace; font-weight: bold; color: #bef5be; margin-top: 12px; width: fit-content; cursor: pointer; }
         .add-btn:active { transform: scale(0.97); background: #2f552f; }
-        .new-month-btn { background: #5a4a2a; border: 1px solid #b8a86a; color: #f5e6b0; }
         .goal-money-card { background: #102010; border-radius: 40px; padding: 12px 18px; text-align: center; margin: 18px 0 8px; }
         .goal-money-number { font-size: 2.2rem; font-weight: bold; color: #e6ffe6; letter-spacing: 2px; }
         .goals-list { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
@@ -53,6 +52,15 @@
         .goal-header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; margin-bottom: 8px; gap: 8px; }
         .goal-name { font-weight: bold; font-size: 1rem; background: #071007; border: 1px solid #2f582f; padding: 6px 12px; border-radius: 60px; color: #d0ffd0; font-family: monospace; flex: 2; }
         .goal-target-edit { background: #071007; border: 1px solid #3c723c; padding: 6px 10px; border-radius: 40px; color: #f0fff0; width: 110px; font-family: monospace; text-align: center; }
+        .goal-complete-btn {
+            background: #2a5a2a;
+            border: none;
+            border-radius: 60px;
+            padding: 4px 12px;
+            color: #d4ffd4;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
         .progress-bar-bg { background: #1d2a1d; border-radius: 60px; height: 18px; margin: 10px 0; overflow: hidden; }
         .progress-fill { background: #6bd96b; width: 0%; height: 100%; border-radius: 60px; }
         .goal-stats { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.75rem; color: #b1d0b1; margin: 8px 0; }
@@ -70,18 +78,35 @@
         .copy-btn { background: #2a4a2a; border: 1px solid #6f9f6f; color: #b7f0b7; }
         .archive-panel { background: #0a120a; border-radius: 24px; padding: 16px; margin-top: 20px; }
         .archive-title { color: #8bcb8b; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #6bc86b; padding-left: 10px; }
-        .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
+        .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
         .archive-item { background: #142014; border-radius: 40px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; }
+        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; flex: 1; }
         .archive-month:hover { color: #d4ffd4; text-decoration: underline; }
+        .archive-copy-btn { background: #2a5a4a; border: none; border-radius: 40px; padding: 4px 10px; color: #b7f0b0; cursor: pointer; font-size: 0.7rem; }
         .archive-export { background: #1a2e3a; border: none; border-radius: 40px; padding: 4px 10px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
         .archive-delete { background: #3e2626; border: none; border-radius: 40px; padding: 4px 10px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
+        .wishlist-panel { background: #0a120a; border-radius: 24px; padding: 16px; margin-top: 20px; }
+        .wishlist-title { color: #e6c87a; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #e6c87a; padding-left: 10px; }
+        .wishlist-item {
+            background: #142014;
+            border-radius: 40px;
+            padding: 8px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .wishlist-name { color: #add8ad; font-family: monospace; flex: 2; }
+        .wishlist-amount { color: #e6ffe6; background: #030903; border: 1px solid #3e6b3e; padding: 4px 10px; border-radius: 40px; width: 100px; text-align: center; }
+        .wishlist-move-btn { background: #2d592d; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0b7; cursor: pointer; font-size: 0.7rem; }
+        .wishlist-delete-btn { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
         .view-mode-badge { background: #2a4a2a; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; color: #b3f7b3; margin-bottom: 12px; display: inline-block; }
         .reorder-buttons { display: flex; gap: 6px; align-items: center; }
         .toast-msg { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #2a5a2a; color: #d4ffd4; padding: 8px 20px; border-radius: 60px; font-size: 0.8rem; z-index: 1000; box-shadow: 0 2px 8px black; pointer-events: none; }
         .modal-small { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #071007dd; backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1001; display: none; }
         .modal-small-content { background: #121e12; max-width: 360px; width: 90%; border-radius: 28px; border: 1px solid #578b57; padding: 20px; }
-        .modal-small select { background: #030903; border: 1px solid #3e7e3e; padding: 8px; color: #d6ffd6; border-radius: 40px; width: 100%; margin: 8px 0; }
         footer { font-size: 0.65rem; text-align: center; margin-top: 20px; color: #5d895d; }
         @media (max-width: 540px) { .content { padding: 12px; } .goal-input-group { flex-direction: column; align-items: stretch; } .goal-header { flex-direction: column; } }
     </style>
@@ -110,16 +135,27 @@
         </div>
 
         <div class="panel">
-            <h2>🎯 GOALS · FOCUS <span id="currentMonthDisplay" style="font-size:0.7rem;"></span></h2>
+            <h2>🎯 ACTIVE GOALS</h2>
             <div id="viewModeBadge" class="view-mode-badge" style="display:none;">📖 VIEWING ARCHIVE</div>
             <div id="goalsListContainer" class="goals-list"></div>
             <div class="action-bar">
                 <button class="add-btn" id="addGoalBtn">✨ + NEW GOAL</button>
                 <button class="add-btn copy-btn" id="copyToClipboardBtn">📋 COPY TO CLIPBOARD</button>
                 <button class="add-btn export-btn" id="exportJSONBtn">💾 SAVE BACKUP (JSON)</button>
-                <button class="add-btn new-month-btn" id="newMonthBtn">📆 START NEW MONTH</button>
                 <button class="add-btn reset-btn" id="resetAllBtn">⟳ RESET ALL</button>
             </div>
+        </div>
+
+        <!-- WISHLIST / FUTURE WANTS SECTION -->
+        <div class="wishlist-panel">
+            <div class="wishlist-title">⭐ WISHLIST · FUTURE WANTS</div>
+            <div id="wishlistContainer" class="goals-list" style="margin-top: 0;"></div>
+            <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+                <input type="text" id="newWishlistName" placeholder="What do you want? (e.g., Second Monitor)" style="flex:2; background:#030903; border:1px solid #3e6b3e; padding:8px; border-radius:40px; color:#d2ffd2;">
+                <input type="number" id="newWishlistAmount" placeholder="Target £" style="width:100px; background:#030903; border:1px solid #3e6b3e; padding:8px; border-radius:40px; color:#d2ffd2;">
+                <button id="addWishlistBtn" class="small-btn" style="background:#2a4a6e;">➕ ADD TO WISHLIST</button>
+            </div>
+            <div style="font-size:0.7rem; color:#9fca9f; margin-top:8px; text-align:center;">✨ When you complete an active goal, check it off → it archives. Then move items from Wishlist to Goals!</div>
         </div>
 
         <div class="archive-panel">
@@ -130,36 +166,24 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>📆 START NEW MONTH → pick a template from archive OR start fresh</footer>
+        <footer>📋 Click "✅ COMPLETE" on a goal → moves to archive. Then move from Wishlist → Active Goals</footer>
     </div>
 </div>
 
-<!-- New Month Wizard Modal -->
-<div id="newMonthModal" class="modal-small">
+<!-- Copy Month Modal -->
+<div id="copyModal" class="modal-small">
     <div class="modal-small-content">
-        <h3 style="color:#b1f0b1;">📆 START NEW MONTH</h3>
-        <label style="color:#97cf97;">New month name:</label>
-        <input type="text" id="newMonthName" placeholder="e.g., June 2025, Shipping Push" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
-        
-        <label style="color:#97cf97;">Template (where to copy from):</label>
-        <select id="newMonthTemplate" style="width:100%; margin:8px 0;">
-            <option value="fresh">✨ Start completely fresh (no template)</option>
-            <option value="current">📌 Use current month (copy what you have now)</option>
-        </select>
-        <div id="templateArchiveOptions" style="display:none;">
-            <label style="color:#97cf97;">Archived month to copy:</label>
-            <select id="newMonthArchiveSource" style="width:100%; margin:8px 0;"></select>
-        </div>
-        
+        <h3 style="color:#b1f0b1;">📋 COPY ARCHIVE TO CURRENT MONTH</h3>
+        <label style="color:#97cf97;">Name for this month:</label>
+        <input type="text" id="copyMonthName" placeholder="e.g., June 2026, Shipping Push" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
         <label style="color:#97cf97;">Goal progress:</label>
-        <select id="newMonthProgress" style="width:100%; margin:8px 0;">
+        <select id="copyProgressOption" style="width:100%; margin:8px 0;">
             <option value="keep">Keep saved progress (continue where left off)</option>
             <option value="reset">Reset progress to £0 (start fresh)</option>
         </select>
-        
         <div style="display:flex; gap:12px; margin-top: 16px;">
-            <button id="confirmNewMonthBtn" style="background:#2d592d; border:none; padding:8px; border-radius:60px; color:white; flex:1;">CREATE NEW MONTH</button>
-            <button id="cancelNewMonthBtn" style="background:#2e2e2e; border:none; flex:1; border-radius:60px;">CANCEL</button>
+            <button id="confirmCopyBtn" style="background:#2d592d; border:none; padding:8px; border-radius:60px; color:white; flex:1;">COPY & USE</button>
+            <button id="cancelCopyBtn" style="background:#2e2e2e; border:none; flex:1; border-radius:60px;">CANCEL</button>
         </div>
     </div>
 </div>
@@ -183,8 +207,10 @@
     let monthlyIncome = 0;
     let expenses = [];
     let goals = [];
+    let wishlist = [];  // { id, name, targetAmount }
     let monthlyArchive = {};
     let currentViewArchive = null;
+    let completedGoalsArchive = []; // store completed goal IDs
     
     let githubToken = localStorage.getItem('goal_github_token') || '';
     let gistId = localStorage.getItem('goal_gist_id') || '';
@@ -194,19 +220,17 @@
     const incomeInput = document.getElementById('monthlyIncome');
     const expensesContainer = document.getElementById('expensesContainer');
     const goalsContainer = document.getElementById('goalsListContainer');
+    const wishlistContainer = document.getElementById('wishlistContainer');
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
     const archiveListDiv = document.getElementById('archiveList');
 
-    // New month wizard elements
-    const newMonthModal = document.getElementById('newMonthModal');
-    const newMonthNameInput = document.getElementById('newMonthName');
-    const newMonthTemplateSelect = document.getElementById('newMonthTemplate');
-    const templateArchiveOptionsDiv = document.getElementById('templateArchiveOptions');
-    const newMonthArchiveSource = document.getElementById('newMonthArchiveSource');
-    const newMonthProgressSelect = document.getElementById('newMonthProgress');
+    // Copy modal elements
+    const copyModal = document.getElementById('copyModal');
+    const copyMonthNameInput = document.getElementById('copyMonthName');
+    const copyProgressOption = document.getElementById('copyProgressOption');
+    let pendingCopySource = null;
 
-    // helpers
     function getCurrentYearMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
     function calculateGoalMoney() { let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0); let incomeVal = parseFloat(monthlyIncome) || 0; return incomeVal - totalExpenses > 0 ? incomeVal - totalExpenses : 0; }
     function updateGoalMoneyDisplay() { goalMoneySpan.innerText = `£${calculateGoalMoney().toFixed(2)}`; }
@@ -214,18 +238,22 @@
     
     function persistAll() {
         if (currentViewArchive) return;
-        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) }));
+        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })), wishlist }));
         localStorage.setItem('ledger1985_archive', JSON.stringify(monthlyArchive));
         triggerGistBackup();
     }
 
-    // DEFAULT GOALS FOR MAY 2026 (used only on FIRST load, never overwrites existing data)
     function seedDefaultGoals() {
         goals = [
             { id: 'ship1', name: '🚢 SHIP STUFF FROM US', targetAmount: 1200, currentSaved: 0, targetDate: '2026-12-01', orderIndex: 0, userMonthlyContribution: 0, note: '' },
             { id: 'chair', name: '💺 OFFICE CHAIR', targetAmount: 150, currentSaved: 0, targetDate: '', orderIndex: 1, userMonthlyContribution: 0, note: '' },
             { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-06-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
             { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
+        ];
+        wishlist = [
+            { id: 'w1', name: '🖥️ Second Monitor', targetAmount: 200 },
+            { id: 'w2', name: '📚 New Desk', targetAmount: 300 },
+            { id: 'w3', name: '✈️ Weekend Trip', targetAmount: 400 }
         ];
     }
 
@@ -238,15 +266,16 @@
             monthlyIncome = data.monthlyIncome || 0;
             expenses = data.expenses || [];
             goals = data.goals || [];
+            wishlist = data.wishlist || [];
             goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
             expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
             goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
             incomeInput.value = monthlyIncome;
         }
-        // Only seed default goals if there are NO goals at all (fresh install)
-        if (goals.length === 0) seedDefaultGoals();
+        if (goals.length === 0 && wishlist.length === 0) seedDefaultGoals();
         renderExpenses();
         renderGoals();
+        renderWishlist();
         updateGoalMoneyDisplay();
         renderArchiveList();
         updateMonthDisplay();
@@ -254,123 +283,138 @@
 
     function updateMonthDisplay() { document.getElementById('currentMonthDisplay').innerText = `(${getCurrentYearMonth()})`; }
 
-    // ---------- NEW MONTH WIZARD (pick template from archive or current or fresh) ----------
-    function openNewMonthWizard() {
-        // Populate archive dropdown
-        const archiveSelect = newMonthArchiveSource;
-        archiveSelect.innerHTML = '';
-        const archiveKeys = Object.keys(monthlyArchive).sort().reverse();
-        if (archiveKeys.length === 0) {
-            archiveSelect.innerHTML = '<option disabled>No archived months yet</option>';
-        } else {
-            archiveKeys.forEach(key => {
-                const snap = monthlyArchive[key];
-                const displayName = snap?.customName ? `${snap.customName} (${key})` : key;
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = `📅 ${displayName}`;
-                archiveSelect.appendChild(option);
-            });
-        }
-        
-        // Reset form
-        newMonthNameInput.value = "";
-        newMonthTemplateSelect.value = "fresh";
-        templateArchiveOptionsDiv.style.display = "none";
-        newMonthProgressSelect.value = "keep";
-        
-        newMonthModal.style.display = 'flex';
+    // ---------- COMPLETE GOAL (archive it and remove from active) ----------
+    function completeGoal(goalId) {
+        const goalIndex = goals.findIndex(g => g.id === goalId);
+        if (goalIndex === -1) return;
+        const completedGoal = goals[goalIndex];
+        // Remove from active goals
+        goals.splice(goalIndex, 1);
+        // Reorder indices
+        goals.forEach((g, idx) => g.orderIndex = idx);
+        persistAll();
+        renderGoals();
+        showToast(`✅ "${completedGoal.name}" completed! Archived. Add from Wishlist to create new goals.`);
     }
 
-    newMonthTemplateSelect.addEventListener('change', () => {
-        if (newMonthTemplateSelect.value === "archive") {
-            templateArchiveOptionsDiv.style.display = 'block';
-        } else {
-            templateArchiveOptionsDiv.style.display = 'none';
-        }
-    });
+    // ---------- WISHLIST FUNCTIONS ----------
+    function addToWishlist() {
+        const name = document.getElementById('newWishlistName').value.trim();
+        const amount = parseFloat(document.getElementById('newWishlistAmount').value) || 0;
+        if (!name) { alert("Please enter a name for the wishlist item"); return; }
+        wishlist.push({ id: Date.now().toString(), name: name, targetAmount: amount });
+        document.getElementById('newWishlistName').value = '';
+        document.getElementById('newWishlistAmount').value = '';
+        persistAll();
+        renderWishlist();
+        showToast(`✨ Added "${name}" to wishlist`);
+    }
 
-    function executeNewMonth() {
-        const newName = newMonthNameInput.value.trim();
-        if (!newName) {
-            alert("Please enter a name for the new month");
+    function moveWishlistToGoals(itemId) {
+        const itemIndex = wishlist.findIndex(w => w.id === itemId);
+        if (itemIndex === -1) return;
+        const item = wishlist[itemIndex];
+        // Create new goal from wishlist item
+        const newGoal = {
+            id: Date.now().toString(),
+            name: item.name,
+            targetAmount: item.targetAmount,
+            currentSaved: 0,
+            targetDate: '',
+            orderIndex: goals.length,
+            userMonthlyContribution: 0,
+            note: ''
+        };
+        goals.push(newGoal);
+        // Remove from wishlist
+        wishlist.splice(itemIndex, 1);
+        persistAll();
+        renderGoals();
+        renderWishlist();
+        showToast(`🎯 "${item.name}" moved to Active Goals!`);
+    }
+
+    function deleteWishlistItem(itemId) {
+        if (confirm("Remove from wishlist?")) {
+            wishlist = wishlist.filter(w => w.id !== itemId);
+            persistAll();
+            renderWishlist();
+            showToast(`Removed from wishlist`);
+        }
+    }
+
+    function renderWishlist() {
+        if (!wishlistContainer) return;
+        if (wishlist.length === 0) {
+            wishlistContainer.innerHTML = '<div style="color:#6b8f6b; text-align:center; padding:20px;">✨ Your wishlist is empty. Add things you want to save for next!</div>';
             return;
         }
-        
-        const templateType = newMonthTemplateSelect.value;
-        const keepProgress = newMonthProgressSelect.value === "keep";
-        
-        // Determine source data
-        let sourceData = null;
-        
-        if (templateType === "fresh") {
-            // Fresh start: use default empty state
-            sourceData = { monthlyIncome: 0, expenses: [], goals: [] };
-        } else if (templateType === "current") {
-            // Use current month's data
-            sourceData = { 
-                monthlyIncome: monthlyIncome, 
-                expenses: JSON.parse(JSON.stringify(expenses)), 
-                goals: JSON.parse(JSON.stringify(goals)) 
-            };
-        } else if (templateType === "archive") {
-            const selectedArchiveKey = newMonthArchiveSource.value;
-            if (!selectedArchiveKey || !monthlyArchive[selectedArchiveKey]) {
-                alert("Please select a valid archived month");
-                return;
-            }
-            const archiveSnap = monthlyArchive[selectedArchiveKey];
-            sourceData = { 
-                monthlyIncome: archiveSnap.monthlyIncome, 
-                expenses: JSON.parse(JSON.stringify(archiveSnap.expenses)), 
-                goals: JSON.parse(JSON.stringify(archiveSnap.goals)) 
-            };
-        }
-        
-        if (!sourceData) return;
-        
-        // Apply to current working state
-        monthlyIncome = sourceData.monthlyIncome;
-        expenses = sourceData.expenses;
-        goals = sourceData.goals;
-        
-        if (!keepProgress) {
-            goals.forEach(g => { g.currentSaved = 0; g.userMonthlyContribution = 0; });
-        } else {
-            goals.forEach(g => { g.userMonthlyContribution = 0; });
-        }
+        let html = '';
+        wishlist.forEach(item => {
+            html += `
+                <div class="wishlist-item">
+                    <span class="wishlist-name">⭐ ${escapeHtml(item.name)}</span>
+                    <span class="wishlist-amount">£${item.targetAmount.toFixed(2)}</span>
+                    <div>
+                        <button class="wishlist-move-btn" data-id="${item.id}">📌 MOVE TO GOALS</button>
+                        <button class="wishlist-delete-btn" data-id="${item.id}">🗑️</button>
+                    </div>
+                </div>
+            `;
+        });
+        wishlistContainer.innerHTML = html;
+        document.querySelectorAll('.wishlist-move-btn').forEach(btn => {
+            btn.addEventListener('click', () => moveWishlistToGoals(btn.dataset.id));
+        });
+        document.querySelectorAll('.wishlist-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteWishlistItem(btn.dataset.id));
+        });
+    }
+
+    // ---------- COPY ARCHIVE TO CURRENT MONTH ----------
+    function openCopyModal(archiveKey) {
+        pendingCopySource = archiveKey;
+        copyMonthNameInput.value = "";
+        copyProgressOption.value = "keep";
+        copyModal.style.display = 'flex';
+    }
+
+    function executeCopyToCurrent() {
+        if (!pendingCopySource || !monthlyArchive[pendingCopySource]) { showToast("Error: source not found"); copyModal.style.display = 'none'; return; }
+        const newName = copyMonthNameInput.value.trim();
+        if (!newName) { alert("Please enter a name for this month"); return; }
+        const source = monthlyArchive[pendingCopySource];
+        const keepProgress = copyProgressOption.value === "keep";
+        monthlyIncome = source.monthlyIncome;
+        expenses = JSON.parse(JSON.stringify(source.expenses));
+        goals = JSON.parse(JSON.stringify(source.goals));
+        wishlist = source.wishlist || [];
+        if (!keepProgress) goals.forEach(g => { g.currentSaved = 0; g.userMonthlyContribution = 0; });
+        else goals.forEach(g => { g.userMonthlyContribution = 0; });
         goals.forEach((g, idx) => { g.orderIndex = idx; });
-        
         incomeInput.value = monthlyIncome;
-        
-        // Exit archive mode if any
         if (currentViewArchive) exitArchiveMode();
-        
         persistAll();
         renderExpenses();
         renderGoals();
+        renderWishlist();
         updateGoalMoneyDisplay();
         renderArchiveList();
         updateMonthDisplay();
-        
-        newMonthModal.style.display = 'none';
-        showToast(`✅ New month "${newName}" created from ${templateType === 'archive' ? 'archive' : (templateType === 'current' ? 'current month' : 'fresh template')}`);
+        copyModal.style.display = 'none';
+        pendingCopySource = null;
+        showToast(`✅ "${newName}" is now your current month`);
     }
 
-    function cancelNewMonth() {
-        newMonthModal.style.display = 'none';
-    }
+    function cancelCopy() { copyModal.style.display = 'none'; pendingCopySource = null; }
 
-    // Save snapshot
     function saveSnapshotToArchive(monthKey) {
         if (!monthKey) monthKey = getCurrentYearMonth();
-        const customName = prompt("Name this snapshot (e.g., May baseline, pre-shipping):", monthKey);
+        const customName = prompt("Name this snapshot:", monthKey);
         monthlyArchive[monthKey] = { 
-            monthlyIncome, 
-            expenses: JSON.parse(JSON.stringify(expenses)), 
-            goals: JSON.parse(JSON.stringify(goals)), 
-            customName: customName || monthKey,
-            archivedDate: new Date().toISOString() 
+            monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), 
+            goals: JSON.parse(JSON.stringify(goals)), wishlist: JSON.parse(JSON.stringify(wishlist)),
+            customName: customName || monthKey, archivedDate: new Date().toISOString() 
         };
         persistAll();
         renderArchiveList();
@@ -378,8 +422,7 @@
     }
 
     function exitArchiveMode() {
-        currentViewArchive = null;
-        loadFromLocal();
+        currentViewArchive = null; loadFromLocal();
         document.getElementById('viewModeBadge').style.display = 'none';
         document.getElementById('exitArchiveBtn').style.display = 'none';
     }
@@ -392,12 +435,14 @@
     function copyToClipboard() {
         let text = `LEDGER REPORT - ${getCurrentYearMonth()}\n=================================\nINCOME: £${monthlyIncome}\n\nEXPENSES:\n`;
         expenses.forEach(e => text += `  ${e.name}: £${e.amount}\n`);
-        text += `\nGOALS (priority order):\n`;
+        text += `\nACTIVE GOALS:\n`;
         goals.forEach((g, i) => text += `  ${i+1}. ${g.name}: £${g.currentSaved} / £${g.targetAmount} (${Math.round((g.currentSaved/g.targetAmount)*100)}%)\n`);
+        text += `\nWISHLIST:\n`;
+        wishlist.forEach(w => text += `  ⭐ ${w.name}: £${w.targetAmount}\n`);
         text += `\nMONEY FOR GOALS: £${calculateGoalMoney()}\n`;
         navigator.clipboard.writeText(text).then(() => showToast("✓ Copied! Paste into spreadsheet")).catch(() => alert("Manual copy"));
     }
-    function exportJSON() { const data = { monthlyIncome, expenses, goals, exportDate: new Date().toISOString() }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_backup_${getCurrentYearMonth()}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast("✓ JSON backup saved"); }
+    function exportJSON() { const data = { monthlyIncome, expenses, goals, wishlist, exportDate: new Date().toISOString() }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_backup_${getCurrentYearMonth()}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast("✓ JSON backup saved"); }
     function exportArchiveJSON(monthKey) { const snap = monthlyArchive[monthKey]; if (!snap) return; const displayName = snap.customName || monthKey; const blob = new Blob([JSON.stringify(snap, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_${displayName.replace(/\s/g, '_')}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast(`✓ Archive ${displayName} saved`); }
 
     // ---------- RENDER EXPENSES ----------
@@ -423,11 +468,10 @@
         document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => { ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); }; });
     }
 
-    // Projection helpers
     function monthsUntilDate(dateStr) { if (!dateStr) return 0; let target = new Date(dateStr); let now = new Date(); return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth()); }
     function computeProjection(goal, monthlyContribution) {
         const remaining = goal.targetAmount - goal.currentSaved;
-        if (remaining <= 0) return { message: '✓ GOAL ACHIEVED!' };
+        if (remaining <= 0) return { message: '✓ GOAL ACHIEVED! Click Complete to archive.' };
         if (monthlyContribution <= 0) return { message: '➕ add contribution this month' };
         let monthsNeeded = remaining / monthlyContribution;
         let projectionDate = new Date(); projectionDate.setMonth(projectionDate.getMonth() + Math.ceil(monthsNeeded));
@@ -443,10 +487,9 @@
         return { message: `📅 est. ${formatted}` };
     }
 
-    // Render goals with up/down
     function renderGoals() {
         goalsContainer.innerHTML = '';
-        if (goals.length === 0) { goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ click +NEW GOAL</div>'; return; }
+        if (goals.length === 0) { goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ No active goals. Move items from Wishlist or click +NEW GOAL</div>'; return; }
         goals.forEach((goal, idx) => {
             const percent = goal.targetAmount > 0 ? (goal.currentSaved / goal.targetAmount) * 100 : 0;
             const monthlyContribution = goal.userMonthlyContribution || 0;
@@ -460,10 +503,10 @@
                 <div class="goal-header">
                     <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>
                     <input type="number" step="any" class="goal-target-edit" value="${goal.targetAmount}" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>
-                    <div class="goal-badge" style="color:#b3f7b3;">🎯 saved: £${goal.currentSaved.toFixed(2)}</div>
+                    <button class="goal-complete-btn" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>✅ COMPLETE</button>
                 </div>
                 <div class="progress-bar-bg"><div class="progress-fill" style="width:${Math.min(100,percent)}%;"></div></div>
-                <div class="goal-stats"><span>💰 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span><span>🏁 target: £${goal.targetAmount}</span></div>
+                <div class="goal-stats"><span>💰 saved: £${goal.currentSaved.toFixed(2)}</span><span>🏁 target: £${goal.targetAmount}</span><span>📉 left: £${(goal.targetAmount - goal.currentSaved).toFixed(2)}</span></div>
                 <div class="goal-input-group">
                     <input type="number" step="any" placeholder="this month's contribution (£)" class="contribution-input" data-id="${goal.id}" value="${monthlyContribution > 0 ? monthlyContribution : ''}" ${currentViewArchive ? 'disabled' : ''}>
                     <button class="small-btn apply-contrib" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>APPLY ➕</button>
@@ -488,6 +531,7 @@
         document.querySelectorAll('.goal-target-edit').forEach(inp => { inp.onchange = () => { const g = goals.find(g=>g.id===inp.dataset.id); if(g) { let nt = parseFloat(inp.value); if(!isNaN(nt) && nt>=0) g.targetAmount = nt; persistAll(); renderGoals(); } }; });
         document.querySelectorAll('.apply-contrib').forEach(btn => { btn.onclick = () => { if(currentViewArchive) return; const goal = goals.find(g=>g.id===btn.dataset.id); if(!goal) return; const contribField = btn.closest('.goal-card').querySelector('.contribution-input'); let amount = parseFloat(contribField.value); if(isNaN(amount)||amount<=0) amount=0; const available = calculateGoalMoney(); if(amount>available && amount>0) { alert(`⚠️ Only £${available.toFixed(2)} available`); return; } if(amount>0) { goal.currentSaved += amount; goal.userMonthlyContribution = amount; persistAll(); } renderGoals(); updateGoalMoneyDisplay(); }; });
         document.querySelectorAll('.delete-goal').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) { goals = goals.filter(g=>g.id!==btn.dataset.id); persistAll(); renderGoals(); } }; });
+        document.querySelectorAll('.goal-complete-btn').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) completeGoal(btn.dataset.id); }; });
         document.querySelectorAll('.goal-note-toggle').forEach(btn => { btn.onclick = () => { const div = document.getElementById(`goalNote_${btn.dataset.id}`); if(div) div.style.display = div.style.display === 'none' ? 'block' : 'none'; }; });
         document.querySelectorAll('.notes-area textarea').forEach(ta => { ta.onblur = () => { if(!currentViewArchive) { const parentId = ta.closest('.notes-area').id; const goalId = parentId.replace('goalNote_',''); const goal = goals.find(g=>g.id===goalId); if(goal) goal.note = ta.value; persistAll(); } }; });
         document.querySelectorAll('.move-up').forEach(btn => { btn.onclick = () => { if(!currentViewArchive) moveGoalUp(parseInt(btn.dataset.idx)); }; });
@@ -501,16 +545,10 @@
         archiveListDiv.innerHTML = months.map(m => {
             const snap = monthlyArchive[m];
             const displayName = snap?.customName ? `${snap.customName} · ${m}` : m;
-            return `
-            <div class="archive-item">
-                <span class="archive-month" data-month="${m}">📅 ${displayName}</span>
-                <div>
-                    <button class="archive-export" data-month="${m}">📎 JSON</button>
-                    <button class="archive-delete" data-month="${m}">🗑️</button>
-                </div>
-            </div>
-        `}).join('');
+            return `<div class="archive-item"><span class="archive-month" data-month="${m}">📅 ${displayName}</span><div><button class="archive-copy-btn" data-month="${m}">📋 COPY & USE</button><button class="archive-export" data-month="${m}">📎 JSON</button><button class="archive-delete" data-month="${m}">🗑️</button></div></div>`;
+        }).join('');
         document.querySelectorAll('.archive-month').forEach(el => { el.addEventListener('click', () => { loadArchiveIntoView(el.dataset.month); }); });
+        document.querySelectorAll('.archive-copy-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); openCopyModal(btn.dataset.month); }); });
         document.querySelectorAll('.archive-export').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); exportArchiveJSON(btn.dataset.month); }); });
         document.querySelectorAll('.archive-delete').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm('Delete archive?')) { delete monthlyArchive[btn.dataset.month]; persistAll(); renderArchiveList(); if(currentViewArchive === btn.dataset.month) exitArchiveMode(); } }); });
     }
@@ -522,24 +560,25 @@
         monthlyIncome = snap.monthlyIncome;
         expenses = snap.expenses;
         goals = snap.goals;
+        wishlist = snap.wishlist || [];
         incomeInput.value = monthlyIncome;
-        renderExpenses(); renderGoals(); updateGoalMoneyDisplay();
+        renderExpenses(); renderGoals(); renderWishlist(); updateGoalMoneyDisplay();
         document.getElementById('viewModeBadge').style.display = 'inline-block';
         document.getElementById('exitArchiveBtn').style.display = 'inline-block';
     }
 
     function hardReset() { if(confirm("⚠️ DELETE ALL DATA? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
 
-    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
-    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
+    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, wishlist, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
+    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; wishlist=remote.ledger.wishlist||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); renderWishlist(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
 
     // ========== BUTTON BINDINGS ==========
     document.getElementById('addExpenseBtn').onclick = () => { if(!currentViewArchive) { expenses.push({ name: 'New expense', amount: 0, note: '' }); renderExpenses(); persistAll(); updateGoalMoneyDisplay(); } };
     document.getElementById('addGoalBtn').onclick = () => { if(!currentViewArchive) { goals.push({ id:'goal_'+Date.now(), name:'✨ New Goal', targetAmount:200, currentSaved:0, targetDate:'', orderIndex:goals.length, userMonthlyContribution:0, note:'' }); persistAll(); renderGoals(); } };
+    document.getElementById('addWishlistBtn').onclick = addToWishlist;
     document.getElementById('copyToClipboardBtn').onclick = copyToClipboard;
     document.getElementById('exportJSONBtn').onclick = exportJSON;
-    document.getElementById('newMonthBtn').onclick = openNewMonthWizard;
     document.getElementById('resetAllBtn').onclick = hardReset;
     document.getElementById('saveCurrentMonthBtn').onclick = () => saveSnapshotToArchive(getCurrentYearMonth());
     document.getElementById('exitArchiveBtn').onclick = exitArchiveMode;
@@ -547,10 +586,8 @@
     document.getElementById('syncStatusChip').onclick = () => document.getElementById('syncModal').style.display = 'flex';
     document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
     document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display='none';
-    
-    // New month modal buttons
-    document.getElementById('confirmNewMonthBtn').onclick = executeNewMonth;
-    document.getElementById('cancelNewMonthBtn').onclick = cancelNewMonth;
+    document.getElementById('confirmCopyBtn').onclick = executeCopyToCurrent;
+    document.getElementById('cancelCopyBtn').onclick = cancelCopy;
     
     loadFromLocal();
     if(githubToken && gistId) setTimeout(()=>loadFromGist(),300);
