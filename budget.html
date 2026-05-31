@@ -47,12 +47,16 @@
         .add-btn:active { transform: scale(0.97); background: #2f552f; }
         .goal-money-card { background: #102010; border-radius: 40px; padding: 12px 18px; text-align: center; margin: 18px 0 8px; }
         .goal-money-number { font-size: 2.2rem; font-weight: bold; color: #e6ffe6; letter-spacing: 2px; }
-        .goals-list { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+        .section-toggle { background: #2a4a2a; border: none; border-radius: 60px; padding: 4px 12px; color: #b3f7b3; cursor: pointer; font-size: 0.7rem; }
+        .goals-list { margin-top: 12px; display: flex; flex-direction: column; gap: 20px; }
         .goal-card { background: #0f1a0f; border-radius: 28px; border-left: 8px solid #7bc97b; padding: 14px 16px; transition: all 0.1s; }
+        .completed-card { border-left: 8px solid #5a7a5a; opacity: 0.85; }
         .goal-header { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; margin-bottom: 8px; gap: 8px; }
         .goal-name { font-weight: bold; font-size: 1rem; background: #071007; border: 1px solid #2f582f; padding: 6px 12px; border-radius: 60px; color: #d0ffd0; font-family: monospace; flex: 2; }
         .goal-target-edit { background: #071007; border: 1px solid #3c723c; padding: 6px 10px; border-radius: 40px; color: #f0fff0; width: 110px; font-family: monospace; text-align: center; }
         .goal-complete-btn { background: #2a5a2a; border: none; border-radius: 60px; padding: 4px 12px; color: #d4ffd4; cursor: pointer; font-size: 0.7rem; }
+        .goal-restore-btn { background: #2a4a6e; border: none; border-radius: 60px; padding: 4px 12px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
         .progress-bar-bg { background: #1d2a1d; border-radius: 60px; height: 18px; margin: 10px 0; overflow: hidden; }
         .progress-fill { background: #6bd96b; width: 0%; height: 100%; border-radius: 60px; }
         .goal-stats { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.75rem; color: #b1d0b1; margin: 8px 0; }
@@ -93,25 +97,30 @@
         .wishlist-info { flex: 3; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
         .wishlist-name { color: #add8ad; font-family: monospace; min-width: 140px; }
         .wishlist-amount { color: #e6ffe6; background: #030903; border: 1px solid #3e6b3e; padding: 4px 10px; border-radius: 40px; width: 90px; text-align: center; }
-        .wishlist-url {
-            color: #7ab87a;
-            background: #030903;
-            border: 1px solid #3e6b3e;
-            padding: 4px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            text-decoration: none;
-            display: inline-block;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .wishlist-url { color: #7ab87a; background: #030903; border: 1px solid #3e6b3e; padding: 4px 10px; border-radius: 40px; font-size: 0.7rem; text-decoration: none; display: inline-block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .wishlist-url:hover { color: #b3f7b3; text-decoration: underline; }
         .wishlist-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .wishlist-move-btn { background: #2d592d; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0b7; cursor: pointer; font-size: 0.7rem; }
         .wishlist-delete-btn { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
         .wishlist-edit-url-btn { background: #2a4a6e; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
+        .completed-panel { background: #0a120a; border-radius: 24px; padding: 16px; margin-top: 20px; }
+        .completed-title { color: #7a9a7a; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #7a9a7a; padding-left: 10px; }
+        .completed-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+        .completed-item {
+            background: #142014;
+            border-radius: 40px;
+            padding: 8px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            opacity: 0.8;
+        }
+        .completed-name { color: #8aae8a; font-family: monospace; }
+        .completed-date { font-size: 0.65rem; color: #6a8e6a; }
+        .completed-restore-btn { background: #2a4a2a; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0b7; cursor: pointer; font-size: 0.7rem; }
+        .completed-delete-btn { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
         .view-mode-badge { background: #2a4a2a; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; color: #b3f7b3; margin-bottom: 12px; display: inline-block; }
         .reorder-buttons { display: flex; gap: 6px; align-items: center; }
         .toast-msg { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #2a5a2a; color: #d4ffd4; padding: 8px 20px; border-radius: 60px; font-size: 0.8rem; z-index: 1000; box-shadow: 0 2px 8px black; pointer-events: none; }
@@ -165,6 +174,15 @@
             </div>
         </div>
 
+        <!-- COMPLETED GOALS SECTION -->
+        <div class="completed-panel">
+            <div class="section-header">
+                <div class="completed-title">✓ COMPLETED GOALS</div>
+                <button id="clearAllCompletedBtn" class="section-toggle" style="background:#3e2626;">🗑️ CLEAR ALL</button>
+            </div>
+            <div id="completedList" class="completed-list"></div>
+        </div>
+
         <!-- WISHLIST / FUTURE WANTS SECTION -->
         <div class="wishlist-panel">
             <div class="wishlist-title">⭐ WISHLIST · FUTURE WANTS</div>
@@ -186,7 +204,7 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>📋 Click "📋 COPY & USE" on any archived month → name it → becomes your current month</footer>
+        <footer>📋 Click "✅ COMPLETE" on a goal → moves to Completed folder · Restore anytime</footer>
     </div>
 </div>
 
@@ -228,7 +246,8 @@
     let monthlyIncome = 0;
     let expenses = [];
     let goals = [];
-    let wishlist = [];  // { id, name, targetAmount, url }
+    let completedGoals = [];  // { id, name, targetAmount, completedDate, note, originalGoal }
+    let wishlist = [];
     let monthlyArchive = {};
     let currentViewArchive = null;
     
@@ -241,6 +260,7 @@
     const expensesContainer = document.getElementById('expensesContainer');
     const goalsContainer = document.getElementById('goalsListContainer');
     const wishlistContainer = document.getElementById('wishlistContainer');
+    const completedContainer = document.getElementById('completedList');
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
     const archiveListDiv = document.getElementById('archiveList');
@@ -258,7 +278,7 @@
     
     function persistAll() {
         if (currentViewArchive) return;
-        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })), wishlist }));
+        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })), completedGoals, wishlist }));
         localStorage.setItem('ledger1985_archive', JSON.stringify(monthlyArchive));
         triggerGistBackup();
     }
@@ -270,6 +290,7 @@
             { id: 'taxes', name: '📋 TAXES (DEBT)', targetAmount: 500, currentSaved: 0, targetDate: '2026-06-15', orderIndex: 2, userMonthlyContribution: 0, note: '' },
             { id: 'electric', name: '⚡ ELECTRIC DEBT', targetAmount: 1000, currentSaved: 0, targetDate: '', orderIndex: 3, userMonthlyContribution: 0, note: '' }
         ];
+        completedGoals = [];
         wishlist = [
             { id: 'w1', name: '🖥️ Second Monitor', targetAmount: 200, url: '' },
             { id: 'w2', name: '📚 New Desk', targetAmount: 300, url: '' },
@@ -286,15 +307,17 @@
             monthlyIncome = data.monthlyIncome || 0;
             expenses = data.expenses || [];
             goals = data.goals || [];
+            completedGoals = data.completedGoals || [];
             wishlist = data.wishlist || [];
             goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
             expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
             goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
             incomeInput.value = monthlyIncome;
         }
-        if (goals.length === 0 && wishlist.length === 0) seedDefaultGoals();
+        if (goals.length === 0 && wishlist.length === 0 && completedGoals.length === 0) seedDefaultGoals();
         renderExpenses();
         renderGoals();
+        renderCompleted();
         renderWishlist();
         updateGoalMoneyDisplay();
         renderArchiveList();
@@ -303,19 +326,100 @@
 
     function updateMonthDisplay() { document.getElementById('currentMonthDisplay').innerText = `(${getCurrentYearMonth()})`; }
 
-    // ---------- COMPLETE GOAL ----------
+    // ---------- COMPLETE GOAL (moves to completed folder) ----------
     function completeGoal(goalId) {
         const goalIndex = goals.findIndex(g => g.id === goalId);
         if (goalIndex === -1) return;
-        const completedGoal = goals[goalIndex];
+        const goal = goals[goalIndex];
+        const completedItem = {
+            id: goal.id,
+            name: goal.name,
+            targetAmount: goal.targetAmount,
+            completedDate: new Date().toISOString(),
+            note: goal.note || ''
+        };
+        completedGoals.unshift(completedItem);  // add to top of completed list
         goals.splice(goalIndex, 1);
         goals.forEach((g, idx) => g.orderIndex = idx);
         persistAll();
         renderGoals();
-        showToast(`✅ "${completedGoal.name}" completed!`);
+        renderCompleted();
+        showToast(`✅ "${goal.name}" completed! Moved to Completed folder.`);
     }
 
-    // ---------- WISHLIST FUNCTIONS (with URL) ----------
+    function restoreCompletedGoal(goalId) {
+        const completedIndex = completedGoals.findIndex(c => c.id === goalId);
+        if (completedIndex === -1) return;
+        const completed = completedGoals[completedIndex];
+        const restoredGoal = {
+            id: completed.id,
+            name: completed.name,
+            targetAmount: completed.targetAmount,
+            currentSaved: 0,
+            targetDate: '',
+            orderIndex: goals.length,
+            userMonthlyContribution: 0,
+            note: completed.note || ''
+        };
+        goals.push(restoredGoal);
+        completedGoals.splice(completedIndex, 1);
+        persistAll();
+        renderGoals();
+        renderCompleted();
+        showToast(`↺ "${completed.name}" restored to Active Goals.`);
+    }
+
+    function deleteCompletedGoal(goalId) {
+        if (confirm("Permanently delete this completed goal?")) {
+            completedGoals = completedGoals.filter(c => c.id !== goalId);
+            persistAll();
+            renderCompleted();
+            showToast(`Deleted from completed goals.`);
+        }
+    }
+
+    function clearAllCompleted() {
+        if (confirm("⚠️ Delete ALL completed goals? This cannot be undone.")) {
+            completedGoals = [];
+            persistAll();
+            renderCompleted();
+            showToast(`All completed goals cleared.`);
+        }
+    }
+
+    function renderCompleted() {
+        if (!completedContainer) return;
+        if (completedGoals.length === 0) {
+            completedContainer.innerHTML = '<div style="color:#6b8f6b; text-align:center; padding:16px;">✨ No completed goals yet. Click "✅ COMPLETE" on a goal when you finish it.</div>';
+            return;
+        }
+        let html = '';
+        completedGoals.forEach(goal => {
+            const date = new Date(goal.completedDate).toLocaleDateString('en-GB');
+            html += `
+                <div class="completed-item">
+                    <div>
+                        <span class="completed-name">✓ ${escapeHtml(goal.name)}</span>
+                        <span class="completed-date"> · completed ${date}</span>
+                        ${goal.targetAmount ? `<span style="font-size:0.65rem; color:#6a8e6a;"> · £${goal.targetAmount}</span>` : ''}
+                    </div>
+                    <div>
+                        <button class="completed-restore-btn" data-id="${goal.id}">↺ RESTORE</button>
+                        <button class="completed-delete-btn" data-id="${goal.id}">🗑️ DELETE</button>
+                    </div>
+                </div>
+            `;
+        });
+        completedContainer.innerHTML = html;
+        document.querySelectorAll('.completed-restore-btn').forEach(btn => {
+            btn.addEventListener('click', () => restoreCompletedGoal(btn.dataset.id));
+        });
+        document.querySelectorAll('.completed-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteCompletedGoal(btn.dataset.id));
+        });
+    }
+
+    // ---------- WISHLIST FUNCTIONS ----------
     function addToWishlist() {
         const name = document.getElementById('newWishlistName').value.trim();
         const amount = parseFloat(document.getElementById('newWishlistAmount').value) || 0;
@@ -439,6 +543,7 @@
         monthlyIncome = source.monthlyIncome;
         expenses = JSON.parse(JSON.stringify(source.expenses));
         goals = JSON.parse(JSON.stringify(source.goals));
+        completedGoals = source.completedGoals ? JSON.parse(JSON.stringify(source.completedGoals)) : [];
         wishlist = source.wishlist ? JSON.parse(JSON.stringify(source.wishlist)) : [];
         
         if (!keepProgress) {
@@ -455,6 +560,7 @@
         persistAll();
         renderExpenses();
         renderGoals();
+        renderCompleted();
         renderWishlist();
         updateGoalMoneyDisplay();
         renderArchiveList();
@@ -478,6 +584,7 @@
             monthlyIncome, 
             expenses: JSON.parse(JSON.stringify(expenses)), 
             goals: JSON.parse(JSON.stringify(goals)), 
+            completedGoals: JSON.parse(JSON.stringify(completedGoals)),
             wishlist: JSON.parse(JSON.stringify(wishlist)),
             customName: customName || monthKey,
             archivedDate: new Date().toISOString() 
@@ -497,12 +604,14 @@
         expenses.forEach(e => text += `  ${e.name}: £${e.amount}\n`);
         text += `\nACTIVE GOALS:\n`;
         goals.forEach((g, i) => text += `  ${i+1}. ${g.name}: £${g.currentSaved} / £${g.targetAmount} (${Math.round((g.currentSaved/g.targetAmount)*100)}%)\n`);
+        text += `\nCOMPLETED GOALS:\n`;
+        completedGoals.forEach(g => text += `  ✓ ${g.name} (completed ${new Date(g.completedDate).toLocaleDateString()})\n`);
         text += `\nWISHLIST:\n`;
         wishlist.forEach(w => text += `  ⭐ ${w.name}: £${w.targetAmount}${w.url ? ' 🔗 ' + w.url : ''}\n`);
         text += `\nMONEY FOR GOALS: £${calculateGoalMoney()}\n`;
         navigator.clipboard.writeText(text).then(() => showToast("✓ Copied! Paste into spreadsheet")).catch(() => alert("Manual copy"));
     }
-    function exportJSON() { const data = { monthlyIncome, expenses, goals, wishlist, exportDate: new Date().toISOString() }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_backup_${getCurrentYearMonth()}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast("✓ JSON backup saved"); }
+    function exportJSON() { const data = { monthlyIncome, expenses, goals, completedGoals, wishlist, exportDate: new Date().toISOString() }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_backup_${getCurrentYearMonth()}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast("✓ JSON backup saved"); }
     function exportArchiveJSON(monthKey) { const snap = monthlyArchive[monthKey]; if (!snap) return; const displayName = snap.customName || monthKey; const blob = new Blob([JSON.stringify(snap, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_${displayName.replace(/\s/g, '_')}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast(`✓ Archive ${displayName} saved`); }
 
     // ---------- RENDER EXPENSES ----------
@@ -620,17 +729,18 @@
         monthlyIncome = snap.monthlyIncome;
         expenses = snap.expenses;
         goals = snap.goals;
+        completedGoals = snap.completedGoals || [];
         wishlist = snap.wishlist || [];
         incomeInput.value = monthlyIncome;
-        renderExpenses(); renderGoals(); renderWishlist(); updateGoalMoneyDisplay();
+        renderExpenses(); renderGoals(); renderCompleted(); renderWishlist(); updateGoalMoneyDisplay();
         document.getElementById('viewModeBadge').style.display = 'inline-block';
         document.getElementById('exitArchiveBtn').style.display = 'inline-block';
     }
 
     function hardReset() { if(confirm("⚠️ DELETE ALL DATA? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
 
-    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, wishlist, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
-    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; wishlist=remote.ledger.wishlist||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); renderWishlist(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
+    async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, completedGoals, wishlist, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
+    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; completedGoals=remote.ledger.completedGoals||[]; wishlist=remote.ledger.wishlist||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); renderCompleted(); renderWishlist(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
 
     // ========== BUTTON BINDINGS ==========
@@ -642,6 +752,7 @@
     document.getElementById('resetAllBtn').onclick = hardReset;
     document.getElementById('saveCurrentMonthBtn').onclick = () => saveSnapshotToArchive(getCurrentYearMonth());
     document.getElementById('exitArchiveBtn').onclick = exitArchiveMode;
+    document.getElementById('clearAllCompletedBtn').onclick = clearAllCompleted;
     incomeInput.oninput = () => { if(!currentViewArchive) { monthlyIncome = parseFloat(incomeInput.value) || 0; persistAll(); updateGoalMoneyDisplay(); renderGoals(); } };
     document.getElementById('syncStatusChip').onclick = () => document.getElementById('syncModal').style.display = 'flex';
     document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
