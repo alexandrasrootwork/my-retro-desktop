@@ -45,6 +45,7 @@
         .remove-expense { background: #2e1e1e; border: none; color: #ffa0a0; font-weight: bold; width: 36px; border-radius: 60px; cursor: pointer; font-size: 1.2rem; }
         .add-btn { background: #1f3a1f; border: 1px solid #5ba05b; padding: 8px 18px; border-radius: 60px; font-family: monospace; font-weight: bold; color: #bef5be; margin-top: 12px; width: fit-content; cursor: pointer; }
         .add-btn:active { transform: scale(0.97); background: #2f552f; }
+        .new-month-btn { background: #5a4a2a; border: 1px solid #b8a86a; color: #f5e6b0; }
         .goal-money-card { background: #102010; border-radius: 40px; padding: 12px 18px; text-align: center; margin: 18px 0 8px; }
         .goal-money-number { font-size: 2.2rem; font-weight: bold; color: #e6ffe6; letter-spacing: 2px; }
         .goals-list { margin-top: 20px; display: flex; flex-direction: column; gap: 20px; }
@@ -113,6 +114,7 @@
                 <button class="add-btn" id="addGoalBtn">✨ + NEW GOAL</button>
                 <button class="add-btn copy-btn" id="copyToClipboardBtn">📋 COPY TO CLIPBOARD</button>
                 <button class="add-btn export-btn" id="exportJSONBtn">💾 SAVE BACKUP (JSON)</button>
+                <button class="add-btn new-month-btn" id="newMonthBtn">📆 START NEW MONTH</button>
                 <button class="add-btn reset-btn" id="resetAllBtn">⟳ RESET ALL</button>
             </div>
         </div>
@@ -125,7 +127,7 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>⬆️⬇️ Use up/down arrows to reorder goals · Tap COPY for spreadsheet data</footer>
+        <footer>📆 Click START NEW MONTH to copy template · ⬆️⬇️ Use up/down to reorder goals</footer>
     </div>
 </div>
 
@@ -212,9 +214,42 @@
         const currentMonth = getCurrentYearMonth();
         if (lastMonth && lastMonth !== currentMonth) {
             monthlyArchive[lastMonth] = { monthlyIncome, expenses: JSON.parse(JSON.stringify(expenses)), goals: JSON.parse(JSON.stringify(goals)), archivedDate: new Date().toISOString() };
+            persistAll();
         }
         localStorage.setItem('ledger1985_last_month', currentMonth);
         document.getElementById('currentMonthDisplay').innerText = `(${currentMonth})`;
+    }
+
+    // ========== START NEW MONTH (TEMPLATE FUNCTION) ==========
+    function startNewMonth() {
+        if (confirm("📆 Start a new month?\n\nThis will:\n✅ Archive current month (income + expenses)\n✅ Keep your goals with current progress\n✅ Reset income and expenses to zero\n\nYour goals and their saved amounts will carry over.")) {
+            // Archive current month
+            const currentMonth = getCurrentYearMonth();
+            monthlyArchive[currentMonth] = { 
+                monthlyIncome: monthlyIncome, 
+                expenses: JSON.parse(JSON.stringify(expenses)), 
+                goals: JSON.parse(JSON.stringify(goals)), 
+                archivedDate: new Date().toISOString() 
+            };
+            
+            // Reset for new month (keep goals and their saved amounts)
+            monthlyIncome = 0;
+            expenses = [];
+            // Goals remain, but reset monthly contribution tracking
+            goals.forEach(g => {
+                g.userMonthlyContribution = 0;
+                // DO NOT reset currentSaved — that carries over
+            });
+            
+            incomeInput.value = 0;
+            localStorage.setItem('ledger1985_last_month', currentMonth);
+            persistAll();
+            renderExpenses();
+            renderGoals();
+            updateGoalMoneyDisplay();
+            renderArchiveList();
+            showToast(`✅ New month started. ${currentMonth} archived.`);
+        }
     }
 
     function saveSnapshotToArchive(monthKey) {
@@ -232,7 +267,7 @@
         document.getElementById('exitArchiveBtn').style.display = 'none';
     }
 
-    // ========== REORDER FUNCTIONS (Up/Down buttons) ==========
+    // ========== REORDER FUNCTIONS ==========
     function moveGoalUp(index) {
         if (index <= 0) return;
         [goals[index-1], goals[index]] = [goals[index], goals[index-1]];
@@ -421,6 +456,7 @@
     document.getElementById('addGoalBtn').onclick = () => { if(!currentViewArchive) { goals.push({ id:'goal_'+Date.now(), name:'✨ New Goal', targetAmount:200, currentSaved:0, targetDate:'', orderIndex:goals.length, userMonthlyContribution:0, note:'' }); persistAll(); renderGoals(); } };
     document.getElementById('copyToClipboardBtn').onclick = copyToClipboard;
     document.getElementById('exportJSONBtn').onclick = exportJSON;
+    document.getElementById('newMonthBtn').onclick = startNewMonth;
     document.getElementById('resetAllBtn').onclick = hardReset;
     document.getElementById('saveCurrentMonthBtn').onclick = () => saveSnapshotToArchive(getCurrentYearMonth());
     document.getElementById('exitArchiveBtn').onclick = exitArchiveMode;
