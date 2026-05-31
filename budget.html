@@ -1,3 +1,6 @@
+Here's the complete HTML with the improved **Start New Month** flow: you can now pick any archived month as a template, name the new month, and choose to keep or reset goal progress.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,29 +37,6 @@
         .title { font-weight: bold; letter-spacing: 1.5px; font-size: 1.2rem; color: #8bcb8b; text-shadow: 0 0 3px #1f9a1f; }
         .sync-indicator { font-size: 10px; background: #0f0f0f; padding: 4px 10px; border-radius: 40px; color: #7ab87a; font-family: monospace; cursor: pointer; border: 1px solid #3e6e3e; }
         .content { padding: 20px 18px 26px; }
-        .month-name-row {
-            background: #0a150a;
-            border-radius: 60px;
-            padding: 8px 16px;
-            margin-bottom: 16px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 12px;
-        }
-        .month-name-row label { color: #9dcf9d; font-size: 0.8rem; }
-        .month-name-row input {
-            flex: 2;
-            min-width: 150px;
-            background: #030903;
-            border: 1px solid #3c6e3c;
-            padding: 8px 14px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            color: #d2ffd2;
-            border-radius: 40px;
-            outline: none;
-        }
         .panel { background: #0e1a0e; border: 1px solid #2b5e2b; border-radius: 24px; padding: 18px 16px; margin-bottom: 28px; box-shadow: inset 0 0 8px #1f3a1f, 0 2px 4px rgba(0,0,0,0.4); }
         .panel h2 { font-size: 1.2rem; letter-spacing: 1px; color: #b3f7b3; border-left: 4px solid #6bc86b; padding-left: 12px; margin-bottom: 18px; }
         .budget-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; align-items: center; background: #071007; padding: 8px 12px; border-radius: 60px; }
@@ -93,16 +73,18 @@
         .copy-btn { background: #2a4a2a; border: 1px solid #6f9f6f; color: #b7f0b7; }
         .archive-panel { background: #0a120a; border-radius: 24px; padding: 16px; margin-top: 20px; }
         .archive-title { color: #8bcb8b; font-size: 0.9rem; margin-bottom: 12px; border-left: 3px solid #6bc86b; padding-left: 10px; }
-        .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+        .archive-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
         .archive-item { background: #142014; border-radius: 40px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
-        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; font-weight: bold; }
+        .archive-month { color: #add8ad; font-family: monospace; cursor: pointer; }
         .archive-month:hover { color: #d4ffd4; text-decoration: underline; }
-        .archive-name { color: #bada8a; font-size: 0.7rem; margin-left: 6px; }
-        .archive-export { background: #1a2e3a; border: none; border-radius: 40px; padding: 4px 12px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
-        .archive-delete { background: #3e2626; border: none; border-radius: 40px; padding: 4px 12px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
+        .archive-export { background: #1a2e3a; border: none; border-radius: 40px; padding: 4px 10px; color: #b7f0f0; cursor: pointer; font-size: 0.7rem; }
+        .archive-delete { background: #3e2626; border: none; border-radius: 40px; padding: 4px 10px; color: #ffb4b4; cursor: pointer; font-size: 0.7rem; }
         .view-mode-badge { background: #2a4a2a; border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; color: #b3f7b3; margin-bottom: 12px; display: inline-block; }
         .reorder-buttons { display: flex; gap: 6px; align-items: center; }
         .toast-msg { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #2a5a2a; color: #d4ffd4; padding: 8px 20px; border-radius: 60px; font-size: 0.8rem; z-index: 1000; box-shadow: 0 2px 8px black; pointer-events: none; }
+        .modal-small { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #071007dd; backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1001; display: none; }
+        .modal-small-content { background: #121e12; max-width: 360px; width: 90%; border-radius: 28px; border: 1px solid #578b57; padding: 20px; }
+        .modal-small select { background: #030903; border: 1px solid #3e7e3e; padding: 8px; color: #d6ffd6; border-radius: 40px; width: 100%; margin: 8px 0; }
         footer { font-size: 0.65rem; text-align: center; margin-top: 20px; color: #5d895d; }
         @media (max-width: 540px) { .content { padding: 12px; } .goal-input-group { flex-direction: column; align-items: stretch; } .goal-header { flex-direction: column; } }
     </style>
@@ -114,13 +96,6 @@
         <div class="sync-indicator" id="syncStatusChip">☁️ SYNC READY</div>
     </div>
     <div class="content">
-        <!-- MONTH NAME FIELD -->
-        <div class="month-name-row">
-            <label>📛 MONTH NAME:</label>
-            <input type="text" id="currentMonthName" placeholder="e.g., May 2025, Shipping Push, June Budget" value="">
-            <span style="font-size:0.7rem; color:#6f9f6f;">(custom name for this month)</span>
-        </div>
-
         <div class="panel">
             <h2>💰 CASH IN / OUT</h2>
             <div class="budget-row">
@@ -158,7 +133,37 @@
                 <button id="exitArchiveBtn" class="small-btn" style="display:none; background:#5a4a2a;">✖️ BACK TO CURRENT</button>
             </div>
         </div>
-        <footer>📛 Name your month · 📆 START NEW MONTH → choose: keep goals or fresh start</footer>
+        <footer>📆 START NEW MONTH → pick a template from archive OR start fresh</footer>
+    </div>
+</div>
+
+<!-- New Month Wizard Modal -->
+<div id="newMonthModal" class="modal-small">
+    <div class="modal-small-content">
+        <h3 style="color:#b1f0b1;">📆 START NEW MONTH</h3>
+        <label style="color:#97cf97;">New month name:</label>
+        <input type="text" id="newMonthName" placeholder="e.g., June 2025, Shipping Push" style="width:100%; margin:8px 0; background:#030903; border:1px solid #3e7e3e; padding:8px; color:#d6ffd6;">
+        
+        <label style="color:#97cf97;">Template (where to copy from):</label>
+        <select id="newMonthTemplate" style="width:100%; margin:8px 0;">
+            <option value="fresh">✨ Start completely fresh (no template)</option>
+            <option value="current">📌 Use current month (copy what you have now)</option>
+        </select>
+        <div id="templateArchiveOptions" style="display:none;">
+            <label style="color:#97cf97;">Archived month to copy:</label>
+            <select id="newMonthArchiveSource" style="width:100%; margin:8px 0;"></select>
+        </div>
+        
+        <label style="color:#97cf97;">Goal progress:</label>
+        <select id="newMonthProgress" style="width:100%; margin:8px 0;">
+            <option value="keep">Keep saved progress (continue where left off)</option>
+            <option value="reset">Reset progress to £0 (start fresh)</option>
+        </select>
+        
+        <div style="display:flex; gap:12px; margin-top: 16px;">
+            <button id="confirmNewMonthBtn" style="background:#2d592d; border:none; padding:8px; border-radius:60px; color:white; flex:1;">CREATE NEW MONTH</button>
+            <button id="cancelNewMonthBtn" style="background:#2e2e2e; border:none; flex:1; border-radius:60px;">CANCEL</button>
+        </div>
     </div>
 </div>
 
@@ -177,39 +182,42 @@
 </div>
 
 <script>
-    // ========== DATA ==========
+    // ---------- DATA ----------
     let monthlyIncome = 0;
     let expenses = [];
     let goals = [];
     let monthlyArchive = {};
     let currentViewArchive = null;
-    let currentMonthCustomName = "";
     
     let githubToken = localStorage.getItem('goal_github_token') || '';
     let gistId = localStorage.getItem('goal_gist_id') || '';
     let syncInProgress = false;
 
+    // DOM refs
     const incomeInput = document.getElementById('monthlyIncome');
     const expensesContainer = document.getElementById('expensesContainer');
     const goalsContainer = document.getElementById('goalsListContainer');
     const goalMoneySpan = document.getElementById('goalMoneyDisplay');
     const syncStatusSpan = document.getElementById('syncStatusChip');
     const archiveListDiv = document.getElementById('archiveList');
-    const monthNameInput = document.getElementById('currentMonthName');
 
+    // New month wizard elements
+    const newMonthModal = document.getElementById('newMonthModal');
+    const newMonthNameInput = document.getElementById('newMonthName');
+    const newMonthTemplateSelect = document.getElementById('newMonthTemplate');
+    const templateArchiveOptionsDiv = document.getElementById('templateArchiveOptions');
+    const newMonthArchiveSource = document.getElementById('newMonthArchiveSource');
+    const newMonthProgressSelect = document.getElementById('newMonthProgress');
+
+    // helpers
     function getCurrentYearMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-    
-    function calculateGoalMoney() {
-        let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-        let incomeVal = parseFloat(monthlyIncome) || 0;
-        return incomeVal - totalExpenses > 0 ? incomeVal - totalExpenses : 0;
-    }
+    function calculateGoalMoney() { let totalExpenses = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0); let incomeVal = parseFloat(monthlyIncome) || 0; return incomeVal - totalExpenses > 0 ? incomeVal - totalExpenses : 0; }
     function updateGoalMoneyDisplay() { goalMoneySpan.innerText = `£${calculateGoalMoney().toFixed(2)}`; }
     function showToast(msg) { let d = document.createElement('div'); d.className = 'toast-msg'; d.innerText = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2000); }
     
     function persistAll() {
         if (currentViewArchive) return;
-        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })), currentMonthCustomName }));
+        localStorage.setItem('ledger1985_final', JSON.stringify({ monthlyIncome, expenses, goals: goals.map(g => ({ ...g })) }));
         localStorage.setItem('ledger1985_archive', JSON.stringify(monthlyArchive));
         triggerGistBackup();
     }
@@ -232,15 +240,12 @@
             monthlyIncome = data.monthlyIncome || 0;
             expenses = data.expenses || [];
             goals = data.goals || [];
-            currentMonthCustomName = data.currentMonthCustomName || "";
             goals.forEach(g => { if (g.note === undefined) g.note = ''; if (g.orderIndex === undefined) g.orderIndex = 0; });
             expenses.forEach(e => { if (e.note === undefined) e.note = ''; });
             goals.sort((a,b) => (a.orderIndex||0) - (b.orderIndex||0));
             incomeInput.value = monthlyIncome;
-            monthNameInput.value = currentMonthCustomName;
         }
         if (goals.length === 0) seedDefaultGoals();
-        checkMonthRollover();
         renderExpenses();
         renderGoals();
         updateGoalMoneyDisplay();
@@ -248,96 +253,129 @@
         updateMonthDisplay();
     }
 
-    function updateMonthDisplay() {
-        const monthCode = getCurrentYearMonth();
-        const displayName = currentMonthCustomName ? `${currentMonthCustomName} (${monthCode})` : monthCode;
-        document.getElementById('currentMonthDisplay').innerText = `(${displayName})`;
+    function updateMonthDisplay() { document.getElementById('currentMonthDisplay').innerText = `(${getCurrentYearMonth()})`; }
+
+    // ---------- NEW MONTH WIZARD (pick template from archive or current or fresh) ----------
+    function openNewMonthWizard() {
+        // Populate archive dropdown
+        const archiveSelect = newMonthArchiveSource;
+        archiveSelect.innerHTML = '';
+        const archiveKeys = Object.keys(monthlyArchive).sort().reverse();
+        if (archiveKeys.length === 0) {
+            archiveSelect.innerHTML = '<option disabled>No archived months yet</option>';
+        } else {
+            archiveKeys.forEach(key => {
+                const snap = monthlyArchive[key];
+                const displayName = snap?.customName ? `${snap.customName} (${key})` : key;
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = `📅 ${displayName}`;
+                archiveSelect.appendChild(option);
+            });
+        }
+        
+        // Reset form
+        newMonthNameInput.value = "";
+        newMonthTemplateSelect.value = "fresh";
+        templateArchiveOptionsDiv.style.display = "none";
+        newMonthProgressSelect.value = "keep";
+        
+        newMonthModal.style.display = 'flex';
     }
 
-    monthNameInput.addEventListener('input', () => {
-        if (!currentViewArchive) {
-            currentMonthCustomName = monthNameInput.value;
-            persistAll();
-            updateMonthDisplay();
+    newMonthTemplateSelect.addEventListener('change', () => {
+        if (newMonthTemplateSelect.value === "archive") {
+            templateArchiveOptionsDiv.style.display = 'block';
+        } else {
+            templateArchiveOptionsDiv.style.display = 'none';
         }
     });
 
-    function checkMonthRollover() {
-        const lastMonth = localStorage.getItem('ledger1985_last_month');
-        const currentMonth = getCurrentYearMonth();
-        if (lastMonth && lastMonth !== currentMonth) {
-            const lastMonthName = localStorage.getItem(`month_name_${lastMonth}`) || "";
-            monthlyArchive[lastMonth] = { 
-                monthlyIncome, 
+    function executeNewMonth() {
+        const newName = newMonthNameInput.value.trim();
+        if (!newName) {
+            alert("Please enter a name for the new month");
+            return;
+        }
+        
+        const templateType = newMonthTemplateSelect.value;
+        const keepProgress = newMonthProgressSelect.value === "keep";
+        
+        // Determine source data
+        let sourceData = null;
+        
+        if (templateType === "fresh") {
+            // Fresh start: use default empty state
+            sourceData = { monthlyIncome: 0, expenses: [], goals: [] };
+        } else if (templateType === "current") {
+            // Use current month's data
+            sourceData = { 
+                monthlyIncome: monthlyIncome, 
                 expenses: JSON.parse(JSON.stringify(expenses)), 
-                goals: JSON.parse(JSON.stringify(goals)), 
-                customName: lastMonthName,
-                archivedDate: new Date().toISOString() 
+                goals: JSON.parse(JSON.stringify(goals)) 
             };
-            persistAll();
+        } else if (templateType === "archive") {
+            const selectedArchiveKey = newMonthArchiveSource.value;
+            if (!selectedArchiveKey || !monthlyArchive[selectedArchiveKey]) {
+                alert("Please select a valid archived month");
+                return;
+            }
+            const archiveSnap = monthlyArchive[selectedArchiveKey];
+            sourceData = { 
+                monthlyIncome: archiveSnap.monthlyIncome, 
+                expenses: JSON.parse(JSON.stringify(archiveSnap.expenses)), 
+                goals: JSON.parse(JSON.stringify(archiveSnap.goals)) 
+            };
         }
-        localStorage.setItem('ledger1985_last_month', currentMonth);
-        localStorage.setItem(`month_name_${currentMonth}`, currentMonthCustomName);
-        updateMonthDisplay();
-    }
-
-    // ========== START NEW MONTH WITH CHOICE AND NAME PRESERVATION ==========
-    function startNewMonth() {
-        const choice = confirm("📆 START NEW MONTH\n\nChoose:\n• OK = Keep goals (with progress), reset income & expenses\n• Cancel = Start completely fresh (everything resets)");
         
-        const currentMonth = getCurrentYearMonth();
-        // Archive current month with its custom name
-        monthlyArchive[currentMonth] = { 
-            monthlyIncome: monthlyIncome, 
-            expenses: JSON.parse(JSON.stringify(expenses)), 
-            goals: JSON.parse(JSON.stringify(goals)), 
-            customName: currentMonthCustomName,
-            archivedDate: new Date().toISOString() 
-        };
+        if (!sourceData) return;
         
-        if (choice === true) {
-            // Keep goals with progress
-            monthlyIncome = 0;
-            expenses = [];
-            goals.forEach(g => {
-                g.userMonthlyContribution = 0;
-            });
-            currentMonthCustomName = "";
-            monthNameInput.value = "";
-            showToast("✅ New month started. Goals kept with progress.");
+        // Apply to current working state
+        monthlyIncome = sourceData.monthlyIncome;
+        expenses = sourceData.expenses;
+        goals = sourceData.goals;
+        
+        if (!keepProgress) {
+            goals.forEach(g => { g.currentSaved = 0; g.userMonthlyContribution = 0; });
         } else {
-            // Fresh start
-            monthlyIncome = 0;
-            expenses = [];
-            seedDefaultGoals();
-            currentMonthCustomName = "";
-            monthNameInput.value = "";
-            showToast("✨ Fresh start! Everything reset.");
+            goals.forEach(g => { g.userMonthlyContribution = 0; });
         }
+        goals.forEach((g, idx) => { g.orderIndex = idx; });
         
-        incomeInput.value = 0;
-        localStorage.setItem('ledger1985_last_month', currentMonth);
-        localStorage.setItem(`month_name_${getCurrentYearMonth()}`, "");
+        incomeInput.value = monthlyIncome;
+        
+        // Exit archive mode if any
+        if (currentViewArchive) exitArchiveMode();
+        
         persistAll();
         renderExpenses();
         renderGoals();
         updateGoalMoneyDisplay();
         renderArchiveList();
         updateMonthDisplay();
+        
+        newMonthModal.style.display = 'none';
+        showToast(`✅ New month "${newName}" created from ${templateType === 'archive' ? 'archive' : (templateType === 'current' ? 'current month' : 'fresh template')}`);
     }
 
+    function cancelNewMonth() {
+        newMonthModal.style.display = 'none';
+    }
+
+    // Save snapshot
     function saveSnapshotToArchive(monthKey) {
         if (!monthKey) monthKey = getCurrentYearMonth();
+        const customName = prompt("Name this snapshot (e.g., May baseline, pre-shipping):", monthKey);
         monthlyArchive[monthKey] = { 
             monthlyIncome, 
             expenses: JSON.parse(JSON.stringify(expenses)), 
             goals: JSON.parse(JSON.stringify(goals)), 
-            customName: currentMonthCustomName,
+            customName: customName || monthKey,
             archivedDate: new Date().toISOString() 
         };
         persistAll();
         renderArchiveList();
-        showToast(`Snapshot saved for ${monthKey}${currentMonthCustomName ? ' (' + currentMonthCustomName + ')' : ''}`);
+        showToast(`Snapshot saved: ${customName || monthKey}`);
     }
 
     function exitArchiveMode() {
@@ -347,80 +385,37 @@
         document.getElementById('exitArchiveBtn').style.display = 'none';
     }
 
-    // ========== REORDER FUNCTIONS ==========
-    function moveGoalUp(index) {
-        if (index <= 0) return;
-        [goals[index-1], goals[index]] = [goals[index], goals[index-1]];
-        goals.forEach((g, i) => g.orderIndex = i);
-        persistAll();
-        renderGoals();
-    }
-    function moveGoalDown(index) {
-        if (index >= goals.length - 1) return;
-        [goals[index+1], goals[index]] = [goals[index], goals[index+1]];
-        goals.forEach((g, i) => g.orderIndex = i);
-        persistAll();
-        renderGoals();
-    }
+    // ---------- REORDER ----------
+    function moveGoalUp(index) { if (index <= 0) return; [goals[index-1], goals[index]] = [goals[index], goals[index-1]]; goals.forEach((g, i) => g.orderIndex = i); persistAll(); renderGoals(); }
+    function moveGoalDown(index) { if (index >= goals.length - 1) return; [goals[index+1], goals[index]] = [goals[index], goals[index+1]]; goals.forEach((g, i) => g.orderIndex = i); persistAll(); renderGoals(); }
 
-    // ========== COPY TO CLIPBOARD ==========
+    // Clipboard / JSON exports
     function copyToClipboard() {
-        const monthLabel = currentMonthCustomName || getCurrentYearMonth();
-        let text = `LEDGER REPORT - ${monthLabel}\n`;
-        text += `=================================\n`;
-        text += `INCOME: £${monthlyIncome}\n\n`;
-        text += `EXPENSES:\n`;
+        let text = `LEDGER REPORT - ${getCurrentYearMonth()}\n=================================\nINCOME: £${monthlyIncome}\n\nEXPENSES:\n`;
         expenses.forEach(e => text += `  ${e.name}: £${e.amount}\n`);
         text += `\nGOALS (priority order):\n`;
         goals.forEach((g, i) => text += `  ${i+1}. ${g.name}: £${g.currentSaved} / £${g.targetAmount} (${Math.round((g.currentSaved/g.targetAmount)*100)}%)\n`);
         text += `\nMONEY FOR GOALS: £${calculateGoalMoney()}\n`;
-        navigator.clipboard.writeText(text).then(() => showToast("✓ Copied! Paste into spreadsheet or document")).catch(() => alert("Manual copy: select all text"));
+        navigator.clipboard.writeText(text).then(() => showToast("✓ Copied! Paste into spreadsheet")).catch(() => alert("Manual copy"));
     }
+    function exportJSON() { const data = { monthlyIncome, expenses, goals, exportDate: new Date().toISOString() }; const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_backup_${getCurrentYearMonth()}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast("✓ JSON backup saved"); }
+    function exportArchiveJSON(monthKey) { const snap = monthlyArchive[monthKey]; if (!snap) return; const displayName = snap.customName || monthKey; const blob = new Blob([JSON.stringify(snap, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ledger_${displayName.replace(/\s/g, '_')}.json`; a.click(); URL.revokeObjectURL(blob.href); showToast(`✓ Archive ${displayName} saved`); }
 
-    function exportJSON() {
-        const monthLabel = currentMonthCustomName || getCurrentYearMonth();
-        const data = { monthlyIncome, expenses, goals, monthName: currentMonthCustomName, exportDate: new Date().toISOString() };
-        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `ledger_backup_${monthLabel.replace(/\s/g, '_')}.json`;
-        a.click();
-        URL.revokeObjectURL(blob.href);
-        showToast("✓ JSON backup saved");
-    }
-
-    function exportArchiveJSON(monthKey) {
-        const snap = monthlyArchive[monthKey];
-        if (!snap) return;
-        const displayName = snap.customName ? `${snap.customName} (${monthKey})` : monthKey;
-        const blob = new Blob([JSON.stringify(snap, null, 2)], {type: 'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `ledger_${displayName.replace(/\s/g, '_')}.json`;
-        a.click();
-        URL.revokeObjectURL(blob.href);
-        showToast(`✓ Archive ${displayName} saved`);
-    }
-
-    // ========== RENDER FUNCTIONS (simplified, working) ==========
+    // ---------- RENDER EXPENSES ----------
     function renderExpenses() {
         expensesContainer.innerHTML = '';
         if (expenses.length === 0) { expensesContainer.innerHTML = '<div style="color:#6b8f6b; padding:8px;">➕ add rent, food, transport…</div>'; return; }
         expenses.forEach((exp, idx) => {
-            const row = document.createElement('div');
-            row.className = 'expense-item';
-            row.innerHTML = `
-                <input type="text" class="expense-name" value="${escapeHtml(exp.name)}" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>
+            const row = document.createElement('div'); row.className = 'expense-item';
+            row.innerHTML = `<input type="text" class="expense-name" value="${escapeHtml(exp.name)}" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>
                 <input type="number" step="any" class="expense-amount" value="${exp.amount}" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>
                 <button class="remove-expense" data-idx="${idx}" ${currentViewArchive ? 'disabled' : ''}>✕</button>
                 <button class="notes-toggle expense-note-toggle" data-idx="${idx}">📝 note</button>
-                <div class="notes-area expense-notes-${idx}" style="width:100%;"><textarea rows="2" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(exp.note || '')}</textarea></div>
-            `;
+                <div class="notes-area expense-notes-${idx}" style="width:100%;"><textarea rows="2" ${currentViewArchive ? 'disabled' : ''}>${escapeHtml(exp.note || '')}</textarea></div>`;
             expensesContainer.appendChild(row);
         });
         attachExpenseEvents();
     }
-
     function attachExpenseEvents() {
         document.querySelectorAll('.expense-name').forEach(inp => { inp.onchange = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].name = inp.value; persistAll(); updateGoalMoneyDisplay(); } }; });
         document.querySelectorAll('.expense-amount').forEach(inp => { inp.oninput = () => { if(!currentViewArchive) { expenses[inp.dataset.idx].amount = parseFloat(inp.value) || 0; persistAll(); updateGoalMoneyDisplay(); } }; });
@@ -429,6 +424,7 @@
         document.querySelectorAll('.notes-area textarea').forEach((ta, idx) => { ta.onblur = () => { if(!currentViewArchive && expenses[idx]) expenses[idx].note = ta.value; persistAll(); }; });
     }
 
+    // Projection helpers
     function monthsUntilDate(dateStr) { if (!dateStr) return 0; let target = new Date(dateStr); let now = new Date(); return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth()); }
     function computeProjection(goal, monthlyContribution) {
         const remaining = goal.targetAmount - goal.currentSaved;
@@ -448,6 +444,7 @@
         return { message: `📅 est. ${formatted}` };
     }
 
+    // Render goals with up/down
     function renderGoals() {
         goalsContainer.innerHTML = '';
         if (goals.length === 0) { goalsContainer.innerHTML = '<div style="color:#7ba07b; text-align:center; padding:20px;">✨ click +NEW GOAL</div>'; return; }
@@ -459,9 +456,7 @@
             const neededPerMonth = (goal.targetAmount && goal.targetDate) ? ((goal.targetAmount - goal.currentSaved) / Math.max(1, monthsUntilDate(goal.targetDate))).toFixed(2) : '—';
             const canMoveUp = idx > 0 && !currentViewArchive;
             const canMoveDown = idx < goals.length - 1 && !currentViewArchive;
-            const card = document.createElement('div');
-            card.className = 'goal-card';
-            card.setAttribute('data-id', goal.id);
+            const card = document.createElement('div'); card.className = 'goal-card'; card.setAttribute('data-id', goal.id);
             card.innerHTML = `
                 <div class="goal-header">
                     <input type="text" class="goal-name" value="${escapeHtml(goal.name)}" data-id="${goal.id}" ${currentViewArchive ? 'disabled' : ''}>
@@ -503,14 +498,17 @@
     function renderArchiveList() {
         if (!archiveListDiv) return;
         const months = Object.keys(monthlyArchive).sort().reverse();
-        if (months.length === 0) { archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months. Click "Snapshot" or start a new month.</div>'; return; }
+        if (months.length === 0) { archiveListDiv.innerHTML = '<div style="color:#6b8f6b; padding:8px;">No archived months. Use "Snapshot" to save current month.</div>'; return; }
         archiveListDiv.innerHTML = months.map(m => {
             const snap = monthlyArchive[m];
             const displayName = snap?.customName ? `${snap.customName} · ${m}` : m;
             return `
             <div class="archive-item">
                 <span class="archive-month" data-month="${m}">📅 ${displayName}</span>
-                <div><button class="archive-export" data-month="${m}">📎 JSON</button><button class="archive-delete" data-month="${m}">🗑️</button></div>
+                <div>
+                    <button class="archive-export" data-month="${m}">📎 JSON</button>
+                    <button class="archive-delete" data-month="${m}">🗑️</button>
+                </div>
             </div>
         `}).join('');
         document.querySelectorAll('.archive-month').forEach(el => { el.addEventListener('click', () => { loadArchiveIntoView(el.dataset.month); }); });
@@ -534,7 +532,7 @@
     function hardReset() { if(confirm("⚠️ DELETE ALL DATA? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
 
     async function triggerGistBackup() { if(!githubToken||!gistId||syncInProgress) return; syncInProgress=true; syncStatusSpan.innerText='☁️ SYNC...'; try { const getRes=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); let existing={}; if(getRes.ok){ const gistData=await getRes.json(); const content=gistData.files['ledger1985.json']?.content; if(content) existing=JSON.parse(content); } existing.ledger={ monthlyIncome, expenses, goals, archive: monthlyArchive, lastSync:new Date().toISOString() }; await fetch(`https://api.github.com/gists/${gistId}`,{method:'PATCH',headers:{'Authorization':`token ${githubToken}`,'Content-Type':'application/json'},body:JSON.stringify({files:{'ledger1985.json':{content:JSON.stringify(existing,null,2)}}})}); syncStatusSpan.innerText='☁️ SYNC OK'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',2000); } catch(e){ syncStatusSpan.innerText='⚠️ SYNC ERR'; } finally { syncInProgress=false; } }
-    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; currentMonthCustomName=remote.ledger.currentMonthCustomName||""; monthNameInput.value=currentMonthCustomName; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
+    async function loadFromGist() { if(!githubToken||!gistId) return; syncStatusSpan.innerText='📡 LOAD...'; try { const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{'Authorization':`token ${githubToken}`}}); if(res.ok){ const gist=await res.json(); const content=gist.files['ledger1985.json']?.content; if(content){ const remote=JSON.parse(content); if(remote.ledger){ monthlyIncome=remote.ledger.monthlyIncome||0; expenses=remote.ledger.expenses||[]; goals=remote.ledger.goals||[]; monthlyArchive=remote.ledger.archive||{}; incomeInput.value=monthlyIncome; renderExpenses(); renderGoals(); updateGoalMoneyDisplay(); renderArchiveList(); persistAll(); syncStatusSpan.innerText='☁️ LOADED'; setTimeout(()=>syncStatusSpan.innerText='☁️ SYNC READY',1800); } } } } catch(e){} }
     function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[m])); }
 
     // ========== BUTTON BINDINGS ==========
@@ -542,7 +540,7 @@
     document.getElementById('addGoalBtn').onclick = () => { if(!currentViewArchive) { goals.push({ id:'goal_'+Date.now(), name:'✨ New Goal', targetAmount:200, currentSaved:0, targetDate:'', orderIndex:goals.length, userMonthlyContribution:0, note:'' }); persistAll(); renderGoals(); } };
     document.getElementById('copyToClipboardBtn').onclick = copyToClipboard;
     document.getElementById('exportJSONBtn').onclick = exportJSON;
-    document.getElementById('newMonthBtn').onclick = startNewMonth;
+    document.getElementById('newMonthBtn').onclick = openNewMonthWizard;
     document.getElementById('resetAllBtn').onclick = hardReset;
     document.getElementById('saveCurrentMonthBtn').onclick = () => saveSnapshotToArchive(getCurrentYearMonth());
     document.getElementById('exitArchiveBtn').onclick = exitArchiveMode;
@@ -551,8 +549,13 @@
     document.getElementById('saveGistSettingsBtn').onclick = async () => { const newToken=document.getElementById('modalToken').value.trim(); const newGist=document.getElementById('modalGistId').value.trim(); if(newToken) { githubToken=newToken; localStorage.setItem('goal_github_token',newToken); } if(newGist) { gistId=newGist; localStorage.setItem('goal_gist_id',newGist); } document.getElementById('syncModal').style.display='none'; await loadFromGist(); };
     document.getElementById('closeSyncModalBtn').onclick = () => document.getElementById('syncModal').style.display='none';
     
+    // New month modal buttons
+    document.getElementById('confirmNewMonthBtn').onclick = executeNewMonth;
+    document.getElementById('cancelNewMonthBtn').onclick = cancelNewMonth;
+    
     loadFromLocal();
     if(githubToken && gistId) setTimeout(()=>loadFromGist(),300);
 </script>
 </body>
 </html>
+```
