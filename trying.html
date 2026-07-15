@@ -31,8 +31,9 @@
         }
         .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
         .header .subtitle { font-size: 13px; opacity: 0.7; }
-        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
+        /* ===== BUTTONS - FIXED VISIBILITY ===== */
         .btn {
             padding: 8px 16px;
             border: none;
@@ -42,16 +43,41 @@
             cursor: pointer;
             transition: all 0.15s ease;
             background: #d4d0ca;
-            color: #2c2c2c;
+            color: #1a1a1a;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .btn:hover { filter: brightness(0.92); transform: translateY(-1px); }
         .btn-primary { background: #4a6fa5; color: white; }
         .btn-success { background: #4caf84; color: white; }
         .btn-danger { background: #d95a5a; color: white; }
-        .btn-outline { background: transparent; border: 1px solid #d4d0ca; }
-        .btn-sm { padding: 4px 10px; font-size: 11px; }
+        .btn-outline {
+            background: #e8e4de;
+            border: 1px solid #c0b8ae;
+            color: #1a1a1a;
+        }
+        .btn-outline:hover { background: #d8d0c8; }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+        .btn-sync {
+            background: #6c5b7b;
+            color: white;
+        }
+        .btn-sync:hover { background: #5a4a6a; }
 
-        /* ===== STATS ROW ===== */
+        /* ===== SYNC STATUS ===== */
+        .sync-status {
+            font-size: 11px;
+            color: #aaa;
+            margin-left: 4px;
+        }
+        .sync-status.success { color: #4caf84; }
+        .sync-status.error { color: #d95a5a; }
+        .sync-status.loading { color: #e6b85c; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* ===== STATS ===== */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -174,7 +200,7 @@
         .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #555; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* ===== REVIEW FORM ===== */
+        /* ===== REVIEW SECTION ===== */
         .review-section {
             background: #faf8f6;
             border-radius: 8px;
@@ -262,7 +288,7 @@
         .modal h3 { margin-bottom: 16px; font-size: 18px; }
         .modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
 
-        /* ===== TOOLTIP ===== */
+        /* ===== HELP TEXT ===== */
         .help-text { font-size: 12px; color: #888; margin-top: 2px; }
 
         /* ===== MISC ===== */
@@ -277,6 +303,10 @@
         .tag-yellow { background: #fff3cd; color: #856404; }
         .tag-red { background: #f8d7da; color: #721c24; }
         .tag-blue { background: #cce5ff; color: #004085; }
+
+        /* ===== SYNC MODAL ===== */
+        .sync-modal .form-group { margin-bottom: 12px; }
+        .sync-modal input[type="password"] { font-family: monospace; }
     </style>
 </head>
 <body>
@@ -289,9 +319,11 @@
             <div class="subtitle" id="contractDates">15 Jul 2026 – 15 Jul 2027</div>
         </div>
         <div class="header-actions">
-            <button class="btn btn-outline btn-sm" onclick="exportData()">⬇ Export</button>
-            <button class="btn btn-outline btn-sm" onclick="document.getElementById('importInput').click()">⬆ Import</button>
+            <button class="btn btn-outline btn-sm" onclick="exportData()">💾 Export</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('importInput').click()">📂 Import</button>
             <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+            <button class="btn btn-sync btn-sm" onclick="openSyncModal()">☁️ Sync</button>
+            <span id="syncStatus" class="sync-status">☁️</span>
             <button class="btn btn-danger btn-sm" onclick="resetAll()">⟲ Reset</button>
         </div>
     </div>
@@ -397,6 +429,30 @@
         </div>
     </div>
 
+    <!-- ===== SYNC MODAL ===== -->
+    <div class="modal-overlay" id="syncModal">
+        <div class="modal sync-modal">
+            <h3>☁️ GitHub Gist Sync</h3>
+            <p class="text-muted" style="margin-bottom:16px;">Your contract data will sync across all devices using GitHub Gist.</p>
+            <div class="form-group">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="gistToken" placeholder="ghp_xxxxxxxxxxxx" onchange="saveGistCredentials()">
+                <p class="help-text">Create one at <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a> with <strong>gist</strong> scope.</p>
+            </div>
+            <div class="form-group">
+                <label>Gist ID</label>
+                <input type="text" id="gistId" placeholder="abc123def456" onchange="saveGistCredentials()">
+                <p class="help-text">Create a secret gist at <a href="https://gist.github.com" target="_blank">gist.github.com</a> and copy the ID from the URL.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="syncToGist()">☁️ Upload to Cloud</button>
+                <button class="btn btn-success" onclick="loadFromGist()">📥 Download from Cloud</button>
+                <button class="btn btn-outline" onclick="closeSyncModal()">Close</button>
+            </div>
+            <div id="syncMessage" style="margin-top:12px; font-size:13px; color:#888;"></div>
+        </div>
+    </div>
+
     <!-- ===== MONTHLY REVIEW MODAL ===== -->
     <div class="modal-overlay" id="reviewModal">
         <div class="modal">
@@ -462,19 +518,198 @@ let state = {
     startDate: '2026-07-15',
     endDate: '2027-07-15',
     emergencyContact: '',
-    yearly: [],      // [{id, text, status: 'pending'|'complete'|'attempted'|'miss'}]
-    quarterly: [],   // [{id, quarter, status}]
-    monthly: [],     // [{id, monthIndex, status}]
-    reviews: {},     // { '2026-07': { misery, meaning, glad, blockers, next } }
-    reviewDraft: {}, // Temporary draft for current review
+    yearly: [],
+    quarterly: [],
+    monthly: [],
+    reviews: {},
+    reviewDraft: {},
     resetCount: 0
 };
+
+// ============================================================
+// GIST SYNC
+// ============================================================
+let gistId = localStorage.getItem('contract_gist_id') || '';
+let githubToken = localStorage.getItem('contract_github_token') || '';
+
+function saveGistCredentials() {
+    const tokenInput = document.getElementById('gistToken');
+    const idInput = document.getElementById('gistId');
+    if (tokenInput) {
+        githubToken = tokenInput.value.trim();
+        if (githubToken) localStorage.setItem('contract_github_token', githubToken);
+    }
+    if (idInput) {
+        gistId = idInput.value.trim();
+        if (gistId) localStorage.setItem('contract_gist_id', gistId);
+    }
+    updateSyncStatus('Credentials saved', 'success');
+}
+
+function loadGistCredentials() {
+    gistId = localStorage.getItem('contract_gist_id') || '';
+    githubToken = localStorage.getItem('contract_github_token') || '';
+    if (gistId || githubToken) {
+        document.getElementById('gistToken').value = githubToken;
+        document.getElementById('gistId').value = gistId;
+        return true;
+    }
+    return false;
+}
+
+function openSyncModal() {
+    loadGistCredentials();
+    document.getElementById('syncModal').classList.add('active');
+}
+
+function closeSyncModal() {
+    document.getElementById('syncModal').classList.remove('active');
+}
+
+function updateSyncStatus(message, type) {
+    const el = document.getElementById('syncStatus');
+    if (!el) return;
+    if (type === 'success') { el.textContent = '☁️ ✓'; el.className = 'sync-status success'; }
+    else if (type === 'error') { el.textContent = '☁️ ✗'; el.className = 'sync-status error'; }
+    else if (type === 'loading') { el.textContent = '☁️ ⟳'; el.className = 'sync-status loading'; }
+    else { el.textContent = '☁️'; el.className = 'sync-status'; }
+}
+
+// ===== MERGE HELPER =====
+function mergeArrays(existing, incoming, idField = 'id') {
+    const merged = [...existing];
+    incoming.forEach(incomingItem => {
+        const exists = merged.some(existingItem => existingItem[idField] === incomingItem[idField]);
+        if (!exists) merged.push(incomingItem);
+    });
+    return merged;
+}
+
+// ===== UPLOAD TO GIST =====
+async function syncToGist() {
+    saveGistCredentials();
+    if (!gistId || !githubToken) {
+        alert('Please enter both Gist ID and GitHub Token.');
+        return;
+    }
+
+    updateSyncStatus('Uploading...', 'loading');
+    document.getElementById('syncMessage').textContent = '⏳ Uploading to cloud...';
+
+    try {
+        // Get existing cloud data
+        let cloudData = {};
+        try {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`);
+            if (response.ok) {
+                const gist = await response.json();
+                const file = gist.files['life-contract.json'];
+                if (file && file.content) cloudData = JSON.parse(file.content);
+            }
+        } catch (e) { console.log('No existing cloud data'); }
+
+        // Merge: cloud gets priority, but local adds missing items
+        const merged = {
+            startDate: state.startDate,
+            endDate: state.endDate,
+            emergencyContact: state.emergencyContact || cloudData.emergencyContact || '',
+            yearly: mergeArrays(cloudData.yearly || [], state.yearly, 'id'),
+            quarterly: mergeArrays(cloudData.quarterly || [], state.quarterly, 'id'),
+            monthly: mergeArrays(cloudData.monthly || [], state.monthly, 'id'),
+            reviews: { ...cloudData.reviews, ...state.reviews },
+            resetCount: Math.max(state.resetCount || 0, cloudData.resetCount || 0)
+        };
+
+        const dataStr = JSON.stringify(merged, null, 2);
+        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `token ${githubToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                files: { 'life-contract.json': { content: dataStr } }
+            })
+        });
+
+        if (response.ok) {
+            updateSyncStatus('Uploaded', 'success');
+            document.getElementById('syncMessage').textContent = '✅ Uploaded successfully! Data merged with cloud.';
+            alert('✅ Contract data uploaded to Gist!');
+        } else {
+            const error = await response.json();
+            updateSyncStatus('Error', 'error');
+            document.getElementById('syncMessage').textContent = '❌ Upload failed: ' + (error.message || 'Unknown error');
+            alert('❌ Upload failed: ' + (error.message || 'Unknown error'));
+        }
+    } catch (err) {
+        updateSyncStatus('Error', 'error');
+        document.getElementById('syncMessage').textContent = '❌ Network error: ' + err.message;
+        alert('❌ Network error: ' + err.message);
+    }
+}
+
+// ===== DOWNLOAD FROM GIST =====
+async function loadFromGist() {
+    saveGistCredentials();
+    if (!gistId || !githubToken) {
+        alert('Please enter both Gist ID and GitHub Token.');
+        return;
+    }
+
+    updateSyncStatus('Loading...', 'loading');
+    document.getElementById('syncMessage').textContent = '⏳ Loading from cloud...';
+
+    try {
+        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+            headers: { 'Authorization': `token ${githubToken}` }
+        });
+        if (response.ok) {
+            const gist = await response.json();
+            const file = gist.files['life-contract.json'];
+            if (file && file.content) {
+                const cloudData = JSON.parse(file.content);
+
+                // Merge: local gets priority, but cloud adds missing items
+                const merged = {
+                    startDate: state.startDate,
+                    endDate: state.endDate,
+                    emergencyContact: state.emergencyContact || cloudData.emergencyContact || '',
+                    yearly: mergeArrays(state.yearly, cloudData.yearly || [], 'id'),
+                    quarterly: mergeArrays(state.quarterly, cloudData.quarterly || [], 'id'),
+                    monthly: mergeArrays(state.monthly, cloudData.monthly || [], 'id'),
+                    reviews: { ...cloudData.reviews, ...state.reviews },
+                    resetCount: Math.max(state.resetCount || 0, cloudData.resetCount || 0)
+                };
+
+                state = merged;
+                saveState();
+                updateSyncStatus('Loaded', 'success');
+                document.getElementById('syncMessage').textContent = '✅ Downloaded successfully! Data merged with local.';
+                alert('✅ Contract data downloaded from Gist!');
+                renderAll();
+                closeSyncModal();
+            } else {
+                updateSyncStatus('Error', 'error');
+                document.getElementById('syncMessage').textContent = '❌ No contract data found in Gist. Upload first.';
+                alert('❌ No contract data found in this Gist.');
+            }
+        } else {
+            updateSyncStatus('Error', 'error');
+            document.getElementById('syncMessage').textContent = '❌ Failed to load from Gist';
+            alert('❌ Failed to load from Gist');
+        }
+    } catch (err) {
+        updateSyncStatus('Error', 'error');
+        document.getElementById('syncMessage').textContent = '❌ Network error: ' + err.message;
+        alert('❌ Network error: ' + err.message);
+    }
+}
 
 // ============================================================
 // INITIALIZATION
 // ============================================================
 function initState() {
-    // Yearly
     state.yearly = YEARLY_ITEMS.map(item => ({
         id: item.id,
         label: item.label,
@@ -482,7 +717,6 @@ function initState() {
         status: 'pending'
     }));
 
-    // Quarterly: 4 quarters, 3 items each
     state.quarterly = [];
     for (let q = 0; q < 4; q++) {
         QUARTERLY_ITEMS_PER_Q.forEach(item => {
@@ -495,7 +729,6 @@ function initState() {
         });
     }
 
-    // Monthly: 12 months, 3 items each
     state.monthly = [];
     for (let m = 0; m < 12; m++) {
         MONTHLY_ITEMS.forEach(item => {
@@ -521,7 +754,6 @@ function loadState() {
         try {
             const parsed = JSON.parse(saved);
             state = parsed;
-            // Ensure all expected fields exist
             if (!state.yearly || state.yearly.length === 0) initState();
             if (!state.reviews) state.reviews = {};
             if (!state.reviewDraft) state.reviewDraft = {};
@@ -532,8 +764,8 @@ function loadState() {
     } else {
         initState();
     }
-    // Set emergency contact field
     document.getElementById('emergencyContact').value = state.emergencyContact || '';
+    loadGistCredentials();
     renderAll();
 }
 
@@ -549,7 +781,6 @@ function getCurrentMonthIndex() {
     const now = new Date();
     const start = new Date(state.startDate);
     let monthDiff = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
-    // If day < 15, we haven't completed this month yet
     if (now.getDate() < 15) monthDiff--;
     return Math.max(0, Math.min(11, monthDiff));
 }
@@ -639,7 +870,6 @@ function renderStats() {
     document.getElementById('statAttempted').textContent = attempted;
     document.getElementById('statMiss').textContent = miss;
 
-    // Monthly misses (months where all 3 items are miss or pending)
     let monthMissCount = 0;
     let consecutiveMissMonths = 0;
     let maxConsecutiveMiss = 0;
@@ -656,7 +886,6 @@ function renderStats() {
     }
     document.getElementById('statMonthMiss').textContent = monthMissCount;
 
-    // Quarterly misses (quarters where all items are miss or pending)
     let quarterMissCount = 0;
     let consecutiveMissQuarters = 0;
     for (let q = 0; q < 4; q++) {
@@ -671,7 +900,6 @@ function renderStats() {
     }
     document.getElementById('statQuarterMiss').textContent = quarterMissCount;
 
-    // Check reset triggers
     const resetTriggered = (maxConsecutiveMiss >= 3) || (consecutiveMissQuarters >= 2);
     if (resetTriggered) {
         document.getElementById('resetWarning').style.display = 'flex';
@@ -681,15 +909,12 @@ function renderStats() {
         document.getElementById('resetWarning').style.display = 'none';
     }
 
-    // Yearly badge
     const yearlyComplete = state.yearly.filter(i => i.status === 'complete').length;
     document.getElementById('yearlyBadge').textContent = `${yearlyComplete} / ${state.yearly.length}`;
 
-    // Quarterly badge
     const qComplete = state.quarterly.filter(i => i.status === 'complete').length;
     document.getElementById('quarterlyBadge').textContent = `${qComplete} / ${state.quarterly.length}`;
 
-    // Monthly badge
     const mComplete = state.monthly.filter(i => i.status === 'complete').length;
     document.getElementById('monthlyBadge').textContent = `${mComplete} / ${state.monthly.length}`;
 }
@@ -804,7 +1029,6 @@ function renderMonthly() {
         });
         html += `</div>`;
 
-        // Show review if exists
         if (hasReview) {
             const r = state.reviews[m];
             html += `
@@ -899,7 +1123,6 @@ function confirmReset() {
 }
 
 function performReset() {
-    // Keep the structure but reset all statuses to pending
     state.yearly.forEach(i => { i.status = 'pending'; i.text = ''; });
     state.quarterly.forEach(i => { i.status = 'pending'; });
     state.monthly.forEach(i => { i.status = 'pending'; });
@@ -946,6 +1169,7 @@ function importData(event) {
                 state = imported;
                 saveState();
                 alert('✅ Import successful!');
+                renderAll();
             } else {
                 alert('❌ Invalid file format');
             }
@@ -964,7 +1188,6 @@ function toggleSection(id) {
     const el = document.getElementById(id);
     if (el) {
         el.classList.toggle('collapsed');
-        // Update header indicator
         const section = el.closest('.section');
         if (section) {
             const header = section.querySelector('.section-header');
@@ -987,26 +1210,25 @@ function escapeHtml(str) {
 // AUTO-SAVE REVIEW DRAFT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Load state
     loadState();
 
-    // Auto-save review draft on input
     ['reviewMisery', 'reviewMeaning', 'reviewGlad', 'reviewBlockers', 'reviewNext'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('input', saveReviewDraft);
     });
 
-    // Keyboard shortcut: Escape closes modal
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeReviewModal();
+        if (e.key === 'Escape') { closeReviewModal(); closeSyncModal(); }
     });
 
-    // Click outside modal closes it
     document.getElementById('reviewModal').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) closeReviewModal();
     });
+
+    document.getElementById('syncModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeSyncModal();
+    });
 });
 </script>
-
 </body>
 </html>
