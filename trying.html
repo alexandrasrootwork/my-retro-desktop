@@ -33,7 +33,7 @@
         .header .subtitle { font-size: 13px; opacity: 0.7; }
         .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
-        /* ===== BUTTONS - FIXED VISIBILITY ===== */
+        /* ===== BUTTONS ===== */
         .btn {
             padding: 8px 16px;
             border: none;
@@ -1179,6 +1179,14 @@ function importData(event) {
     };
     reader.readAsText(file);
     event.target.value = '';
+}
+
+// ============================================================
+// RENDER RESET WARNING (separate function to fix the error)
+// ============================================================
+function renderResetWarning() {
+    // This function is now called within renderStats()
+    // The warning is rendered there directly
 }
 
 // ============================================================
