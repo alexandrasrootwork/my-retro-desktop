@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🧭 Life Contract — 1-Year Tracker</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f3f0;
+            color: #2c2c2c;
+            padding: 16px;
+            line-height: 1.5;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: #2c2c2c;
+            color: #f5f3f0;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+        .header .subtitle { font-size: 13px; opacity: 0.7; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: #d4d0ca;
+            color: #2c2c2c;
+        }
+        .btn:hover { filter: brightness(0.92); transform: translateY(-1px); }
+        .btn-primary { background: #4a6fa5; color: white; }
+        .btn-success { background: #4caf84; color: white; }
+        .btn-danger { background: #d95a5a; color: white; }
+        .btn-outline { background: transparent; border: 1px solid #d4d0ca; }
+        .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+        /* ===== STATS ROW ===== */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            padding: 14px 16px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        .stat-card .number { font-size: 28px; font-weight: 700; }
+        .stat-card .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .stat-card.green .number { color: #4caf84; }
+        .stat-card.red .number { color: #d95a5a; }
+        .stat-card.yellow .number { color: #e6b85c; }
+        .stat-card.blue .number { color: #4a6fa5; }
+
+        /* ===== SECTION ===== */
+        .section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 14px 20px;
+            background: #faf8f6;
+            border-bottom: 1px solid #ece8e2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.1s;
+        }
+        .section-header:hover { background: #f5f1ec; }
+        .section-header h2 { font-size: 16px; font-weight: 600; }
+        .section-header .badge {
+            font-size: 11px;
+            background: #ece8e2;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .section-body { padding: 16px 20px; }
+        .section-body.collapsed { display: none; }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #ece8e2;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 6px 0 10px 0;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+            background: #4a6fa5;
+        }
+        .progress-bar .fill.green { background: #4caf84; }
+        .progress-bar .fill.yellow { background: #e6b85c; }
+        .progress-bar .fill.red { background: #d95a5a; }
+
+        /* ===== ITEM LIST ===== */
+        .item-list { display: flex; flex-direction: column; gap: 10px; }
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #faf8f6;
+            border: 1px solid #f0ece6;
+            flex-wrap: wrap;
+        }
+        .item-row .label { flex: 1; min-width: 120px; font-size: 14px; }
+        .item-row .status-badge {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .status-badge.complete { background: #d4edda; color: #2d6a4f; }
+        .status-badge.attempted { background: #fff3cd; color: #856404; }
+        .status-badge.miss { background: #f8d7da; color: #721c24; }
+        .status-badge.pending { background: #e2e3e5; color: #5a6268; }
+
+        .item-row .status-select {
+            padding: 3px 6px;
+            border: 1px solid #d4d0ca;
+            border-radius: 4px;
+            font-size: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        input[type="text"], input[type="number"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d4d0ca;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.15s;
+            background: white;
+        }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: #4a6fa5; }
+        textarea { min-height: 60px; resize: vertical; }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #555; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        /* ===== REVIEW FORM ===== */
+        .review-section {
+            background: #faf8f6;
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 12px;
+            border: 1px solid #ece8e2;
+        }
+        .review-section .review-date { font-size: 12px; color: #888; margin-bottom: 8px; }
+
+        /* ===== RESET WARNING ===== */
+        .reset-warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .reset-warning strong { font-size: 14px; }
+
+        /* ===== BRAINSTORM ===== */
+        .brainstorm {
+            background: #faf8f6;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 8px 0 12px 0;
+            border-left: 3px solid #4a6fa5;
+            font-size: 13px;
+            color: #555;
+        }
+        .brainstorm summary { cursor: pointer; font-weight: 500; color: #4a6fa5; }
+        .brainstorm ul { margin: 8px 0 0 18px; }
+        .brainstorm ul li { margin-bottom: 4px; }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state { text-align: center; padding: 24px; color: #aaa; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .header { flex-direction: column; align-items: stretch; text-align: center; }
+            .header-actions { justify-content: center; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .item-row { flex-direction: column; align-items: stretch; }
+            .item-row .label { min-width: unset; }
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+            .header-actions, .btn, .no-print { display: none !important; }
+            .section-header { cursor: default; background: #f5f3f0; }
+            .section-body.collapsed { display: block !important; }
+            .reset-warning { background: #fff3cd; border-color: #ffc107; }
+            body { background: white; padding: 8px; }
+            .container { max-width: 100%; }
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 14px;
+            max-width: 560px;
+            width: 100%;
+            padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        .modal h3 { margin-bottom: 16px; font-size: 18px; }
+        .modal .modal-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+        /* ===== TOOLTIP ===== */
+        .help-text { font-size: 12px; color: #888; margin-top: 2px; }
+
+        /* ===== MISC ===== */
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .mt-8 { margin-top: 8px; }
+        .mb-8 { margin-bottom: 8px; }
+        .gap-8 { gap: 8px; }
+        .text-muted { color: #888; font-size: 13px; }
+        .text-center { text-align: center; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+        .tag-green { background: #d4edda; color: #2d6a4f; }
+        .tag-yellow { background: #fff3cd; color: #856404; }
+        .tag-red { background: #f8d7da; color: #721c24; }
+        .tag-blue { background: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <!-- ===== HEADER ===== -->
+    <div class="header">
+        <div>
+            <h1>🧭 Life Contract</h1>
+            <div class="subtitle" id="contractDates">15 Jul 2026 – 15 Jul 2027</div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline btn-sm" onclick="exportData()">⬇ Export</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('importInput').click()">⬆ Import</button>
+            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+            <button class="btn btn-danger btn-sm" onclick="resetAll()">⟲ Reset</button>
+        </div>
+    </div>
+
+    <!-- ===== STATS ===== -->
+    <div class="stats" id="statsRow">
+        <div class="stat-card green"><div class="number" id="statOverall">0%</div><div class="label">Overall Progress</div></div>
+        <div class="stat-card blue"><div class="number" id="statComplete">0</div><div class="label">Complete</div></div>
+        <div class="stat-card yellow"><div class="number" id="statAttempted">0</div><div class="label">Attempted</div></div>
+        <div class="stat-card red"><div class="number" id="statMiss">0</div><div class="label">Misses</div></div>
+        <div class="stat-card"><div class="number" id="statMonthMiss">0</div><div class="label">Months Missed</div></div>
+        <div class="stat-card"><div class="number" id="statQuarterMiss">0</div><div class="label">Quarters Missed</div></div>
+    </div>
+
+    <!-- ===== RESET WARNING ===== -->
+    <div id="resetWarning" style="display:none;" class="reset-warning">
+        <div><strong>⚠️ Reset Warning</strong> <span id="resetWarningText">3+ consecutive missed months</span></div>
+        <button class="btn btn-danger btn-sm" onclick="confirmReset()">Reset Now</button>
+    </div>
+
+    <!-- ===== EMERGENCY CLAUSE ===== -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('emergencySection')">
+            <h2>🆘 Emergency Clause</h2>
+            <span class="badge">24-hour wait rule</span>
+        </div>
+        <div class="section-body" id="emergencySection">
+            <div class="form-group">
+                <label>Emergency Contact Name</label>
+                <input type="text" id="emergencyContact" placeholder="Name of someone you trust" onchange="saveEmergency()">
+            </div>
+            <div class="form-group">
+                <label>24-Hour Wait Rule</label>
+                <p class="help-text">Before making any major decision during a difficult moment, wait 24 hours. This is your reminder.</p>
+                <button class="btn btn-outline btn-sm" onclick="alert('⏳ 24-hour wait rule activated. Take a breath. Revisit this decision tomorrow.')">⏳ Remind Me</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== YEARLY ===== -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('yearlySection')">
+            <h2>📅 Yearly Goals</h2>
+            <span class="badge" id="yearlyBadge">0 / 2</span>
+        </div>
+        <div class="section-body" id="yearlySection">
+            <div class="brainstorm">
+                <details>
+                    <summary>💡 Brainstorming prompts</summary>
+                    <ul>
+                        <li>What country or UK place have I always wanted to see?</li>
+                        <li>What's within my budget?</li>
+                        <li>What time of year would be best?</li>
+                        <li>What would I be genuinely proud to say I did this year?</li>
+                        <li>What's the first small step?</li>
+                    </ul>
+                </details>
+            </div>
+            <div id="yearlyList" class="item-list"></div>
+        </div>
+    </div>
+
+    <!-- ===== QUARTERLY ===== -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('quarterlySection')">
+            <h2>📆 Quarterly Goals</h2>
+            <span class="badge" id="quarterlyBadge">0 / 8</span>
+        </div>
+        <div class="section-body" id="quarterlySection">
+            <div class="brainstorm">
+                <details>
+                    <summary>💡 Brainstorming prompts</summary>
+                    <ul>
+                        <li>Who do I already know that I could ask for a coffee/walk?</li>
+                        <li>What meetup groups or classes could I join?</li>
+                        <li>What's one place in my city I've always passed but never entered?</li>
+                        <li>What neighbourhood have I never properly explored?</li>
+                    </ul>
+                </details>
+            </div>
+            <div id="quarterlyList"></div>
+        </div>
+    </div>
+
+    <!-- ===== MONTHLY ===== -->
+    <div class="section">
+        <div class="section-header" onclick="toggleSection('monthlySection')">
+            <h2>📋 Monthly Goals</h2>
+            <span class="badge" id="monthlyBadge">0 / 36</span>
+        </div>
+        <div class="section-body" id="monthlySection">
+            <div class="brainstorm">
+                <details>
+                    <summary>💡 Brainstorming prompts</summary>
+                    <ul>
+                        <li><strong>Social:</strong> Who do I want to see this month? What's a low-effort catch-up?</li>
+                        <li><strong>Hobby:</strong> What hobby have I been neglecting? What new thing could I try?</li>
+                        <li><strong>Self-discovery:</strong> What's one thing I've been curious about? What would make me feel more like me?</li>
+                    </ul>
+                </details>
+            </div>
+            <div id="monthlyList"></div>
+        </div>
+    </div>
+
+    <!-- ===== MONTHLY REVIEW MODAL ===== -->
+    <div class="modal-overlay" id="reviewModal">
+        <div class="modal">
+            <h3>📝 Monthly Review</h3>
+            <p class="text-muted" id="reviewMonthLabel">Month of July 2026</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Misery Score (1–10)</label>
+                    <input type="number" id="reviewMisery" min="1" max="10" value="5" onchange="saveReviewDraft()">
+                </div>
+                <div class="form-group">
+                    <label>Meaning Score (1–10)</label>
+                    <input type="number" id="reviewMeaning" min="1" max="10" value="5" onchange="saveReviewDraft()">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>3 things I'm glad I experienced</label>
+                <textarea id="reviewGlad" rows="2" placeholder="e.g. A sunny walk, a good conversation, a new recipe" onchange="saveReviewDraft()"></textarea>
+            </div>
+            <div class="form-group">
+                <label>What got in the way?</label>
+                <textarea id="reviewBlockers" rows="2" placeholder="What stopped me from doing what I wanted?" onchange="saveReviewDraft()"></textarea>
+            </div>
+            <div class="form-group">
+                <label>What I need next month</label>
+                <textarea id="reviewNext" rows="2" placeholder="What would help me next month?" onchange="saveReviewDraft()"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-success" onclick="submitReview()">✅ Save Review</button>
+                <button class="btn btn-outline" onclick="closeReviewModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// DATA MODEL
+// ============================================================
+const YEARLY_ITEMS = [
+    { id: 'yearly_travel', label: '🌍 Travel: 1 new country OR significant UK trip', text: '' },
+    { id: 'yearly_achievement', label: '🏆 Personal Achievement: 1 bigger goal', text: '' }
+];
+
+const QUARTERLY_ITEMS_PER_Q = [
+    { id: 'q_people1', label: '👤 One-on-one with someone new (1/2)' },
+    { id: 'q_people2', label: '👤 One-on-one with someone new (2/2)' },
+    { id: 'q_place', label: '📍 New place in city' }
+];
+
+const MONTHLY_ITEMS = [
+    { id: 'm_social', label: '🎉 Social event with friends' },
+    { id: 'm_hobby', label: '🎨 Hobby session' },
+    { id: 'm_self', label: '🌱 Self-discovery / style thing' }
+];
+
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+    startDate: '2026-07-15',
+    endDate: '2027-07-15',
+    emergencyContact: '',
+    yearly: [],      // [{id, text, status: 'pending'|'complete'|'attempted'|'miss'}]
+    quarterly: [],   // [{id, quarter, status}]
+    monthly: [],     // [{id, monthIndex, status}]
+    reviews: {},     // { '2026-07': { misery, meaning, glad, blockers, next } }
+    reviewDraft: {}, // Temporary draft for current review
+    resetCount: 0
+};
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+function initState() {
+    // Yearly
+    state.yearly = YEARLY_ITEMS.map(item => ({
+        id: item.id,
+        label: item.label,
+        text: '',
+        status: 'pending'
+    }));
+
+    // Quarterly: 4 quarters, 3 items each
+    state.quarterly = [];
+    for (let q = 0; q < 4; q++) {
+        QUARTERLY_ITEMS_PER_Q.forEach(item => {
+            state.quarterly.push({
+                id: `${item.id}_q${q}`,
+                label: item.label,
+                quarter: q,
+                status: 'pending'
+            });
+        });
+    }
+
+    // Monthly: 12 months, 3 items each
+    state.monthly = [];
+    for (let m = 0; m < 12; m++) {
+        MONTHLY_ITEMS.forEach(item => {
+            state.monthly.push({
+                id: `${item.id}_m${m}`,
+                label: item.label,
+                monthIndex: m,
+                status: 'pending'
+            });
+        });
+    }
+
+    state.reviews = {};
+    state.reviewDraft = {};
+}
+
+// ============================================================
+// LOAD / SAVE
+// ============================================================
+function loadState() {
+    const saved = localStorage.getItem('lifeContract');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            state = parsed;
+            // Ensure all expected fields exist
+            if (!state.yearly || state.yearly.length === 0) initState();
+            if (!state.reviews) state.reviews = {};
+            if (!state.reviewDraft) state.reviewDraft = {};
+            if (!state.emergencyContact) state.emergencyContact = '';
+        } catch (e) {
+            initState();
+        }
+    } else {
+        initState();
+    }
+    // Set emergency contact field
+    document.getElementById('emergencyContact').value = state.emergencyContact || '';
+    renderAll();
+}
+
+function saveState() {
+    localStorage.setItem('lifeContract', JSON.stringify(state));
+    renderAll();
+}
+
+// ============================================================
+// DATE HELPERS
+// ============================================================
+function getCurrentMonthIndex() {
+    const now = new Date();
+    const start = new Date(state.startDate);
+    let monthDiff = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+    // If day < 15, we haven't completed this month yet
+    if (now.getDate() < 15) monthDiff--;
+    return Math.max(0, Math.min(11, monthDiff));
+}
+
+function getMonthLabel(monthIndex) {
+    const start = new Date(state.startDate);
+    const d = new Date(start);
+    d.setMonth(d.getMonth() + monthIndex);
+    return MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function getQuarterLabel(quarterIndex) {
+    const start = new Date(state.startDate);
+    const d = new Date(start);
+    d.setMonth(d.getMonth() + quarterIndex * 3);
+    return `Q${quarterIndex+1} (${MONTH_NAMES[d.getMonth()]} - ${MONTH_NAMES[(d.getMonth()+2)%12]})`;
+}
+
+function isMonthCompleted(monthIndex) {
+    return monthIndex < getCurrentMonthIndex();
+}
+
+function isQuarterCompleted(quarterIndex) {
+    const lastMonthOfQuarter = (quarterIndex + 1) * 3 - 1;
+    return lastMonthOfQuarter < getCurrentMonthIndex();
+}
+
+// ============================================================
+// STATUS HELPERS
+// ============================================================
+function getStatusColor(status) {
+    switch(status) {
+        case 'complete': return 'green';
+        case 'attempted': return 'yellow';
+        case 'miss': return 'red';
+        default: return 'pending';
+    }
+}
+
+function getStatusLabel(status) {
+    switch(status) {
+        case 'complete': return '✅ Complete';
+        case 'attempted': return '🔄 Attempted';
+        case 'miss': return '❌ Miss';
+        default: return '⏳ Pending';
+    }
+}
+
+function getStatusOptions(currentStatus) {
+    const options = ['pending', 'complete', 'attempted', 'miss'];
+    return options.map(s => `<option value="${s}" ${s === currentStatus ? 'selected' : ''}>${getStatusLabel(s)}</option>`).join('');
+}
+
+// ============================================================
+// RENDER ALL
+// ============================================================
+function renderAll() {
+    renderDates();
+    renderStats();
+    renderYearly();
+    renderQuarterly();
+    renderMonthly();
+    renderResetWarning();
+}
+
+function renderDates() {
+    const start = new Date(state.startDate);
+    const end = new Date(state.endDate);
+    document.getElementById('contractDates').textContent = 
+        `${start.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})} – ${end.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}`;
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function renderStats() {
+    const allItems = [...state.yearly, ...state.quarterly, ...state.monthly];
+    const total = allItems.length;
+    const complete = allItems.filter(i => i.status === 'complete').length;
+    const attempted = allItems.filter(i => i.status === 'attempted').length;
+    const miss = allItems.filter(i => i.status === 'miss').length;
+    const completeWeighted = complete + (attempted * 0.5);
+    const percent = total > 0 ? Math.round((completeWeighted / total) * 100) : 0;
+
+    document.getElementById('statOverall').textContent = percent + '%';
+    document.getElementById('statComplete').textContent = complete;
+    document.getElementById('statAttempted').textContent = attempted;
+    document.getElementById('statMiss').textContent = miss;
+
+    // Monthly misses (months where all 3 items are miss or pending)
+    let monthMissCount = 0;
+    let consecutiveMissMonths = 0;
+    let maxConsecutiveMiss = 0;
+    for (let m = 0; m < 12; m++) {
+        const monthItems = state.monthly.filter(i => i.monthIndex === m);
+        const allMiss = monthItems.every(i => i.status === 'miss' || i.status === 'pending');
+        if (allMiss && isMonthCompleted(m)) {
+            monthMissCount++;
+            consecutiveMissMonths++;
+            maxConsecutiveMiss = Math.max(maxConsecutiveMiss, consecutiveMissMonths);
+        } else {
+            consecutiveMissMonths = 0;
+        }
+    }
+    document.getElementById('statMonthMiss').textContent = monthMissCount;
+
+    // Quarterly misses (quarters where all items are miss or pending)
+    let quarterMissCount = 0;
+    let consecutiveMissQuarters = 0;
+    for (let q = 0; q < 4; q++) {
+        const qItems = state.quarterly.filter(i => i.quarter === q);
+        const allMiss = qItems.every(i => i.status === 'miss' || i.status === 'pending');
+        if (allMiss && isQuarterCompleted(q)) {
+            quarterMissCount++;
+            consecutiveMissQuarters++;
+        } else {
+            consecutiveMissQuarters = 0;
+        }
+    }
+    document.getElementById('statQuarterMiss').textContent = quarterMissCount;
+
+    // Check reset triggers
+    const resetTriggered = (maxConsecutiveMiss >= 3) || (consecutiveMissQuarters >= 2);
+    if (resetTriggered) {
+        document.getElementById('resetWarning').style.display = 'flex';
+        document.getElementById('resetWarningText').textContent = 
+            `${maxConsecutiveMiss >= 3 ? '3+ consecutive missed months' : ''}${maxConsecutiveMiss >= 3 && consecutiveMissQuarters >= 2 ? ' AND ' : ''}${consecutiveMissQuarters >= 2 ? '2 consecutive missed quarters' : ''}`;
+    } else {
+        document.getElementById('resetWarning').style.display = 'none';
+    }
+
+    // Yearly badge
+    const yearlyComplete = state.yearly.filter(i => i.status === 'complete').length;
+    document.getElementById('yearlyBadge').textContent = `${yearlyComplete} / ${state.yearly.length}`;
+
+    // Quarterly badge
+    const qComplete = state.quarterly.filter(i => i.status === 'complete').length;
+    document.getElementById('quarterlyBadge').textContent = `${qComplete} / ${state.quarterly.length}`;
+
+    // Monthly badge
+    const mComplete = state.monthly.filter(i => i.status === 'complete').length;
+    document.getElementById('monthlyBadge').textContent = `${mComplete} / ${state.monthly.length}`;
+}
+
+// ============================================================
+// RENDER YEARLY
+// ============================================================
+function renderYearly() {
+    const container = document.getElementById('yearlyList');
+    container.innerHTML = state.yearly.map((item, idx) => `
+        <div class="item-row">
+            <span class="label">${item.label}</span>
+            <input type="text" placeholder="What exactly?" value="${escapeHtml(item.text)}" 
+                   onchange="updateYearlyText(${idx}, this.value)" style="flex:1; min-width:120px; padding:4px 8px; border:1px solid #d4d0ca; border-radius:4px; font-size:13px;">
+            <select class="status-select" onchange="updateYearlyStatus(${idx}, this.value)">
+                ${getStatusOptions(item.status)}
+            </select>
+            <span class="status-badge ${getStatusColor(item.status)}">${getStatusLabel(item.status)}</span>
+        </div>
+    `).join('');
+}
+
+function updateYearlyText(idx, val) {
+    state.yearly[idx].text = val;
+    saveState();
+}
+
+function updateYearlyStatus(idx, val) {
+    state.yearly[idx].status = val;
+    saveState();
+}
+
+// ============================================================
+// RENDER QUARTERLY
+// ============================================================
+function renderQuarterly() {
+    const container = document.getElementById('quarterlyList');
+    let html = '';
+    for (let q = 0; q < 4; q++) {
+        const qItems = state.quarterly.filter(i => i.quarter === q);
+        const completed = qItems.filter(i => i.status === 'complete').length;
+        const total = qItems.length;
+        const isDone = isQuarterCompleted(q);
+        html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #faf8f6; border-radius: 8px; border: 1px solid #ece8e2;">
+                <div class="flex-between">
+                    <strong>${getQuarterLabel(q)}</strong>
+                    <span class="text-muted">${completed}/${total} • ${isDone ? '✅ Completed' : '⏳ In progress'}</span>
+                </div>
+                <div class="progress-bar"><div class="fill ${completed === total ? 'green' : ''}" style="width:${total > 0 ? (completed/total)*100 : 0}%"></div></div>
+                <div class="item-list" style="margin-top:8px;">
+        `;
+        qItems.forEach(item => {
+            html += `
+                <div class="item-row" style="padding:6px 10px;">
+                    <span class="label" style="font-size:13px; min-width:100px;">${item.label}</span>
+                    <select class="status-select" onchange="updateQuarterlyStatus('${item.id}', this.value)">
+                        ${getStatusOptions(item.status)}
+                    </select>
+                    <span class="status-badge ${getStatusColor(item.status)}">${getStatusLabel(item.status)}</span>
+                </div>
+            `;
+        });
+        html += `</div></div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateQuarterlyStatus(id, val) {
+    const item = state.quarterly.find(i => i.id === id);
+    if (item) { item.status = val; saveState(); }
+}
+
+// ============================================================
+// RENDER MONTHLY
+// ============================================================
+function renderMonthly() {
+    const container = document.getElementById('monthlyList');
+    let html = '';
+    const currentMonth = getCurrentMonthIndex();
+    for (let m = 0; m < 12; m++) {
+        const mItems = state.monthly.filter(i => i.monthIndex === m);
+        const completed = mItems.filter(i => i.status === 'complete').length;
+        const total = mItems.length;
+        const isDone = isMonthCompleted(m);
+        const hasReview = state.reviews[m];
+        const monthLabel = getMonthLabel(m);
+
+        html += `
+            <div style="margin-bottom: 16px; padding: 12px; background: #faf8f6; border-radius: 8px; border: 1px solid #ece8e2;">
+                <div class="flex-between">
+                    <strong>${monthLabel}</strong>
+                    <div>
+                        <span class="text-muted">${completed}/${total} • ${isDone ? '✅ Completed' : '⏳ In progress'}</span>
+                        ${isDone && !hasReview ? `<button class="btn btn-primary btn-sm" onclick="openReview(${m})" style="margin-left:8px;">📝 Review</button>` : ''}
+                        ${hasReview ? `<span class="tag tag-blue" style="margin-left:8px;">📝 Reviewed</span>` : ''}
+                    </div>
+                </div>
+                <div class="progress-bar"><div class="fill ${completed === total ? 'green' : ''}" style="width:${total > 0 ? (completed/total)*100 : 0}%"></div></div>
+                <div class="item-list" style="margin-top:8px;">
+        `;
+        mItems.forEach(item => {
+            html += `
+                <div class="item-row" style="padding:6px 10px;">
+                    <span class="label" style="font-size:13px; min-width:100px;">${item.label}</span>
+                    <select class="status-select" onchange="updateMonthlyStatus('${item.id}', this.value)">
+                        ${getStatusOptions(item.status)}
+                    </select>
+                    <span class="status-badge ${getStatusColor(item.status)}">${getStatusLabel(item.status)}</span>
+                </div>
+            `;
+        });
+        html += `</div>`;
+
+        // Show review if exists
+        if (hasReview) {
+            const r = state.reviews[m];
+            html += `
+                <div class="review-section" style="margin-top:8px;">
+                    <div class="review-date">📅 Review for ${monthLabel}</div>
+                    <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:13px;">
+                        <span>😞 Misery: ${r.misery || '?'}/10</span>
+                        <span>😊 Meaning: ${r.meaning || '?'}/10</span>
+                    </div>
+                    ${r.glad ? `<div><strong>Glad:</strong> ${escapeHtml(r.glad)}</div>` : ''}
+                    ${r.blockers ? `<div><strong>Blockers:</strong> ${escapeHtml(r.blockers)}</div>` : ''}
+                    ${r.next ? `<div><strong>Next:</strong> ${escapeHtml(r.next)}</div>` : ''}
+                    <button class="btn btn-outline btn-sm" onclick="openReview(${m})" style="margin-top:4px;">✏️ Edit Review</button>
+                </div>
+            `;
+        }
+
+        html += `</div>`;
+    }
+    container.innerHTML = html;
+}
+
+function updateMonthlyStatus(id, val) {
+    const item = state.monthly.find(i => i.id === id);
+    if (item) { item.status = val; saveState(); }
+}
+
+// ============================================================
+// REVIEW MODAL
+// ============================================================
+let reviewMonthIndex = null;
+
+function openReview(monthIndex) {
+    reviewMonthIndex = monthIndex;
+    const review = state.reviews[monthIndex] || {};
+    document.getElementById('reviewMonthLabel').textContent = `Month of ${getMonthLabel(monthIndex)}`;
+    document.getElementById('reviewMisery').value = review.misery || 5;
+    document.getElementById('reviewMeaning').value = review.meaning || 5;
+    document.getElementById('reviewGlad').value = review.glad || '';
+    document.getElementById('reviewBlockers').value = review.blockers || '';
+    document.getElementById('reviewNext').value = review.next || '';
+    document.getElementById('reviewModal').classList.add('active');
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('active');
+    reviewMonthIndex = null;
+}
+
+function saveReviewDraft() {
+    if (reviewMonthIndex === null) return;
+    state.reviewDraft[reviewMonthIndex] = {
+        misery: parseInt(document.getElementById('reviewMisery').value),
+        meaning: parseInt(document.getElementById('reviewMeaning').value),
+        glad: document.getElementById('reviewGlad').value,
+        blockers: document.getElementById('reviewBlockers').value,
+        next: document.getElementById('reviewNext').value
+    };
+}
+
+function submitReview() {
+    if (reviewMonthIndex === null) return;
+    state.reviews[reviewMonthIndex] = {
+        misery: parseInt(document.getElementById('reviewMisery').value),
+        meaning: parseInt(document.getElementById('reviewMeaning').value),
+        glad: document.getElementById('reviewGlad').value,
+        blockers: document.getElementById('reviewBlockers').value,
+        next: document.getElementById('reviewNext').value
+    };
+    delete state.reviewDraft[reviewMonthIndex];
+    closeReviewModal();
+    saveState();
+}
+
+// ============================================================
+// EMERGENCY
+// ============================================================
+function saveEmergency() {
+    state.emergencyContact = document.getElementById('emergencyContact').value;
+    saveState();
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function confirmReset() {
+    if (confirm('⚠️ This will reset ALL progress. The contract structure and dates will stay the same. Are you sure?')) {
+        if (confirm('🔄 Final confirmation: Reset everything?')) {
+            performReset();
+        }
+    }
+}
+
+function performReset() {
+    // Keep the structure but reset all statuses to pending
+    state.yearly.forEach(i => { i.status = 'pending'; i.text = ''; });
+    state.quarterly.forEach(i => { i.status = 'pending'; });
+    state.monthly.forEach(i => { i.status = 'pending'; });
+    state.reviews = {};
+    state.reviewDraft = {};
+    state.resetCount++;
+    saveState();
+    alert('✅ Contract has been reset. New start date begins today.');
+}
+
+function resetAll() {
+    if (confirm('⚠️ Reset all data? This will clear EVERYTHING including dates and emergency contact.')) {
+        if (confirm('🔄 This is permanent. Are you sure?')) {
+            localStorage.removeItem('lifeContract');
+            initState();
+            saveState();
+            location.reload();
+        }
+    }
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportData() {
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `life-contract-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (imported.yearly && imported.quarterly && imported.monthly) {
+                state = imported;
+                saveState();
+                alert('✅ Import successful!');
+            } else {
+                alert('❌ Invalid file format');
+            }
+        } catch (err) {
+            alert('❌ Error reading file');
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function toggleSection(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.toggle('collapsed');
+        // Update header indicator
+        const section = el.closest('.section');
+        if (section) {
+            const header = section.querySelector('.section-header');
+            if (header) {
+                const badge = header.querySelector('.badge');
+                if (badge) {
+                    badge.textContent = el.classList.contains('collapsed') ? '▶' : '▼';
+                }
+            }
+        }
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ============================================================
+// AUTO-SAVE REVIEW DRAFT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Load state
+    loadState();
+
+    // Auto-save review draft on input
+    ['reviewMisery', 'reviewMeaning', 'reviewGlad', 'reviewBlockers', 'reviewNext'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', saveReviewDraft);
+    });
+
+    // Keyboard shortcut: Escape closes modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeReviewModal();
+    });
+
+    // Click outside modal closes it
+    document.getElementById('reviewModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) closeReviewModal();
+    });
+});
+</script>
+
+</body>
+</html>
